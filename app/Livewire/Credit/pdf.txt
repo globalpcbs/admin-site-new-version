@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Credit Note</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+        }
+        .header, .section, .footer {
+            margin-bottom: 20px;
+        }
+        .title {
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .details, .address-section, .comments, .contact {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .details td, .address-section td, .items td {
+            padding: 5px;
+        }
+        .items {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .items th, .items td {
+            border: 1px solid #000;
+            padding: 8px;
+            text-align: left;
+        }
+        .total-section {
+            width: 100%;
+            margin-top: 20px;
+        }
+        .total-section td {
+            padding: 5px;
+            text-align: right;
+        }
+        .footer {
+            font-weight: bold;
+            color: red;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div class="title">Credit</div>
+        <table class="details">
+            <tr>
+                <td>CREDIT OFFSET #: 10265</td>
+                <td>CREDIT DATE: 04/08/2025</td>
+            </tr>
+            <tr>
+                <td>OUR ORDER NO:</td>
+                <td>YOUR ORDER NO: 11394</td>
+            </tr>
+            <tr>
+                <td>INVOICE NO: 25494</td>
+                <td>SALES REP: Armando Torres</td>
+            </tr>
+            <tr>
+                <td>SHIPPED VIA: Electronic Data</td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="section">
+        <strong>PCBs Global Incorporated</strong><br>
+        2500 E. La Palma Ave.<br>
+        Anaheim Ca. 92806<br>
+        Phone: (855) 722-7456<br>
+        Fax: (855) 262-5305
+    </div>
+
+    <div class="section">
+        <table class="address-section">
+            <tr>
+                <td><strong>SOLD TO</strong></td>
+                <td><strong>SHIPPED TO</strong></td>
+            </tr>
+            <tr>
+                <td>Smiths Interconnect<br>16771 CH SAINTE-MARIE<br>KIRKLAND QC, H9H 5H3<br>CANADA<br>Phone: (514) 842-5179<br>Fax: (514) 842-8142<br>www.smithsinterconnect.com</td>
+                <td>Smiths Interconnect<br>16771 CH SAINTE-MARIE<br>KIRKLAND QC, H9H 5H3<br>CANADA<br>Phone: (514) 842-5179<br>Fax: (514) 842-8142<br>Ordered by: Jan Wolowiec<br>Delivered On: Tuesday-04-08-2025</td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="section">
+        <table class="items">
+            <thead>
+                <tr>
+                    <th>ITEM #</th>
+                    <th>PART NUMBER</th>
+                    <th>REV</th>
+                    <th>LYRS</th>
+                    <th>DESCRIPTION</th>
+                    <th>QTY</th>
+                    <th>UNIT PRICE</th>
+                    <th>TOTAL</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>1</td>
+                    <td>210-00240</td>
+                    <td>02</td>
+                    <td>8</td>
+                    <td>Credit for Scrapped PCBs</td>
+                    <td>2.8</td>
+                    <td>$183.00</td>
+                    <td>$512.40</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="section">
+        <table class="total-section">
+            <tr>
+                <td>SUB TOTAL:</td>
+                <td>$512.40</td>
+            </tr>
+            <tr>
+                <td>TAX:</td>
+                <td>$0.00</td>
+            </tr>
+            <tr>
+                <td>FREIGHT:</td>
+                <td>$0.00</td>
+            </tr>
+            <tr>
+                <td><strong>TOTAL:</strong></td>
+                <td><strong>$512.40</strong></td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="section comments">
+        <strong>Comments:</strong><br>
+        Credit for affected PCBs per SNCR#30688.
+    </div>
+
+    <div class="section contact">
+        <strong>Direct All Inquiries To:</strong><br>
+        Armando Torres<br>
+        Phone: 714-553-7047<br>
+        Email: armando@pcbsglobal.com
+    </div>
+
+    <div class="footer">
+        THIS IS A CREDIT. DO NOT PAY!
+    </div>
+
+</body>
+</html>
+.
