@@ -1,0 +1,155 @@
+<div>
+    @include('includes.flash')
+    <div class="card mb-3">
+        <div class="card-body">
+            <div class="row g-3 align-items-end">
+
+                {{-- Search by Part Number --}}
+                <div class="col-md-4">
+                    <label class="form-label fw-bold">
+                        <i class="fa fa-search"></i> Search By Part Number
+                    </label>
+                    <div class="input-group">
+                        <input type="text" wire:model.lazy="searchPart" class="form-control"
+                            placeholder="Enter Part Number">
+                        <button class="btn btn-primary" wire:click="$refresh">
+                            <i class="fa fa-search"></i> Search
+                        </button>
+                    </div>
+                </div>
+
+                {{-- Search by Customer --}}
+                <div class="col-md-4">
+                    <label class="form-label fw-bold">
+                        <i class="fa fa-search"></i> Search By Customer Name
+                    </label>
+                    <div class="input-group">
+                        <input type="text" wire:model.lazy="searchCustomer" class="form-control"
+                            placeholder="Enter Customer Name">
+                        <button class="btn btn-primary" wire:click="$refresh">
+                            <i class="fa fa-search"></i> Search
+                        </button>
+                    </div>
+                </div>
+
+                {{-- Search by Vendor --}}
+                <div class="col-md-4">
+                    <label class="form-label fw-bold">
+                        <i class="fa fa-search"></i> Search By Vendor Name
+                    </label>
+                    <div class="input-group">
+                        <input type="text" wire:model.lazy="searchVendor" class="form-control"
+                            placeholder="Enter Vendor Name">
+                        <button class="btn btn-primary" wire:click="$refresh">
+                            <i class="fa fa-search"></i> Search
+                        </button>
+                    </div>
+                </div>
+
+                {{-- Reset Button --}}
+                <div class="col-md-12 mt-2 text-end">
+                    <button class="btn btn-secondary" wire:click="resetFilters">
+                        <i class="fa fa-times-circle"></i> Reset Filters
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <i class="fa fa-list"></i> Manage Purchase Orders
+        </div>
+
+        <div>
+            <table class="table table-bordered table-sm table-striped font-xs">
+                <thead class="table-light">
+                    <tr>
+                        <th><i class="fa fa-id-badge"></i> ID</th>
+                        <th><i class="fa fa-hashtag"></i> PO </th>
+                        <th><i class="fa fa-user-circle"></i> Customer</th>
+                        <th><i class="fa fa-cube"></i> Part No</th>
+                        <th><i class="fa fa-refresh"></i> Rev</th>
+                        <th><i class="fa fa-calendar"></i> PO Date</th>
+                        <th><i class="fa fa-industry"></i> Vendor</th>
+                        <th><i class="fa fa-cogs"></i> Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($orders as $order)
+                    <tr>
+                        <td>{{ $order->poid }}</td>
+                        <td>{{ $order->poid + 9933 }}</td>
+                        <td>{{ $order->customer }}</td>
+                        <td>
+                            @php
+                            $alerts = \App\Models\alerts_tb::where('part_no', $order->part_no)
+                            ->where('rev', $order->rev)
+                            ->where('customer', $order->customer)
+                            ->get();
+
+                            $tooltip = '';
+                            foreach ($alerts as $index => $alert) {
+                            $tooltip .= ($index + 1) . '. ' . e($alert->alert) . '<br>';
+                            }
+                            @endphp
+
+                            @if($alerts->count() > 0)
+                            <span class="text-danger" data-bs-toggle="tooltip" data-bs-html="true"
+                                title="{!! $tooltip !!}">
+                                {{ $order->part_no }}
+                            </span>
+                            @else
+                            {{ $order->part_no }}
+                            @endif
+                        </td>
+                        <td>{{ $order->rev }}</td>
+                        <td>{{ $order->podate }}</td>
+                        <td>{{ $order->vendor->c_shortname }}</td>
+                        <td>
+                            <a href="{{ route('purchase.orders.edit',$order->poid) }}"
+                                class="btn btn-sm btn-xs btn-primary">
+                                <i class="fa fa-pencil"></i> Edit
+                            </a>
+
+                            <a href="{{ route('download.purchaseorder',$order->poid) }}"
+                                class="btn btn-xs btn-sm btn-success">
+                                <i class="fa fa-download"></i> PDF
+                            </a>
+
+                            <a href="{{ route('view.purchaseorder',$order->poid) }}" target="_blank"
+                                class="btn btn-sm btn-xs btn-info">
+                                <i class="fa fa-eye"></i> View PDF
+                            </a>
+
+                            <a href="{{ route('downloaddoc.purchaseorder',$order->poid) }}"
+                                class="btn btn-sm btn-xs btn-secondary">
+                                <i class="fa fa-file-text"></i> DOC
+                            </a>
+
+                            <button wire:click="delete({{ $order->poid }})" class="btn btn-xs btn-sm btn-danger"
+                                onclick="return confirm('Are you sure to delete?')">
+                                <i class="fa fa-trash"></i> Delete
+                            </button>
+
+                            <button wire:click="duplicate({{ $order->poid }})" class="btn btn-xs btn-sm btn-warning">
+                                <i class="fa fa-copy"></i> Duplicate
+                            </button>
+
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="8" class="text-center text-muted">No Purchase Orders Found</td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+
+            <div>
+                {{ $orders->links() }}
+            </div>
+        </div>
+    </div>
+</div>
