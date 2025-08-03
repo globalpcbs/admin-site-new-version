@@ -398,12 +398,11 @@
         </form>
     </div>
     <!-- Alert Modal -->
-    <!-- Alert Modal -->
-    <div class="modal fade @if($showAlertPopup) show d-block @endif" tabindex="-1"
+    <div class="modal fade @if($showAlertPopup) show d-block @endif" id="alertModal" tabindex="-1"
         style="@if($showAlertPopup) display: block; @endif" role="dialog">
-        <div class="modal-dialog modal-dialog-centered" style="max-width: 500px;">
+        <div class="modal-dialog modal-dialog-centered draggable-modal" style="max-width: 500px;">
             <div class="modal-content" style="background: #ccffff; border: 1px solid #999; font-size: 13px;">
-                <div class="modal-header py-2 px-3" id="alertModalHeader"
+                <div class="modal-header py-2 px-3 modal-drag-handle"
                     style="background: transparent; border-bottom: 1px solid #999; cursor: move;">
                     <label class="modal-title fw-bold text-dark m-0" style="font-size: 18px;">
                         <i class="fa fa-bell"></i> Part no Alerts</label>
@@ -437,8 +436,6 @@
                     <div class="text-muted mb-3" style="font-size: 13px;">No alerts found.</div>
                     @endif
 
-
-                    <!-- New or Edit Alert Input -->
                     <div class="mt-2 mb-2">
                         <label class="form-label small mb-1">
                             @if($editingAlertId)
@@ -448,7 +445,8 @@
                             @endif
                         </label>
                         <div class="input-group mb-2">
-                            <input type="text" class="form-control" value="{{ $newAlert }}" wire:model="newAlert">
+                            <input type="text" class="form-control" value="{{ $newAlert }}" wire:model="newAlert"
+                                style="pointer-events: auto;"> <!-- Ensure input is always clickable -->
                             <br />
                             @error('newAlert')
                             <font color="red">{{ $message }}</font>
@@ -462,12 +460,10 @@
                         </div>
                     </div>
 
-                    <!-- Checkboxes -->
                     <div class="d-flex flex-wrap gap-2">
                         @foreach([
                         'quo' => 'Quote',
                         'con' => 'Confirmation',
-                        'po' => 'Purchase Order',
                         'pac' => 'Packing',
                         'inv' => 'Invoice',
                         'cre' => 'Credit'
@@ -488,13 +484,13 @@
             </div>
         </div>
     </div>
-    <!-- Profile Alert -->
+
     <!-- Profile Modal -->
-    <div class="modal fade @if($showProfilePopup) show d-block @endif" tabindex="-1"
+    <div class="modal fade @if($showProfilePopup) show d-block @endif" id="profileModal" tabindex="-1"
         style="@if($showProfilePopup) display: block; @endif" role="dialog">
-        <div class="modal-dialog modal-dialog-centered" style="max-width: 400px; width: 50%;">
+        <div class="modal-dialog modal-dialog-centered draggable-modal" style="max-width: 400px; width: 50%;">
             <div class="modal-content" style="background: #f0f8ff; border: 1px solid #999; font-size: 13px;">
-                <div class="modal-header py-2 px-3"
+                <div class="modal-header py-2 px-3 modal-drag-handle"
                     style="background: transparent; border-bottom: 1px solid #999; cursor: move;">
                     <label class="modal-title fw-bold text-dark m-0" style="font-size: 16px;">
                         <i class="fa fa-user-circle"></i> Customer Profile Requirements</label>
@@ -528,50 +524,116 @@
         </div>
     </div>
 
+    <style>
+    .modal {
+        z-index: 1040;
+        background-color: transparent;
+        pointer-events: none;
+        /* Allow clicks to pass through modal container */
+    }
 
-    <!-- Draggable Script -->
+    .modal.show {
+        z-index: 1050;
+        display: block;
+    }
+
+    .draggable-modal {
+        position: fixed;
+        margin: 0;
+        z-index: 1050;
+        pointer-events: auto;
+        /* Enable interactions within modal */
+    }
+
+    .modal-drag-handle {
+        cursor: move;
+    }
+
+    /* Ensure all interactive elements are clickable */
+    .modal-content * {
+        pointer-events: auto;
+    }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js"></script>
     <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const modal = document.querySelector('.modal-dialog');
-        const header = document.getElementById('alertModalHeader');
+        let zIndexCounter = 1050;
 
-        let isDragging = false;
-        let offsetX = 0,
-            offsetY = 0;
+        // Initialize interact.js for draggable modals
+        interact('.draggable-modal').draggable({
+            allowFrom: '.modal-drag-handle',
+            ignoreFrom: 'button, input, a, .btn, [wire\\:click], [wire\\:model]',
+            modifiers: [
+                interact.modifiers.restrictRect({
+                    restriction: 'parent',
+                    endOnly: true
+                })
+            ],
+            listeners: {
+                start(event) {
+                    bringToFront(event.target);
+                },
+                move(event) {
+                    const target = event.target;
+                    const x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx;
+                    const y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
 
-        header.addEventListener('mousedown', function(e) {
-            isDragging = true;
-            const rect = modal.getBoundingClientRect();
-            offsetX = e.clientX - rect.left;
-            offsetY = e.clientY - rect.top;
-
-            modal.style.position = 'absolute';
-            modal.style.margin = 0;
-            modal.style.zIndex = 1055;
-
-            document.body.style.userSelect = 'none';
-        });
-
-        document.addEventListener('mousemove', function(e) {
-            if (isDragging) {
-                modal.style.left = `${e.clientX - offsetX}px`;
-                modal.style.top = `${e.clientY - offsetY}px`;
+                    target.style.transform = `translate(${x}px, ${y}px)`;
+                    target.setAttribute('data-x', x);
+                    target.setAttribute('data-y', y);
+                }
             }
         });
 
-        document.addEventListener('mouseup', function() {
-            isDragging = false;
-            document.body.style.userSelect = '';
-        });
-    });
-    document.addEventListener('livewire:init', () => {
-        Livewire.on('alert-types-updated', () => {
-            // This will force the checkboxes to update
-            document.querySelectorAll('[wire\\:model="alertTypes"]').forEach(checkbox => {
-                checkbox.checked = checkbox.value.includes(checkbox.value);
+        function bringToFront(modal) {
+            zIndexCounter++;
+            modal.style.zIndex = zIndexCounter;
+        }
+
+        // Center modals when they appear
+        function centerModal(modalId) {
+            const modal = document.querySelector(`#${modalId} .draggable-modal`);
+            if (modal) {
+                const windowWidth = window.innerWidth;
+                const windowHeight = window.innerHeight;
+                const modalWidth = modal.offsetWidth;
+                const modalHeight = modal.offsetHeight;
+
+                modal.style.left = `${(windowWidth - modalWidth) / 2}px`;
+                modal.style.top = `${(windowHeight - modalHeight) / 2}px`;
+                modal.style.transform = 'translate(0px, 0px)';
+                modal.setAttribute('data-x', 0);
+                modal.setAttribute('data-y', 0);
+
+                bringToFront(modal);
+            }
+        }
+
+        // Livewire event listeners
+        document.addEventListener('livewire:init', () => {
+            Livewire.on('alert-types-updated', () => {
+                document.querySelectorAll('[wire\\:model="alertTypes"]').forEach(checkbox => {
+                    checkbox.checked = checkbox.value.includes(checkbox.value);
+                });
+            });
+
+            Livewire.on('showAlertPopup', () => {
+                centerModal('alertModal');
+            });
+
+            Livewire.on('showProfilePopup', () => {
+                centerModal('profileModal');
             });
         });
+
+        // Initial centering if modals are already visible
+        if (document.querySelector('#alertModal.show')) {
+            centerModal('alertModal');
+        }
+        if (document.querySelector('#profileModal.show')) {
+            centerModal('profileModal');
+        }
     });
     </script>
-
 </div>
