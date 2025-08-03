@@ -27,7 +27,7 @@
             <li class="nav-item"><a href="{{ route('quotes.project.manage') }}" class="nav-link">Manage Project</a>
             </li>
             <div class="sidebar-divider my-2"></div>
-            <li class="nav-item"><a href="#" class="nav-link">Manage Reminders</a></li>
+            <li class="nav-item"><a href="{{ route('qoute.reminder') }}" class="nav-link">Manage Reminders</a></li>
         </ul>
 
         {{-- Purchase Orders --}}

@@ -3,13 +3,19 @@
 namespace App\Livewire\PurchaseOrder;
 
 use Livewire\Component;
-use App\Models\data_tb;
+use App\Models\data_tb as Customer;
 use App\Models\shipper_tb;
 use App\Models\vendor_tb;
 use App\Models\porder_tb;
 use App\Models\items_tb;
 use App\Models\order_tb     as Order;
 use Illuminate\Support\Facades\DB;
+// for alerts ..
+use App\Models\alerts_tb    as Alert;
+use App\Models\profile_tb as Profile;
+use App\Models\profile_tb2 as ProfileDetail;
+use App\Models\Profile_vendor_tb as ProfileVendor;
+use App\Models\Profile_vendor_tb2 as ProfileVendor2;
 
 class Add extends Component
 {
@@ -57,6 +63,18 @@ class Add extends Component
     public $search     = '';          // what the user is typing
     public $matches    = [];          // array of suggestions ⬅️  NEW
     public $inputKey;
+        // for alerts 
+    public bool $showAlertPopup = false;
+    public $alertMessages = [];
+    public bool $showProfilePopup = false;
+    public $profileMessages = [];
+
+    // Alert management properties
+    public $newAlert = '';
+    public $editingAlertId = null;
+    // Add these properties
+    public bool $showVendorAlertPopup = false;
+    public $vendorAlertMessages = [];
     public function mount()
     {
         $this->podate = date('Y-m-d');
@@ -85,9 +103,201 @@ class Add extends Component
             return $qty * $price;
         });
     }
-    public function save()
+    public function save(){
+        $customer = Customer::where('c_name', $this->customer)->first();
+        $this->customer_id = $customer ? $customer->data_id : null;
+       // dd($this->customer_id);
+          $alerts = Alert::where('customer', $this->customer)
+                ->where('part_no', $this->part_no)
+                ->where('rev', $this->rev)
+                ->where('atype', 'p')
+                ->orderBy('id', 'desc')
+                ->get()
+                ->filter(function ($alert) {
+                    return in_array('po', explode('|', $alert->viewable));
+                });
+                // for profile alert ..
+            // Check for profile alerts
+            $profiles = Profile::where('custid',$this->customer_id)->with('details')
+                ->get();
+        // dd($profiles->count());
+            $hasAlerts = $alerts->count() > 0;
+            $hasProfiles = $profiles->count() > 0;
+            // Add this to your save() method, before checking other alerts
+            $vendorAlerts = ProfileVendor::where('custid', $this->vid)
+                ->with('requirements')
+                ->get()
+                ->filter(function($profile) {
+                    return $profile->requirements->isNotEmpty();
+                });
+
+            $hasVendorAlerts = $vendorAlerts->count() > 0;
+
+            if ($hasVendorAlerts) {
+                $this->showVendorAlertPopup = true;
+                $this->vendorAlertMessages = $vendorAlerts;
+            }
+            if ($hasAlerts) {
+                $this->showAlertPopup = true;
+                $this->alertMessages = $alerts;
+            }
+
+            if ($hasProfiles) {
+                $this->showProfilePopup = true;
+                $this->profileMessages = $profiles;
+            }
+
+            // If no alerts at all, save immediately
+            if (!$hasAlerts && !$hasProfiles) {
+                $this->saveproccess();
+            }
+      //  $this->saveproccess();
+    }
+    public function closeVendorAlertPopup(): void
     {
-        $po = porder_tb::create([
+        $this->showVendorAlertPopup = false;
+        $this->checkIfShouldSave();
+    }
+     public function closeAlertPopup(): void
+        {
+            $this->showAlertPopup = false;
+            // dd($this->showAlertPopup);
+            $this->checkIfShouldSave();
+        }
+
+        public function closeProfilePopup(): void
+        {
+            $this->showProfilePopup = false;
+            //  dd($this->showProfilePopup);
+            $this->checkIfShouldSave();
+        }
+
+        protected function checkIfShouldSave(): void
+        {
+            // Only save if all popups are closed
+            if (!$this->showAlertPopup && !$this->showProfilePopup && !$this->showVendorAlertPopup) {
+                $this->saveproccess();
+            }
+        }
+                public array $alertTypes = [];
+        public function addAlert(): void
+        {
+            $this->validate([
+                'newAlert' => 'required|string|max:255',
+                'alertTypes' => 'required|array|min:1'
+            ]);
+
+            // Debug before save
+            logger()->debug('Pre-Save Data', [
+                'alert' => $this->newAlert,
+                'types' => $this->alertTypes,
+                'imploded' => collect($this->alertTypes)->implode('|')
+            ]);
+
+            try {
+            // dd($this->alertTypes);
+                $alert = Alert::create([
+                    'customer' => $this->customer ?? '',
+                    'part_no' => $this->part_no ?? '',
+                    'rev' => $this->rev ?? '',
+                    'alert' => trim($this->newAlert),
+                    'viewable' => collect($this->alertTypes)->implode('|'),
+                    'atype' => 'p',
+                ]);
+
+                // Debug after save
+                logger()->debug('Created Alert', $alert->toArray());
+
+                $this->reset(['newAlert', 'alertTypes']);
+                $this->loadAlerts();
+                session()->flash('success', 'Alert added successfully.');
+                
+            } catch (\Exception $e) {
+                logger()->error('Alert Creation Error', [
+                    'error' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString()
+                ]);
+                session()->flash('error', 'Failed to add alert. Check logs for details.');
+            }
+        }
+
+
+        public function loadAlerts()
+        {
+        $alerts = Alert::where('customer', $this->customer)
+            ->where('part_no', $this->part_no)
+            ->where('rev', $this->rev)
+            ->where('atype', 'p')
+            ->orderBy('id', 'desc')
+            ->get()
+            ->filter(function ($alert) {
+                return in_array('po', explode('|', $alert->viewable));
+            });
+
+            if($alerts->count() > 0) {
+                //$this->showAlertPopup = true;
+                $this->alertMessages = $alerts;
+            }
+        }
+
+        public function editAlert($id)
+        {
+            $alert = Alert::findOrFail($id);
+            
+            $this->editingAlertId = $id;
+            $this->newAlert = $alert->alert;
+            
+            // Clear the array first
+            $this->alertTypes = [];
+            
+            // Small delay to ensure Livewire processes the change
+            usleep(1000);
+            
+            // Set the new values
+            $this->alertTypes = collect(explode('|', $alert->viewable))
+                ->map(fn($item) => trim($item))
+                ->filter()
+                ->values()
+                ->toArray();
+            
+            // Force Livewire to update the view
+            $this->js('window.dispatchEvent(new CustomEvent("alert-types-updated"))');
+        }
+
+
+        public function updateAlert()
+        {
+            $this->validate(['newAlert' => 'required|string|max:255']);
+            //dd($this->newAlert);
+            $viewable = collect($this->alertTypes)->filter()->implode('|');
+
+            Alert::where('id', $this->editingAlertId)->update([
+                'alert' => trim($this->newAlert),
+                'viewable' => $viewable,
+            ]);
+
+            $this->reset(['newAlert', 'alertTypes', 'editingAlertId']);
+            $this->loadAlerts();
+        }
+
+
+        public function deleteAlert($id)
+        {
+            Alert::where('id', $id)->delete();
+            $this->loadAlerts();
+        }
+
+        public function cancelEdit()
+        {
+            $this->resetAlertInputs();
+        }
+
+        public function resetAlertInputs()
+        {
+            $this->reset(['newAlert','alertTypes']);
+        }
+    public function saveproccess(){
+                $po = porder_tb::create([
             'vid' => $this->vid,
             'sid' => $this->sid,
             'namereq' => $this->namereq,
@@ -135,6 +345,7 @@ class Add extends Component
 
         session()->flash('success', 'Purchase order saved.');
         return redirect(route('purchase.orders.manage'));
+
     }
 
     public function render()
@@ -142,7 +353,7 @@ class Add extends Component
         return view('livewire.purchase-order.add', [
             'vendors' => vendor_tb::orderBy('c_name')->get(),
             'shippers' => shipper_tb::orderBy('c_name')->get(),
-            'customers' => data_tb::where('c_name', '!=', '')->orderBy('c_name')->get(),
+            'customers' => Customer::where('c_name', '!=', '')->orderBy('c_name')->get(),
         ])->layout('layouts.app');
     }
     // Search as user types

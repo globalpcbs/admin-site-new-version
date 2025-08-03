@@ -11,6 +11,9 @@ use App\Models\data_tb      as Customer;
 use App\Models\shipper_tb   as Shipper;
 use App\Models\credit_tb    as Credit;
 use App\Models\order_tb     as Order;
+use App\Models\alerts_tb as Alert;
+use App\Models\profile_tb as Profile;
+use App\Models\profile_tb2 as ProfileDetail;
 
 class EditCredit extends Component
 {
@@ -45,6 +48,16 @@ class EditCredit extends Component
     public $items = [];          // 6 rows
     public $search = '';
     public $matches = [];
+    // for alerts 
+    public bool $showAlertPopup = false;
+    public $alertMessages = [];
+    public bool $showProfilePopup = false;
+    public $profileMessages = [];
+
+    // Alert management properties
+    public $newAlert = '';
+    public $editingAlertId = null;
+    public $alertTypes = [];
 
     /* ——— identical rules from Add ——— */
     protected function rules(): array
@@ -111,11 +124,127 @@ class EditCredit extends Component
             (float) $r['qty'] * (float) str_replace(',','',$r['uprice'])
         );
     }
-
-    /* ——— update action (was save in Add) ——— */
     public function update(): void
-    {
-        $this->validate();
+{
+    $this->validate();
+    
+    // Check for alerts
+    $alerts = Alert::where('customer', $this->customer)
+        ->where('part_no', $this->part_no)
+        ->where('rev', $this->rev)
+        ->where('atype', 'p')
+        ->orderBy('id', 'desc')
+        ->get()
+        ->filter(function ($alert) {
+            return in_array('cre', explode('|', $alert->viewable));
+        });
+
+    // Check for profile alerts
+    $profiles = Profile::where('custid', $this->vid)
+        ->with('details')
+        ->get();
+
+    $hasAlerts = $alerts->count() > 0;
+    $hasProfiles = $profiles->count() > 0;
+
+    if ($hasAlerts) {
+        $this->showAlertPopup = true;
+        $this->alertMessages = $alerts;
+    }
+
+    if ($hasProfiles) {
+        $this->showProfilePopup = true;
+        $this->profileMessages = $profiles;
+    }
+
+    // If no alerts, proceed with update
+    if (!$hasAlerts && !$hasProfiles) {
+        $this->processCreditUpdate();
+    }
+}
+
+public function closeAlertPopup(): void
+{
+    $this->showAlertPopup = false;
+    $this->checkIfShouldSave();
+}
+
+public function closeProfilePopup(): void
+{
+    $this->showProfilePopup = false;
+    $this->checkIfShouldSave();
+}
+
+protected function checkIfShouldSave(): void
+{
+    if (!$this->showAlertPopup && !$this->showProfilePopup) {
+        $this->processCreditUpdate();
+    }
+}
+
+public function addAlert(): void
+{
+    $this->validate([
+        'newAlert' => 'required|string|max:255',
+        'alertTypes' => 'required|array|min:1'
+    ]);
+
+    Alert::create([
+        'customer' => $this->customer ?? '',
+        'part_no' => $this->part_no ?? '',
+        'rev' => $this->rev ?? '',
+        'alert' => trim($this->newAlert),
+        'viewable' => collect($this->alertTypes)->implode('|'),
+        'atype' => 'p',
+    ]);
+
+    $this->reset(['newAlert', 'alertTypes']);
+    $this->loadAlerts();
+}
+
+public function editAlert($id): void
+{
+    $alert = Alert::findOrFail($id);
+    $this->editingAlertId = $id;
+    $this->newAlert = $alert->alert;
+    $this->alertTypes = explode('|', $alert->viewable);
+}
+
+public function updateAlert(): void
+{
+    $this->validate(['newAlert' => 'required|string|max:255']);
+    
+    Alert::where('id', $this->editingAlertId)->update([
+        'alert' => trim($this->newAlert),
+        'viewable' => collect($this->alertTypes)->implode('|'),
+    ]);
+
+    $this->reset(['newAlert', 'alertTypes', 'editingAlertId']);
+    $this->loadAlerts();
+}
+
+public function deleteAlert($id): void
+{
+    Alert::where('id', $id)->delete();
+    $this->loadAlerts();
+}
+
+public function loadAlerts(): void
+{
+    $this->alertMessages = Alert::where('customer', $this->customer)
+        ->where('part_no', $this->part_no)
+        ->where('rev', $this->rev)
+        ->where('atype', 'p')
+        ->orderBy('id', 'desc')
+        ->get()
+        ->filter(function ($alert) {
+            return in_array('cre', explode('|', $alert->viewable));
+        });
+}
+
+protected function processCreditUpdate()
+{
+           $this->validate();
 
         DB::transaction(function () {
 
@@ -167,8 +296,9 @@ class EditCredit extends Component
         });
 
         session()->flash('success', 'Credit record updated.');
-        //return redirect()->route('credit.manage');
-    }
+        return redirect()->route('credit.manage');
+}
+
 
     /* ——— live helpers (lineTotal, search, etc.) ——— */
     public function lineTotal(int $i): float
