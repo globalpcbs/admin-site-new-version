@@ -12,6 +12,7 @@ use App\Livewire\Qoutes\Manage as QuoteManage;
 use App\Livewire\Qoutes\Edit as Edit;
 use App\Livewire\Qoutes\Project\Add as ProjectQuoteAdd;
 use App\Livewire\Qoutes\Project\Manage as ProjectQuoteManage;
+use App\Livewire\Qoutes\Reminders as Reminder;
 
 use App\Livewire\PurchaseOrder\Add as POAdd;
 use App\Livewire\PurchaseOrder\Manage as POManage;
@@ -126,6 +127,7 @@ Route::middleware('auth')->group(function(){
                 Route::get('add', ProjectQuoteAdd::class)->name('add');
                 Route::get('manage', ProjectQuoteManage::class)->name('manage');
             });
+            Route::get('/reminders',Reminder::class)->name('qoute.reminder');
         });
 
         // Purchase - Orders

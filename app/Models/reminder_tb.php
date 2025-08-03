@@ -16,5 +16,9 @@ class reminder_tb extends Model
         'days',
         'lastreminder',
     ];
+     public function order()
+    {
+        return $this->belongsTo(order_tb::class, 'quoteid', 'ord_id');
+    }
 
 }

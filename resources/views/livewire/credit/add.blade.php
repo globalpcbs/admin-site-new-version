@@ -467,6 +467,7 @@
                         @foreach([
                         'quo' => 'Quote',
                         'con' => 'Confirmation',
+                        'po' => 'Purchase Order',
                         'pac' => 'Packing',
                         'inv' => 'Invoice',
                         'cre' => 'Credit'
@@ -572,8 +573,5 @@
         });
     });
     </script>
-
-
-
 
 </div>

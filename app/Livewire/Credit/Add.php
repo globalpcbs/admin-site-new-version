@@ -145,68 +145,68 @@ class Add extends Component
 
     }
     public function closeAlertPopup(): void
-{
-    $this->showAlertPopup = false;
-    // dd($this->showAlertPopup);
-    $this->checkIfShouldSave();
-}
-
-public function closeProfilePopup(): void
-{
-    $this->showProfilePopup = false;
-      //  dd($this->showProfilePopup);
-    $this->checkIfShouldSave();
-}
-
-protected function checkIfShouldSave(): void
-{
-    // Only save if both popups are closed
-    if (!$this->showAlertPopup && !$this->showProfilePopup) {
-       // dd("main save function");
-        $this->processCreditSave();
+    {
+        $this->showAlertPopup = false;
+        // dd($this->showAlertPopup);
+        $this->checkIfShouldSave();
     }
-}
+
+    public function closeProfilePopup(): void
+    {
+        $this->showProfilePopup = false;
+        //  dd($this->showProfilePopup);
+        $this->checkIfShouldSave();
+    }
+
+    protected function checkIfShouldSave(): void
+    {
+        // Only save if both popups are closed
+        if (!$this->showAlertPopup && !$this->showProfilePopup) {
+        // dd("main save function");
+            $this->processCreditSave();
+        }
+    }
     public array $alertTypes = [];
-public function addAlert(): void
-{
-    $this->validate([
-        'newAlert' => 'required|string|max:255',
-        'alertTypes' => 'required|array|min:1'
-    ]);
-
-    // Debug before save
-    logger()->debug('Pre-Save Data', [
-        'alert' => $this->newAlert,
-        'types' => $this->alertTypes,
-        'imploded' => collect($this->alertTypes)->implode('|')
-    ]);
-
-    try {
-       // dd($this->alertTypes);
-        $alert = Alert::create([
-            'customer' => $this->customer ?? '',
-            'part_no' => $this->part_no ?? '',
-            'rev' => $this->rev ?? '',
-            'alert' => trim($this->newAlert),
-            'viewable' => collect($this->alertTypes)->implode('|'),
-            'atype' => 'p',
+    public function addAlert(): void
+    {
+        $this->validate([
+            'newAlert' => 'required|string|max:255',
+            'alertTypes' => 'required|array|min:1'
         ]);
 
-        // Debug after save
-        logger()->debug('Created Alert', $alert->toArray());
-
-        $this->reset(['newAlert', 'alertTypes']);
-        $this->loadAlerts();
-        session()->flash('success', 'Alert added successfully.');
-        
-    } catch (\Exception $e) {
-        logger()->error('Alert Creation Error', [
-            'error' => $e->getMessage(),
-            'trace' => $e->getTraceAsString()
+        // Debug before save
+        logger()->debug('Pre-Save Data', [
+            'alert' => $this->newAlert,
+            'types' => $this->alertTypes,
+            'imploded' => collect($this->alertTypes)->implode('|')
         ]);
-        session()->flash('error', 'Failed to add alert. Check logs for details.');
+
+        try {
+        // dd($this->alertTypes);
+            $alert = Alert::create([
+                'customer' => $this->customer ?? '',
+                'part_no' => $this->part_no ?? '',
+                'rev' => $this->rev ?? '',
+                'alert' => trim($this->newAlert),
+                'viewable' => collect($this->alertTypes)->implode('|'),
+                'atype' => 'p',
+            ]);
+
+            // Debug after save
+            logger()->debug('Created Alert', $alert->toArray());
+
+            $this->reset(['newAlert', 'alertTypes']);
+            $this->loadAlerts();
+            session()->flash('success', 'Alert added successfully.');
+            
+        } catch (\Exception $e) {
+            logger()->error('Alert Creation Error', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            session()->flash('error', 'Failed to add alert. Check logs for details.');
+        }
     }
-}
 
 
     public function loadAlerts()
@@ -227,45 +227,45 @@ public function addAlert(): void
         }
     }
 
-public function editAlert($id)
-{
-    $alert = Alert::findOrFail($id);
-    
-    $this->editingAlertId = $id;
-    $this->newAlert = $alert->alert;
-    
-    // Clear the array first
-    $this->alertTypes = [];
-    
-    // Small delay to ensure Livewire processes the change
-    usleep(1000);
-    
-    // Set the new values
-    $this->alertTypes = collect(explode('|', $alert->viewable))
-        ->map(fn($item) => trim($item))
-        ->filter()
-        ->values()
-        ->toArray();
-    
-    // Force Livewire to update the view
-    $this->js('window.dispatchEvent(new CustomEvent("alert-types-updated"))');
-}
+    public function editAlert($id)
+    {
+        $alert = Alert::findOrFail($id);
+        
+        $this->editingAlertId = $id;
+        $this->newAlert = $alert->alert;
+        
+        // Clear the array first
+        $this->alertTypes = [];
+        
+        // Small delay to ensure Livewire processes the change
+        usleep(1000);
+        
+        // Set the new values
+        $this->alertTypes = collect(explode('|', $alert->viewable))
+            ->map(fn($item) => trim($item))
+            ->filter()
+            ->values()
+            ->toArray();
+        
+        // Force Livewire to update the view
+        $this->js('window.dispatchEvent(new CustomEvent("alert-types-updated"))');
+    }
 
 
     public function updateAlert()
-{
-    $this->validate(['newAlert' => 'required|string|max:255']);
-    //dd($this->newAlert);
-    $viewable = collect($this->alertTypes)->filter()->implode('|');
+    {
+        $this->validate(['newAlert' => 'required|string|max:255']);
+        //dd($this->newAlert);
+        $viewable = collect($this->alertTypes)->filter()->implode('|');
 
-    Alert::where('id', $this->editingAlertId)->update([
-        'alert' => trim($this->newAlert),
-        'viewable' => $viewable,
-    ]);
+        Alert::where('id', $this->editingAlertId)->update([
+            'alert' => trim($this->newAlert),
+            'viewable' => $viewable,
+        ]);
 
-    $this->reset(['newAlert', 'alertTypes', 'editingAlertId']);
-    $this->loadAlerts();
-}
+        $this->reset(['newAlert', 'alertTypes', 'editingAlertId']);
+        $this->loadAlerts();
+    }
 
 
     public function deleteAlert($id)
