@@ -7,12 +7,12 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Carbon\Carbon;
 
-use App\Models\data_tb      as Customer;
-use App\Models\shipper_tb   as Shipper;
-use App\Models\credit_tb    as Credit;
+use App\Models\data_tb as Customer;
+use App\Models\shipper_tb as Shipper;
+use App\Models\credit_tb as Credit;
 use App\Models\credit_items_tb as CreditItem;
-use App\Models\order_tb     as Order;
-use App\Models\alerts_tb    as Alert;
+use App\Models\order_tb as Order;
+use App\Models\alerts_tb as Alert;
 use App\Models\profile_tb as Profile;
 use App\Models\profile_tb2 as ProfileDetail;
 
@@ -97,7 +97,7 @@ class Add extends Component
     public function mount(): void
     {
         $this->items = collect(range(1, 6))
-            ->map(fn () => ['item' => '', 'desc' => '', 'qty' => null, 'uprice' => null])
+            ->map(fn() => ['item' => '', 'desc' => '', 'qty' => null, 'uprice' => null])
             ->toArray();
         $this->alertTypes = is_array($this->alertTypes) ? $this->alertTypes : [];
     }
@@ -105,26 +105,26 @@ class Add extends Component
     public function getTotalProperty(): float
     {
         return collect($this->items)
-            ->sum(fn ($row) => (float) ($row['qty']) * (float) str_replace(',', '', $row['uprice']));
+            ->sum(fn($row) => (float) ($row['qty']) * (float) str_replace(',', '', $row['uprice']));
     }
 
     public function save(): void
     {
         $this->validate();
         $alerts = Alert::where('customer', $this->customer)
-        ->where('part_no', $this->part_no)
-        ->where('rev', $this->rev)
-        ->where('atype', 'p')
-        ->orderBy('id', 'desc')
-        ->get()
-        ->filter(function ($alert) {
-            return in_array('cre', explode('|', $alert->viewable));
-        });
+            ->where('part_no', $this->part_no)
+            ->where('rev', $this->rev)
+            ->where('atype', 'p')
+            ->orderBy('id', 'desc')
+            ->get()
+            ->filter(function ($alert) {
+                return in_array('cre', explode('|', $alert->viewable));
+            });
         // for profile alert ..
         // Check for profile alerts
-        $profiles = Profile::where('custid',$this->vid)->with('details')
+        $profiles = Profile::where('custid', $this->vid)->with('details')
             ->get();
-       // dd($profiles->count());
+        // dd($profiles->count());
         $hasAlerts = $alerts->count() > 0;
         $hasProfiles = $profiles->count() > 0;
 
@@ -162,7 +162,7 @@ class Add extends Component
     {
         // Only save if both popups are closed
         if (!$this->showAlertPopup && !$this->showProfilePopup) {
-        // dd("main save function");
+            // dd("main save function");
             $this->processCreditSave();
         }
     }
@@ -182,7 +182,7 @@ class Add extends Component
         ]);
 
         try {
-        // dd($this->alertTypes);
+            // dd($this->alertTypes);
             $alert = Alert::create([
                 'customer' => $this->customer ?? '',
                 'part_no' => $this->part_no ?? '',
@@ -198,7 +198,7 @@ class Add extends Component
             $this->reset(['newAlert', 'alertTypes']);
             $this->loadAlerts();
             session()->flash('success', 'Alert added successfully.');
-            
+
         } catch (\Exception $e) {
             logger()->error('Alert Creation Error', [
                 'error' => $e->getMessage(),
@@ -211,17 +211,17 @@ class Add extends Component
 
     public function loadAlerts()
     {
-      $alerts = Alert::where('customer', $this->customer)
-        ->where('part_no', $this->part_no)
-        ->where('rev', $this->rev)
-        ->where('atype', 'p')
-        ->orderBy('id', 'desc')
-        ->get()
-        ->filter(function ($alert) {
-            return in_array('cre', explode('|', $alert->viewable));
-        });
+        $alerts = Alert::where('customer', $this->customer)
+            ->where('part_no', $this->part_no)
+            ->where('rev', $this->rev)
+            ->where('atype', 'p')
+            ->orderBy('id', 'desc')
+            ->get()
+            ->filter(function ($alert) {
+                return in_array('cre', explode('|', $alert->viewable));
+            });
 
-        if($alerts->count() > 0) {
+        if ($alerts->count() > 0) {
             //$this->showAlertPopup = true;
             $this->alertMessages = $alerts;
         }
@@ -230,31 +230,36 @@ class Add extends Component
     public function editAlert($id)
     {
         $alert = Alert::findOrFail($id);
-        
+
         $this->editingAlertId = $id;
         $this->newAlert = $alert->alert;
-        
-        // Clear the array first
+
+        // Clear and reset alertTypes
         $this->alertTypes = [];
-        
+        $this->dispatch('alert-types-cleared'); // Helps with reactivity
+
         // Small delay to ensure Livewire processes the change
-        usleep(1000);
-        
-        // Set the new values
+        usleep(100);
+
+        // Set the actual values from the database
         $this->alertTypes = collect(explode('|', $alert->viewable))
-            ->map(fn($item) => trim($item))
-            ->filter()
+            ->filter() // Remove empty values
             ->values()
             ->toArray();
-        
-        // Force Livewire to update the view
-        $this->js('window.dispatchEvent(new CustomEvent("alert-types-updated"))');
+
+        $this->dispatch('alert-types-updated'); // Notify frontend
     }
 
 
     public function updateAlert()
     {
-        $this->validate(['newAlert' => 'required|string|max:255']);
+        $this->validate(['newAlert' => 'required|string|max:255', 'alertTypes' => 'required|array|min:1']);
+        // Debug: Log the current alertTypes
+        logger()->debug('Updating Alert', [
+            'editingAlertId' => $this->editingAlertId,
+            'newAlert' => $this->newAlert,
+            'alertTypes' => $this->alertTypes // Check this array
+        ]);
         //dd($this->newAlert);
         $viewable = collect($this->alertTypes)->filter()->implode('|');
 
@@ -281,7 +286,7 @@ class Add extends Component
 
     public function resetAlertInputs()
     {
-        $this->reset(['newAlert','alertTypes']);
+        $this->reset(['newAlert', 'alertTypes']);
     }
 
     public function processCreditSave()
@@ -330,7 +335,7 @@ class Add extends Component
                 }
             });
         });
-        
+
         session()->flash('success', 'Credit record added successfully.');
         return redirect(route('credit.manage'));
     }
@@ -371,7 +376,7 @@ class Add extends Component
             ->orWhere('cust_name', 'like', "%{$value}%")
             ->distinct()
             ->get()
-            ->map(fn ($row) => [
+            ->map(fn($row) => [
                 'label' => "{$row->part_no}_{$row->rev}_{$row->cust_name}",
                 'part' => $row->part_no,
                 'rev' => $row->rev,
@@ -400,7 +405,8 @@ class Add extends Component
 
     public function useMatch(int $i): void
     {
-        if (!isset($this->matches[$i])) return;
+        if (!isset($this->matches[$i]))
+            return;
         $m = $this->matches[$i];
         $this->selectLookup($m['part'], $m['rev'], $m['cust']);
     }
