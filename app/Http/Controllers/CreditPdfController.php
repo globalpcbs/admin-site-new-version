@@ -139,151 +139,182 @@ class CreditPdfController extends Controller
     }
     // download doc file ..
 
-    public function downloadDoc($id)
-    {
-        $invoice = Invoice::with(['items', 'custo'])->findOrFail($id);
-        $shipper = shipper_tb::find($invoice->sid);
-    
-        $subtotal = $invoice->items->sum('tprice');
-        $tax = (float)$invoice->saletax;
-        $freight = (float)$invoice->fcharge;
-        $total = $subtotal + $tax + $freight;
-    
-        $phpWord = new PhpWord();
-    
-        $section = $phpWord->addSection([
-            'marginTop' => 300,
-            'marginBottom' => 300,
-            'marginLeft' => 300,
-            'marginRight' => 300,
-        ]);
-    
-        // Style definitions
-        $style = ['name' => 'Arial', 'size' => 10];
-        $styleBold = ['name' => 'Arial', 'size' => 10, 'bold' => true];
-        $styleBigTitle = ['name' => 'Arial', 'size' => 40, 'bold' => true, 'color' => '5660B1'];
-        $paragraphTight = ['spaceBefore' => 0, 'spaceAfter' => 0, 'spacing' => 0, 'lineHeight' => 1.0];
-    
-        // Header
-        $table = $section->addTable(['width' => 100 * 50]);
-        $table->addRow();
-        $table->addCell(1500)->addImage(public_path('images/logo.png'), ['width' => 40, 'height' => 30]);
-        $table->addCell(2500); // Spacer
-        $metaCell = $table->addCell(6500);
-        $metaCell->addText('Invoice', $styleBigTitle, $paragraphTight);
-    
-        $meta = [
-            'INVOICE NUMBER' => $invoice->invoice_id + 9976,
-            'INVOICE DATE' => \Carbon\Carbon::parse($invoice->podate)->format('m/d/Y'),
-            'OUR ORDER NO' => $invoice->our_ord_num,
-            'YOUR ORDER NO' => $invoice->po,
-            'TERMS' => $invoice->sterm,
-            'SALES REP' => $invoice->namereq,
-            'SHIPPED VIA' => $invoice->svia === 'Other' ? $invoice->svia_oth : $invoice->svia,
-            'F.O.B' => 'Anaheim CA',
-        ];
-    
-        foreach ($meta as $label => $value) {
-            $metaCell->addText("$label: $value", $style, $paragraphTight);
-        }
-    
-        // Company Info
-        $section->addTextBreak(1);
-        $infoTable = $section->addTable(['width' => 100 * 50]);
-        $infoTable->addRow();
-        $left = $infoTable->addCell(7500);
-        $left->addText("PCBs Global Incorporated", $styleBold, $paragraphTight);
-        $left->addText("2500 E. La Palma Ave.", $style, $paragraphTight);
-        $left->addText("Anaheim Ca. 92806", $style, $paragraphTight);
-        $left->addText("Phone: (855) 722-7456", $style, $paragraphTight);
-        $left->addText("Fax: (855) 262-5305", $style, $paragraphTight);
-    
-        // SOLD TO / SHIPPED TO
-        $section->addTextBreak(1);
-        $addrTable = $section->addTable(['width' => 100 * 50]);
-        $addrTable->addRow();
-        $addrTable->addCell(3000, ['bgColor' => '656BBC'])->addText("SOLD TO", ['color' => 'FFFFFF'] + $styleBold, $paragraphTight);
-        $addrTable->addCell(500);
-        $addrTable->addCell(3000, ['bgColor' => '656BBC'])->addText("SHIPPED TO", ['color' => 'FFFFFF'] + $styleBold, $paragraphTight);
-    
-        $addrTable->addRow();
-        $custo = $invoice->custo;
-        $soldCell = $addrTable->addCell(3000);
-        if ($custo) {
-            $soldCell->addText($custo->c_name, $style, $paragraphTight);
-            $soldCell->addText($custo->c_address, $style, $paragraphTight);
-            $soldCell->addText($custo->c_address2, $style, $paragraphTight);
-            $soldCell->addText($custo->c_address3, $style, $paragraphTight);
-            $soldCell->addText("Phone: {$custo->c_phone}", $style, $paragraphTight);
-            $soldCell->addText("Fax: {$custo->c_fax}", $style, $paragraphTight);
-            $soldCell->addText($custo->c_website, $style, $paragraphTight);
-        }
-    
-        $addrTable->addCell(500);
-        $shipCell = $addrTable->addCell(3000);
-        if ($invoice->ord_by) $shipCell->addText("Ordered by: " . $invoice->ord_by, $style, $paragraphTight);
-        if ($invoice->delto) $shipCell->addText("Delivered to: " . $invoice->delto, $style, $paragraphTight);
-        if ($invoice->date1) $shipCell->addText("Delivered On: " . $invoice->date1, $style, $paragraphTight);
-    
-        // Item Table - Full Width
-        $section->addTextBreak(1);
-        $itemsTable = $section->addTable(['borderSize' => 6, 'borderColor' => '000000', 'width' => 100 * 50]);
-        $itemsTable->addRow();
-        $itemsTable->addCell(800, ['bgColor' => '656BBC'])->addText("ITEM #", ['bold' => true, 'color' => 'FFFFFF'], $paragraphTight);
-        $itemsTable->addCell(2400, ['bgColor' => '656BBC'])->addText("DESCRIPTION", ['bold' => true, 'color' => 'FFFFFF'], $paragraphTight);
-        $itemsTable->addCell(600, ['bgColor' => '656BBC'])->addText("QTY", ['bold' => true, 'color' => 'FFFFFF'], $paragraphTight);
-        $itemsTable->addCell(600, ['bgColor' => '656BBC'])->addText("UNIT PRICE", ['bold' => true, 'color' => 'FFFFFF'], $paragraphTight);
-        $itemsTable->addCell(600, ['bgColor' => '656BBC'])->addText("TOTAL", ['bold' => true, 'color' => 'FFFFFF'], $paragraphTight);
-    
-        foreach ($invoice->items as $item) {
-            $itemsTable->addRow();
-            $itemsTable->addCell(800)->addText($item->item, $style, $paragraphTight);
-            $desc = "P/N {$invoice->part_no} Rev {$invoice->rev} {$item->itemdesc}";
-            $itemsTable->addCell(2400)->addText($desc, $style, $paragraphTight);
-            $itemsTable->addCell(600)->addText($item->qty2, $style, $paragraphTight);
-            $itemsTable->addCell(600)->addText('$' . number_format($item->uprice, 2), $style, $paragraphTight);
-            $itemsTable->addCell(600)->addText('$' . number_format($item->tprice, 2), $style, $paragraphTight);
-        }
-    
-        // Totals
-        $section->addTextBreak(1);
-        $totalTable = $section->addTable(['width' => 100 * 50]);
-        $totalTable->addRow();
-        $totalTable->addCell(7000);
-        $totalsCell = $totalTable->addCell(3000);
-        $totalsCell->addText("SUB TOTAL: $" . number_format($subtotal, 2), $style, $paragraphTight);
-        $totalsCell->addText("TAX: $" . number_format($tax, 2), $style, $paragraphTight);
-        $totalsCell->addText("FREIGHT: $" . number_format($freight, 2), $style, $paragraphTight);
-        $totalsCell->addText("TOTAL: $" . number_format($total, 2), $styleBold, $paragraphTight);
-    
-        // Footer Section
-        $section->addTextBreak(1);
-        $footer = $section->addTable(['width' => 100 * 50]);
-        $footer->addRow();
-        $contact = $footer->addCell(5000);
-        $contact->addText("Comments", $styleBold, $paragraphTight);
-        $contact->addText($invoice->comments ?? '', $style, $paragraphTight);
-        $contact->addText("Direct All Inquiries To:", $style, $paragraphTight);
-        $contact->addText("Armando Torres", $style, $paragraphTight);
-        $contact->addText("714-553-7047", $style, $paragraphTight);
-        $contact->addText("armando@pcbsglobal.com", $style, $paragraphTight);
-    
-        $payee = $footer->addCell(5000);
-        $payee->addText("MAKE ALL CHECKS PAYABLE TO:", $styleBold, $paragraphTight);
-        $payee->addText("Torres Developments", $style, $paragraphTight);
-        $payee->addText("2500 E. La Palma Ave.", $style, $paragraphTight);
-        $payee->addText("Anaheim CA 92806", $style, $paragraphTight);
-    
-        $section->addTextBreak(1);
-        $section->addText("THANK YOU FOR YOUR BUSINESS AND TRUST!", ['bold' => true, 'size' => 12], ['alignment' => 'center']);
-    
-        // Save file
-        $filename = 'Invoice-' . $invoice->invoice_id . '-' . date('m-d-Y') . '.docx';
-        $path = storage_path($filename);
-        IOFactory::createWriter($phpWord, 'Word2007')->save($path);
-    
-        return response()->download($path)->deleteFileAfterSend(true);
+public function downloadDoc($id)
+{
+    $invoice = Invoice::with(['items', 'custo'])->findOrFail($id);
+    $shipper = shipper_tb::find($invoice->sid);
+
+    $subtotal = $invoice->items->sum('tprice');
+    $tax = (float)$invoice->saletax;
+    $freight = (float)$invoice->fcharge;
+    $total = $subtotal + $tax + $freight;
+    $invoiceNumber = $invoice->invoice_id + 9976;
+    $invoiceDate = Carbon::parse($invoice->podate)->format('m/d/Y');
+
+    // Generate HTML content
+    $html = '
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="utf-8">
+        <title>Invoice</title>
+        <style>
+            body {
+                font-family: DejaVu Sans, sans-serif;
+                font-size: 10pt;
+                line-height: 1.0;
+                margin: 0;
+                padding: 0;
+            }
+            .header-table { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
+            .header-table td { vertical-align: top; padding: 2px; }
+            .logo { width: 40px; height: 30px; }
+            .doc-title { font-size: 40pt; font-weight: bold; color: #5660B1; margin-bottom: 5px; }
+            .company-info { font-size: 10pt; }
+            .section-bar { background: #656BBC; color: #fff; font-weight: bold; padding: 4px; }
+            .info-table { width: 100%; border-collapse: collapse; }
+            .address-table { width: 100%; margin: 10px 0; }
+            .address-table td { vertical-align: top; padding: 2px; }
+            .items-table { width: 100%; border-collapse: collapse; border: 2px solid #000; margin: 10px 0; }
+            .items-table th { background: #656BBC; color: #fff; padding: 4px; }
+            .items-table td { border: 1px solid #000; padding: 4px; }
+            .totals-table { width: 100%; margin-top: 10px; }
+            .bold { font-weight: bold; }
+            .text-right { text-align: right; }
+            .footer { margin-top: 20px; font-size: 9pt; }
+            .footer-table { width: 100%; }
+            .footer-table td { vertical-align: top; width: 50%; padding: 5px; }
+        </style>
+    </head>
+    <body>
+        <!-- HEADER -->
+        <table class="header-table">
+            <tr>
+                <td style="width:40px;">
+                    <img src="'.public_path('images/logo.png').'" class="logo">
+                </td>
+                <td style="width:20%;"></td>
+                <td>
+                    <div class="doc-title">Invoice</div>
+                    <div class="company-info">
+                        INVOICE NUMBER: '.$invoiceNumber.'<br>
+                        INVOICE DATE: '.$invoiceDate.'<br>
+                        OUR ORDER NO: '.$invoice->our_ord_num.'<br>
+                        YOUR ORDER NO: '.$invoice->po.'<br>
+                        TERMS: '.$invoice->sterm.'<br>
+                        SALES REP: '.$invoice->namereq.'<br>
+                        SHIPPED VIA: '.($invoice->svia === 'Other' ? $invoice->svia_oth : $invoice->svia).'<br>
+                        F.O.B: Anaheim CA
+                    </div>
+                </td>
+            </tr>
+        </table>
+
+        <!-- COMPANY INFO -->
+        <div class="company-info">
+            <div class="bold">PCBs Global Incorporated</div>
+            <div>2500 E. La Palma Ave.</div>
+            <div>Anaheim Ca. 92806</div>
+            <div>Phone: (855) 722-7456</div>
+            <div>Fax: (855) 262-5305</div>
+        </div>
+
+        <!-- SOLD TO / SHIPPED TO -->
+        <table class="address-table">
+            <tr>
+                <td style="width:45%;">
+                    <div class="section-bar">SOLD TO</div>
+                    <div>'.($invoice->custo->c_name ?? '').'</div>
+                    <div>'.($invoice->custo->c_address ?? '').'</div>
+                    <div>'.($invoice->custo->c_address2 ?? '').'</div>
+                    <div>'.($invoice->custo->c_address3 ?? '').'</div>
+                    <div>Phone: '.($invoice->custo->c_phone ?? '').'</div>
+                    <div>Fax: '.($invoice->custo->c_fax ?? '').'</div>
+                    <div>'.($invoice->custo->c_website ?? '').'</div>
+                </td>
+                <td style="width:10%;"></td>
+                <td style="width:45%;">
+                    <div class="section-bar">SHIPPED TO</div>
+                    '.($invoice->ord_by ? '<div>Ordered by: '.$invoice->ord_by.'</div>' : '').'
+                    '.($invoice->delto ? '<div>Delivered to: '.$invoice->delto.'</div>' : '').'
+                    '.($invoice->date1 ? '<div>Delivered On: '.$invoice->date1.'</div>' : '').'
+                </td>
+            </tr>
+        </table>
+
+        <!-- ITEMS TABLE -->
+        <table class="items-table">
+            <tr>
+                <th style="width:10%;">ITEM #</th>
+                <th style="width:35%;">DESCRIPTION</th>
+                <th style="width:10%;">QTY</th>
+                <th style="width:10%;">UNIT PRICE</th>
+                <th style="width:10%;">TOTAL</th>
+            </tr>';
+
+    foreach ($invoice->items as $item) {
+        $desc = "P/N ".$invoice->part_no." Rev ".$invoice->rev." ".$item->itemdesc;
+        $html .= '
+            <tr>
+                <td>'.$item->item.'</td>
+                <td>'.$desc.'</td>
+                <td>'.$item->qty2.'</td>
+                <td>$'.number_format($item->uprice, 2).'</td>
+                <td>$'.number_format($item->tprice, 2).'</td>
+            </tr>';
     }
+
+    $html .= '
+        </table>
+
+        <!-- TOTALS -->
+        <table class="totals-table">
+            <tr>
+                <td style="width:70%;"></td>
+                <td style="width:30%;">
+                    <div>SUB TOTAL: $'.number_format($subtotal, 2).'</div>
+                    <div>TAX: $'.number_format($tax, 2).'</div>
+                    <div>FREIGHT: $'.number_format($freight, 2).'</div>
+                    <div class="bold">TOTAL: $'.number_format($total, 2).'</div>
+                </td>
+            </tr>
+        </table>
+
+        <!-- FOOTER -->
+        <table class="footer-table">
+            <tr>
+                <td>
+                    <div class="bold">Comments</div>
+                    <div>'.($invoice->comments ?? '').'</div>
+                    <div>Direct All Inquiries To:</div>
+                    <div>Armando Torres</div>
+                    <div>714-553-7047</div>
+                    <div>armando@pcbsglobal.com</div>
+                </td>
+                <td>
+                    <div class="bold">MAKE ALL CHECKS PAYABLE TO:</div>
+                    <div>Torres Developments</div>
+                    <div>2500 E. La Palma Ave.</div>
+                    <div>Anaheim CA 92806</div>
+                </td>
+            </tr>
+        </table>
+
+        <div style="text-align:center; margin-top:20px; font-weight:bold; font-size:12pt;">
+            THANK YOU FOR YOUR BUSINESS AND TRUST!
+        </div>
+    </body>
+    </html>';
+
+    // Generate filename
+    $filename = 'Invoice-'.$invoice->invoice_id.'-'.date('m-d-Y').'.doc';
+
+    // Return as downloadable Word document
+    return Response::make($html, 200, [
+        'Content-Type' => 'application/msword',
+        'Content-Disposition' => 'attachment; filename="'.$filename.'"'
+    ]);
+}
     // for packing slip pdf and docs ..
     public function viewpackingpdf($id){
         $packing = packing_tb::with(['items'])->findOrFail($id);
@@ -349,143 +380,227 @@ class CreditPdfController extends Controller
         ])->download($filename);
 
     }
-    public function downloadPackingDoc($id)
-    {
-        $packing = packing_tb::with('items')->findOrFail($id);
-        $customer = data_tb::find($packing->customer);
-        $vendor = data_tb::find($packing->vid);
+public function downloadPackingDoc($id)
+{
+    $packing = packing_tb::with('items')->findOrFail($id);
+    $customer = data_tb::find($packing->customer);
+    $vendor = data_tb::find($packing->vid);
 
-        $shipperId = substr($packing->sid, 1);
-        $shipper = $packing->sid[0] == 'c'
-            ? data_tb::find($shipperId)
-            : shipper_tb::find($shipperId);
+    $shipperId = substr($packing->sid, 1);
+    $shipper = $packing->sid[0] == 'c'
+        ? data_tb::find($shipperId)
+        : shipper_tb::find($shipperId);
 
-        $contacts = maincont_tb::join('maincont_packing', 'maincont_tb.enggcont_id', '=', 'maincont_packing.maincontid')
-            ->where('maincont_packing.packingid', $id)
-            ->get();
+    $contacts = maincont_tb::join('maincont_packing', 'maincont_tb.enggcont_id', '=', 'maincont_packing.maincontid')
+        ->where('maincont_packing.packingid', $id)
+        ->get();
 
-        $invoiceNo = $packing->invoice_id + 9987;
-        $shortname = $customer?->c_shortname ?? 'Unknown';
-        $today = date('m-d-Y');
+    $invoiceNo = $packing->invoice_id + 9987;
+    $shortname = $customer?->c_shortname ?? 'Unknown';
+    $today = date('m-d-Y');
 
-        $phpWord = new PhpWord();
-        $section = $phpWord->addSection();
-
-        // Styles
-        $style = ['name' => 'Arial', 'size' => 10];
-        $bold = ['name' => 'Arial', 'size' => 10, 'bold' => true];
-        $header = ['name' => 'Arial', 'size' => 26, 'bold' => true, 'color' => '5660B1'];
-
-        // Header
-        $table = $section->addTable();
-        $table->addRow();
-        $table->addCell(2000)->addImage(public_path('images/logo.png'), ['width' => 40, 'height' => 30]);
-        $meta = $table->addCell(8000);
-        $meta->addText("Packing Slip", $header);
-        $meta->addText("Ordered Date: " . \Carbon\Carbon::parse($packing->odate)->format('l-m-d-Y'), $style);
-        $meta->addText("Date: " . \Carbon\Carbon::parse($packing->podate)->format('m/d/Y'), $style);
-        $meta->addText("Our Order No: {$packing->our_ord_num}", $style);
-        $meta->addText("Packing Slip No: {$invoiceNo}", $style);
-        $meta->addText("Purchase Order No: {$packing->po}", $style);
-        $meta->addText("Acct No: {$customer->e_other}", $style);
-        $meta->addText("Cust ID: {$customer->e_cid}", $style);
-        $meta->addText("Shipped Via: " . ($packing->svia == 'Other' ? ($packing->svia_oth ?: 'Other') : $packing->svia), $style);
-        $meta->addText("Customer Contacts: ", $bold);
-        foreach ($contacts as $c) {
-            $meta->addText("{$c->name} {$c->lastname} {$c->phone}", $style);
+    // Custom function to parse the non-standard date format
+    $parseCustomDate = function($dateString) {
+        if (empty($dateString)) {
+            return $dateString;
         }
-
-        // Part Number/Rev Table
-        $section->addTextBreak(1);
-        $revTable = $section->addTable();
-        $revTable->addRow();
-        $revTable->addCell(4000, ['bgColor' => '656BBC'])->addText("PART NUMBER", ['bold' => true, 'color' => 'FFFFFF']);
-        $revTable->addCell(2000, ['bgColor' => '656BBC'])->addText("REV", ['bold' => true, 'color' => 'FFFFFF']);
-        $revTable->addRow();
-        $revTable->addCell(4000)->addText($packing->part_no, $style);
-        $revTable->addCell(2000)->addText($packing->rev, $style);
-
-        // Addresses
-        $section->addTextBreak(1);
-        $addrTable = $section->addTable();
-        $addrTable->addRow();
-        $addrTable->addCell(4000, ['bgColor' => '656BBC'])->addText("BILL TO", ['bold' => true, 'color' => 'FFFFFF']);
-        $addrTable->addCell(4000, ['bgColor' => '656BBC'])->addText("SHIP TO", ['bold' => true, 'color' => 'FFFFFF']);
-        $addrTable->addRow();
-        $bill = $addrTable->addCell(4000);
-        $ship = $addrTable->addCell(4000);
-        if ($vendor) {
-            $bill->addText($vendor->c_name, $style);
-            $bill->addText("(Accounts Payable)", $style);
-            $bill->addText($vendor->c_address, $style);
-            $bill->addText($vendor->c_address2, $style);
-            $bill->addText($vendor->c_address3, $style);
-            $bill->addText("Phone: {$vendor->c_phone}", $style);
-            $bill->addText("Fax: {$vendor->c_fax}", $style);
-            $bill->addText($vendor->c_website, $style);
+        
+        // Handle "Wednesday-10-10-2018" format
+        if (preg_match('/^[A-Za-z]+-\d{1,2}-\d{1,2}-\d{4}$/', $dateString)) {
+            $parts = explode('-', $dateString);
+            $month = $parts[1];
+            $day = $parts[2];
+            $year = $parts[3];
+            
+            try {
+                return Carbon::createFromDate($year, $month, $day)->format('l, m/d/Y');
+            } catch (\Exception $e) {
+                return $dateString;
+            }
         }
-        if ($shipper) {
-            $ship->addText($shipper->c_name, $style);
-            $ship->addText($shipper->c_address, $style);
-            $ship->addText($shipper->c_address2, $style);
-            $ship->addText($shipper->c_address3, $style);
-            $ship->addText("Phone: {$shipper->c_phone}", $style);
-            $ship->addText("Fax: {$shipper->c_fax}", $style);
+        
+        // Try standard parsing as fallback
+        try {
+            return Carbon::parse($dateString)->format('m/d/Y');
+        } catch (\Exception $e) {
+            return $dateString;
         }
-        if ($packing->delto) $ship->addText("Delivered To: {$packing->delto}", $style);
-        if ($packing->date1) $ship->addText("Delivered On: {$packing->date1}", $style);
+    };
 
-        // Item Table
-        $section->addTextBreak(1);
-        $itemTable = $section->addTable(['borderSize' => 6, 'borderColor' => '000000']);
-        $itemTable->addRow();
-        $itemTable->addCell(1000)->addText("ITEM #", $bold);
-        $itemTable->addCell(2000)->addText("PART NUMBER", $bold);
-        $itemTable->addCell(1000)->addText("REV", $bold);
-        $itemTable->addCell(1000)->addText("LYRS", $bold);
-        $itemTable->addCell(4000)->addText("DESCRIPTION", $bold);
-        $itemTable->addCell(1000)->addText("QTY ORDERED", $bold);
-        $itemTable->addCell(1000)->addText("QTY DELIVERED", $bold);
+    $orderedDate = $parseCustomDate($packing->odate);
+    $packingDate = $packing->podate ? $parseCustomDate($packing->podate) : '';
 
-        $qtot = $totq = 0;
-        foreach ($packing->items as $index => $item) {
-            $itemTable->addRow();
-            $itemTable->addCell(1000)->addText($item->item, $style);
-            $itemTable->addCell(2000)->addText($index === 0 ? $packing->part_no : '', $style);
-            $itemTable->addCell(1000)->addText($index === 0 ? $packing->rev : '', $style);
-            $itemTable->addCell(1000)->addText($index === 0 ? explode('Lyrs', $packing->no_layer)[0] : '', $style);
-            $itemTable->addCell(4000)->addText($item->itemdesc, $style);
-            $itemTable->addCell(1000)->addText($item->qty2, $style);
-            $itemTable->addCell(1000)->addText($item->shipqty, $style);
-            $qtot += (int) $item->qty2;
-            $totq += (int) $item->shipqty;
-        }
-
-        // Totals
-        $section->addTextBreak(1);
-        $totalTable = $section->addTable();
-        $totalTable->addRow();
-        $totalTable->addCell(6000);
-        $totals = $totalTable->addCell(4000);
-        $totals->addText("Total Ordered: $qtot", $bold);
-        $totals->addText("Total Delivered: $totq", $bold);
-
-        // Footer
-        $section->addTextBreak(1);
-        $section->addText("If you have any issues with your order, please contact:", $style);
-        $section->addText("Armando Torres", $style);
-        $section->addText("714-553-7047", $style);
-        $section->addText("armando@pcbsglobal.com", $style);
-        $section->addTextBreak(2);
-        $section->addText("THANK YOU FOR YOUR BUSINESS AND TRUST!", ['bold' => true, 'size' => 12], ['alignment' => 'center']);
-
-        // File name & download
-        $filename = "PS-$invoiceNo-$shortname-{$packing->part_no}-{$packing->rev}-$today.docx";
-        $path = storage_path($filename);
-
-        IOFactory::createWriter($phpWord, 'Word2007')->save($path);
-        return response()->download($path)->deleteFileAfterSend(true);
+    // Calculate totals
+    $qtot = $totq = 0;
+    foreach ($packing->items as $item) {
+        $qtot += (int) $item->qty2;
+        $totq += (int) $item->shipqty;
     }
+
+    // Generate HTML content
+    $html = '
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="utf-8">
+        <title>Packing Slip</title>
+        <style>
+            body {
+                font-family: DejaVu Sans, sans-serif;
+                font-size: 10pt;
+                line-height: 1.3;
+                margin: 0;
+                padding: 0;
+            }
+            .header-table { width: 100%; border-collapse: collapse; }
+            .header-table td { vertical-align: top; padding: 4px; }
+            .logo { width: 40px; height: 30px; }
+            .doc-title { font-size: 26pt; font-weight: bold; color: #5660B1; margin-bottom: 5px; }
+            .company-info { font-size: 10pt; }
+            .section-bar { background: #656BBC; color: #fff; font-weight: bold; padding: 6px; margin: 10px 0; }
+            .info-table { width: 100%; border-collapse: collapse; border: 1px solid #000; }
+            .info-table th { background: #656BBC; color: #fff; }
+            .info-table th, .info-table td { border: 1px solid #000; padding: 4px; }
+            .items-table { width: 100%; border-collapse: collapse; border: 2px solid #000; }
+            .items-table th { background: #656BBC; color: #fff; }
+            .items-table th, .items-table td { border: 1px solid #000; padding: 4px; }
+            .totals-table { width: 100%; margin-top: 10px; }
+            .bold { font-weight: bold; }
+            .text-right { text-align: right; }
+            .footer { margin-top: 20px; font-size: 9pt; text-align: center; }
+        </style>
+    </head>
+    <body>
+        <!-- HEADER -->
+        <table class="header-table">
+            <tr>
+                <td>
+                    <img src="'.public_path('images/logo.png').'" class="logo">
+                </td>
+                <td>
+                    <div class="doc-title">Packing Slip</div>
+                    <div class="company-info">
+                        Ordered Date: '.$orderedDate.'<br>
+                        Date: '.$packingDate.'<br>
+                        Our Order No: '.$packing->our_ord_num.'<br>
+                        Packing Slip No: '.$invoiceNo.'<br>
+                        Purchase Order No: '.$packing->po.'<br>
+                        Acct No: '.($customer->e_other ?? '').'<br>
+                        Cust ID: '.($customer->e_cid ?? '').'<br>
+                        Shipped Via: '.($packing->svia == 'Other' ? ($packing->svia_oth ?: 'Other') : $packing->svia).'<br>
+                        <span class="bold">Customer Contacts:</span><br>';
+
+    foreach ($contacts as $c) {
+        $html .= '        '.$c->name.' '.$c->lastname.' '.$c->phone.'<br>';
+    }
+
+    $html .= '
+                    </div>
+                </td>
+            </tr>
+        </table>
+
+        <!-- PART NUMBER/REV -->
+        <div class="section-bar">PART INFORMATION</div>
+        <table class="info-table">
+            <tr>
+                <th>PART NUMBER</th>
+                <th>REV</th>
+            </tr>
+            <tr>
+                <td>'.$packing->part_no.'</td>
+                <td>'.$packing->rev.'</td>
+            </tr>
+        </table>
+
+        <!-- BILL TO / SHIP TO -->
+        <table style="width:100%; margin-top:10px;">
+            <tr>
+                <td style="width:50%; vertical-align:top;">
+                    <div class="section-bar">BILL TO</div>
+                    <div>'.($vendor->c_name ?? '').'</div>
+                    <div>(Accounts Payable)</div>
+                    <div>'.($vendor->c_address ?? '').'</div>
+                    <div>'.($vendor->c_address2 ?? '').'</div>
+                    <div>'.($vendor->c_address3 ?? '').'</div>
+                    <div>Phone: '.($vendor->c_phone ?? '').'</div>
+                    <div>Fax: '.($vendor->c_fax ?? '').'</div>
+                    <div>'.($vendor->c_website ?? '').'</div>
+                </td>
+                <td style="width:50%; vertical-align:top;">
+                    <div class="section-bar">SHIP TO</div>
+                    <div>'.($shipper->c_name ?? '').'</div>
+                    <div>'.($shipper->c_address ?? '').'</div>
+                    <div>'.($shipper->c_address2 ?? '').'</div>
+                    <div>'.($shipper->c_address3 ?? '').'</div>
+                    <div>Phone: '.($shipper->c_phone ?? '').'</div>
+                    <div>Fax: '.($shipper->c_fax ?? '').'</div>
+                    '.($packing->delto ? '<div>Delivered To: '.$packing->delto.'</div>' : '').'
+                    '.($packing->date1 ? '<div>Delivered On: '.$parseCustomDate($packing->date1).'</div>' : '').'
+                </td>
+            </tr>
+        </table>
+
+        <!-- ITEMS TABLE -->
+        <div class="section-bar">ITEMS</div>
+        <table class="items-table">
+            <tr>
+                <th>ITEM #</th>
+                <th>PART NUMBER</th>
+                <th>REV</th>
+                <th>LYRS</th>
+                <th>DESCRIPTION</th>
+                <th>QTY ORDERED</th>
+                <th>QTY DELIVERED</th>
+            </tr>';
+
+    foreach ($packing->items as $index => $item) {
+        $html .= '
+            <tr>
+                <td>'.$item->item.'</td>
+                <td>'.($index === 0 ? $packing->part_no : '').'</td>
+                <td>'.($index === 0 ? $packing->rev : '').'</td>
+                <td>'.($index === 0 ? explode('Lyrs', $packing->no_layer)[0] : '').'</td>
+                <td>'.$item->itemdesc.'</td>
+                <td>'.$item->qty2.'</td>
+                <td>'.$item->shipqty.'</td>
+            </tr>';
+    }
+
+    $html .= '
+        </table>
+
+        <!-- TOTALS -->
+        <table class="totals-table">
+            <tr>
+                <td style="width:60%;"></td>
+                <td style="width:40%;">
+                    <div class="bold">Total Ordered: '.$qtot.'</div>
+                    <div class="bold">Total Delivered: '.$totq.'</div>
+                </td>
+            </tr>
+        </table>
+
+        <!-- FOOTER -->
+        <div class="footer">
+            <div>If you have any issues with your order, please contact:</div>
+            <div>Armando Torres</div>
+            <div>714-553-7047</div>
+            <div>armando@pcbsglobal.com</div>
+            <div style="margin-top:20px; font-weight:bold;">THANK YOU FOR YOUR BUSINESS AND TRUST!</div>
+        </div>
+    </body>
+    </html>';
+
+    // Generate filename
+    $filename = "PS-".$invoiceNo."-".$shortname."-".$packing->part_no."-".$packing->rev."-".$today.".doc";
+
+    // Return as downloadable Word document
+    return Response::make($html, 200, [
+        'Content-Type' => 'application/msword',
+        'Content-Disposition' => 'attachment; filename="'.$filename.'"'
+    ]);
+}
     // order confirmation view pdf ...
     // for view pdf  ..
     public function vieworderconfirmationpdf($id)
@@ -580,165 +695,228 @@ class CreditPdfController extends Controller
     }
     // for download docs file ..
 
-    public function downloadorderconfirmationdoc($id)
-    {
-        $corder = corder_tb::with(['items', 'deliveries'])->findOrFail($id);
-        $vendor = data_tb::find($corder->vid);
+   public function downloadorderconfirmationdoc($id)
+{
+    $corder = corder_tb::with(['items', 'deliveries'])->findOrFail($id);
+    $vendor = data_tb::find($corder->vid);
 
-        $shipperId = substr($corder->sid, 1);
-        $shipper = $corder->sid[0] === 'c'
-            ? data_tb::find($shipperId)
-            : shipper_tb::find($shipperId);
+    $shipperId = substr($corder->sid, 1);
+    $shipper = $corder->sid[0] === 'c'
+        ? data_tb::find($shipperId)
+        : shipper_tb::find($shipperId);
 
-        $invoiceNo = $corder->poid + 9992;
-        $shortname = $vendor->c_shortname ?? 'Customer';
-        $today = date('m-d-Y');
+    $invoiceNo = $corder->poid + 9992;
+    $shortname = $vendor->c_shortname ?? 'Customer';
+    $today = date('m-d-Y');
 
-        $phpWord = new PhpWord();
-        $section = $phpWord->addSection();
-
-        // Styles
-        $style = ['name' => 'Arial', 'size' => 10];
-        $bold = ['name' => 'Arial', 'size' => 10, 'bold' => true];
-        $header = ['name' => 'Arial', 'size' => 26, 'bold' => true, 'color' => '5660B1'];
-
-        // Header
-        $table = $section->addTable();
-        $table->addRow();
-        $table->addCell(2000)->addImage(public_path('images/logo.png'), ['width' => 40, 'height' => 30]);
-        $meta = $table->addCell(8000);
-        $meta->addText("Order Confirmation", $header);
-        $meta->addText("Date: " . $corder->podate, $style);
-        $meta->addText("SO #: {$corder->our_ord_num}", $style);
-        $meta->addText("Conf #: {$invoiceNo}", $style);
-
-        // Vendor Info
-        $section->addTextBreak();
-        $infoTable = $section->addTable();
-        $infoTable->addRow();
-        $infoTable->addCell(4000)->addText("PCBs Global Incorporated", $bold);
-        $infoTable->addCell(4000);
-        $section->addText("2500 E. La Palma Ave.\nAnaheim Ca. 92806\nPhone: (855) 722-7456\nFax: (855) 262-5305", $style);
-
-        // Billing / Shipping
-        $section->addTextBreak(1);
-        $addrTable = $section->addTable();
-        $addrTable->addRow();
-        $addrTable->addCell(4000, ['bgColor' => '656BBC'])->addText("BILL TO", ['bold' => true, 'color' => 'FFFFFF']);
-        $addrTable->addCell(4000, ['bgColor' => '656BBC'])->addText("SHIP TO", ['bold' => true, 'color' => 'FFFFFF']);
-        $addrTable->addRow();
-        $bill = $addrTable->addCell(4000);
-        $ship = $addrTable->addCell(4000);
-        if ($vendor) {
-            $bill->addText($vendor->c_name, $style);
-            $bill->addText("(Accounts Payable)", $style);
-            $bill->addText($vendor->c_address, $style);
-            $bill->addText($vendor->c_address2, $style);
-            $bill->addText($vendor->c_address3, $style);
-            $bill->addText("Phone: {$vendor->c_phone}", $style);
-            $bill->addText("Fax: {$vendor->c_fax}", $style);
-            $bill->addText($vendor->c_website, $style);
-        }
-        if ($shipper) {
-            $ship->addText($shipper->c_name, $style);
-            $ship->addText($shipper->c_address, $style);
-            $ship->addText($shipper->c_address2, $style);
-            $ship->addText($shipper->c_address3, $style);
-            $ship->addText("Phone: {$shipper->c_phone}", $style);
-            $ship->addText("Fax: {$shipper->c_fax}", $style);
-        }
-        if ($corder->delto) $ship->addText("Delivered To: {$corder->delto}", $style);
-
-        // Order Info Row
-        $section->addTextBreak(1);
-        $metaTable = $section->addTable(['borderSize' => 6, 'borderColor' => '000000']);
-        $metaTable->addRow();
-        $metaTable->addCell(1200)->addText("CUSTOMER PO", $bold);
-        $metaTable->addCell(800)->addText("SHIP VIA", $bold);
-        $metaTable->addCell(1000)->addText("F.O.B.", $bold);
-        $metaTable->addCell(800)->addText("TERMS", $bold);
-        $metaTable->addCell(1000)->addText("CONTACT", $bold);
-        $metaTable->addCell(1000)->addText("DELIVER TO", $bold);
-
-        $metaTable->addRow();
-        $metaTable->addCell(1200)->addText($corder->po, $style);
-        $metaTable->addCell(800)->addText($corder->svia === 'Other' ? $corder->svia_oth : $corder->svia, $style);
-        $metaTable->addCell(1000)->addText("{$corder->city}, {$corder->state}", $style);
-        $metaTable->addCell(800)->addText($vendor->e_payment ?? '', $style);
-        $metaTable->addCell(1000)->addText($corder->namereq, $style);
-        $metaTable->addCell(1000)->addText($corder->delto, $style);
-
-        // Items Table
-        $section->addTextBreak(1);
-        $itemTable = $section->addTable(['borderSize' => 6, 'borderColor' => '000000']);
-        $itemTable->addRow();
-        $itemTable->addCell(800)->addText("ITEM #", $bold);
-        $itemTable->addCell(3200)->addText("DESCRIPTION", $bold);
-        $itemTable->addCell(800)->addText("TOTAL QTY", $bold);
-        $itemTable->addCell(1000)->addText("UNIT PRICE", $bold);
-        $itemTable->addCell(1000)->addText("TOTAL", $bold);
-
-        $subtotal = 0;
-        foreach ($corder->items as $i => $item) {
-            $lineTotal = $item->qty2 * $item->uprice;
-            $subtotal += $lineTotal;
-            $itemTable->addRow();
-            $desc = ($i == 0 ? "{$corder->part_no} Rev {$corder->rev} " : '') . $item->itemdesc;
-            $itemTable->addCell(800)->addText($item->item, $style);
-            $itemTable->addCell(3200)->addText($desc, $style);
-            $itemTable->addCell(800)->addText($item->qty2, $style);
-            $itemTable->addCell(1000)->addText('$' . number_format($item->uprice, 2), $style);
-            $itemTable->addCell(1000)->addText('$' . number_format($lineTotal, 2), $style);
-        }
-
-        // Deliveries
-        $section->addTextBreak(1);
-        $deliveryTable = $section->addTable(['borderSize' => 6, 'borderColor' => '000000']);
-        $deliveryTable->addRow();
-        $deliveryTable->addCell(2000)->addText("Scheduled Qty", $bold);
-        $deliveryTable->addCell(2000)->addText("Dock Date", $bold);
-
-        foreach ($corder->deliveries as $delivery) {
-            $deliveryTable->addRow();
-            $deliveryTable->addCell(2000)->addText($delivery->qty, $style);
-            $deliveryTable->addCell(2000)->addText($delivery->date, $style);
-        }
-
-        // Totals
-        $section->addTextBreak();
-        $st = floatval($corder->stax);
-        $tax = $subtotal * $st;
-        $total = $subtotal + $tax;
-
-        $totalsTable = $section->addTable();
-        $totalsTable->addRow();
-        $totalsTable->addCell(6000);
-        $right = $totalsTable->addCell(4000);
-        $right->addText("Sub Total: $" . number_format($subtotal, 2), $bold);
-        $right->addText("Sale Tax: $" . number_format($tax, 2), $bold);
-        $right->addText("Total: $" . number_format($total, 2), $bold);
-
-        // Comments + Footer
-        $section->addTextBreak(1);
-        if ($corder->comments) {
-            $section->addText("Comments:\n" . $corder->comments, $style);
-        }
-
-        $section->addTextBreak(1);
-        $section->addText("If any errors are found in this Order Confirmation, please contact:", $style);
-        $section->addText("Armando Torres", $style);
-        $section->addText("(855) 722-7456 x 102 or (714) 553-7047", $style);
-
-        $section->addTextBreak(2);
-        $section->addText("THANK YOU FOR YOUR BUSINESS AND TRUST!", ['bold' => true, 'size' => 12], ['alignment' => \PhpOffice\PhpWord\SimpleType\Jc::CENTER]);
-
-        // Output
-        $filename = "OC-$invoiceNo-{$corder->customer}-{$corder->part_no}-{$corder->rev}-$shortname-$today.docx";
-        $filepath = storage_path($filename);
-        IOFactory::createWriter($phpWord, 'Word2007')->save($filepath);
-
-        return response()->download($filepath)->deleteFileAfterSend(true);
+    // Calculate totals
+    $subtotal = 0;
+    foreach ($corder->items as $item) {
+        $subtotal += $item->qty2 * $item->uprice;
     }
+    $st = floatval($corder->stax);
+    $tax = $subtotal * $st;
+    $total = $subtotal + $tax;
+
+    // Generate HTML content
+    $html = '
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="utf-8">
+        <title>Order Confirmation</title>
+        <style>
+            body {
+                font-family: DejaVu Sans, sans-serif;
+                font-size: 10pt;
+                line-height: 1.3;
+                margin: 0;
+                padding: 0;
+            }
+            .header-table { width: 100%; border-collapse: collapse; }
+            .header-table td { vertical-align: top; padding: 4px; }
+            .logo { width: 40px; height: 30px; }
+            .doc-title { font-size: 26pt; font-weight: bold; color: #5660B1; margin-bottom: 5px; }
+            .company-info { font-size: 10pt; }
+            .section-bar { background: #656BBC; color: #fff; font-weight: bold; padding: 6px; margin: 10px 0; }
+            .info-table { width: 100%; border-collapse: collapse; border: 2px solid #000; }
+            .info-table th, .info-table td { border: 1px solid #000; padding: 4px; }
+            .items-table { width: 100%; border-collapse: collapse; border: 2px solid #000; }
+            .items-table th { background: #656BBC; color: #fff; }
+            .items-table th, .items-table td { border: 1px solid #000; padding: 4px; }
+            .delivery-table { width: 100%; border-collapse: collapse; border: 2px solid #000; }
+            .delivery-table th { background: #656BBC; color: #fff; }
+            .delivery-table th, .delivery-table td { border: 1px solid #000; padding: 4px; }
+            .totals-table { width: 100%; margin-top: 10px; }
+            .bold { font-weight: bold; }
+            .text-right { text-align: right; }
+            .footer { margin-top: 20px; font-size: 9pt; text-align: center; }
+        </style>
+    </head>
+    <body>
+        <!-- HEADER -->
+        <table class="header-table">
+            <tr>
+                <td>
+                    <img src="'.public_path('images/logo.png').'" class="logo">
+                </td>
+                <td>
+                    <div class="doc-title">Order Confirmation</div>
+                    <div class="company-info">
+                        Date: '.$corder->podate.'<br>
+                        SO #: '.$corder->our_ord_num.'<br>
+                        Conf #: '.$invoiceNo.'
+                    </div>
+                </td>
+            </tr>
+        </table>
+
+        <!-- COMPANY INFO -->
+        <div style="margin-top:10px;">
+            <div class="bold">PCBs Global Incorporated</div>
+            <div class="company-info">
+                2500 E. La Palma Ave.<br>
+                Anaheim Ca. 92806<br>
+                Phone: (855) 722-7456<br>
+                Fax: (855) 262-5305
+            </div>
+        </div>
+
+        <!-- BILL TO / SHIP TO -->
+        <table style="width:100%; margin-top:10px;">
+            <tr>
+                <td style="width:50%; vertical-align:top;">
+                    <div class="section-bar">BILL TO</div>
+                    <div>'.($vendor->c_name ?? '').'</div>
+                    <div>(Accounts Payable)</div>
+                    <div>'.($vendor->c_address ?? '').'</div>
+                    <div>'.($vendor->c_address2 ?? '').'</div>
+                    <div>'.($vendor->c_address3 ?? '').'</div>
+                    <div>Phone: '.($vendor->c_phone ?? '').'</div>
+                    <div>Fax: '.($vendor->c_fax ?? '').'</div>
+                    <div>'.($vendor->c_website ?? '').'</div>
+                </td>
+                <td style="width:50%; vertical-align:top;">
+                    <div class="section-bar">SHIP TO</div>
+                    <div>'.($shipper->c_name ?? '').'</div>
+                    <div>'.($shipper->c_address ?? '').'</div>
+                    <div>'.($shipper->c_address2 ?? '').'</div>
+                    <div>'.($shipper->c_address3 ?? '').'</div>
+                    <div>Phone: '.($shipper->c_phone ?? '').'</div>
+                    <div>Fax: '.($shipper->c_fax ?? '').'</div>
+                    '.($corder->delto ? '<div>Delivered To: '.$corder->delto.'</div>' : '').'
+                </td>
+            </tr>
+        </table>
+
+        <!-- ORDER INFO -->
+        <div class="section-bar" style="margin-top:10px;">ORDER INFORMATION</div>
+        <table class="info-table">
+            <tr>
+                <th>CUSTOMER PO</th>
+                <th>SHIP VIA</th>
+                <th>F.O.B.</th>
+                <th>TERMS</th>
+                <th>CONTACT</th>
+                <th>DELIVER TO</th>
+            </tr>
+            <tr>
+                <td>'.$corder->po.'</td>
+                <td>'.($corder->svia === 'Other' ? $corder->svia_oth : $corder->svia).'</td>
+                <td>'.$corder->city.', '.$corder->state.'</td>
+                <td>'.($vendor->e_payment ?? '').'</td>
+                <td>'.$corder->namereq.'</td>
+                <td>'.$corder->delto.'</td>
+            </tr>
+        </table>
+
+        <!-- ITEMS TABLE -->
+        <div class="section-bar" style="margin-top:10px;">ITEMS</div>
+        <table class="items-table">
+            <tr>
+                <th>ITEM #</th>
+                <th>DESCRIPTION</th>
+                <th>TOTAL QTY</th>
+                <th>UNIT PRICE</th>
+                <th>TOTAL</th>
+            </tr>';
+
+    foreach ($corder->items as $i => $item) {
+        $lineTotal = $item->qty2 * $item->uprice;
+        $desc = ($i == 0 ? $corder->part_no.' Rev '.$corder->rev.' ' : '').$item->itemdesc;
+        $html .= '
+            <tr>
+                <td>'.$item->item.'</td>
+                <td>'.$desc.'</td>
+                <td>'.$item->qty2.'</td>
+                <td>$'.number_format($item->uprice, 2).'</td>
+                <td>$'.number_format($lineTotal, 2).'</td>
+            </tr>';
+    }
+
+    $html .= '
+        </table>
+
+        <!-- DELIVERIES -->
+        <div class="section-bar" style="margin-top:10px;">SCHEDULED DELIVERIES</div>
+        <table class="delivery-table">
+            <tr>
+                <th>Scheduled Qty</th>
+                <th>Dock Date</th>
+            </tr>';
+
+    foreach ($corder->deliveries as $delivery) {
+        $html .= '
+            <tr>
+                <td>'.$delivery->qty.'</td>
+                <td>'.$delivery->date.'</td>
+            </tr>';
+    }
+
+    $html .= '
+        </table>
+
+        <!-- TOTALS -->
+        <table class="totals-table">
+            <tr>
+                <td style="width:60%;"></td>
+                <td style="width:40%;">
+                    <div class="text-right bold">Sub Total: $'.number_format($subtotal, 2).'</div>
+                    <div class="text-right bold">Sale Tax: $'.number_format($tax, 2).'</div>
+                    <div class="text-right bold">Total: $'.number_format($total, 2).'</div>
+                </td>
+            </tr>
+        </table>';
+
+    // COMMENTS
+    if ($corder->comments) {
+        $html .= '
+        <div style="margin-top:10px;">
+            <div class="bold">Comments:</div>
+            <div>'.nl2br(e($corder->comments)).'</div>
+        </div>';
+    }
+
+    // FOOTER
+    $html .= '
+        <div class="footer">
+            <div>If any errors are found in this Order Confirmation, please contact:</div>
+            <div>Armando Torres</div>
+            <div>(855) 722-7456 x 102 or (714) 553-7047</div>
+            <div style="margin-top:20px; font-weight:bold;">THANK YOU FOR YOUR BUSINESS AND TRUST!</div>
+        </div>
+    </body>
+    </html>';
+
+    // Generate filename
+    $filename = "OC-".$invoiceNo."-".$corder->customer."-".$corder->part_no."-".$corder->rev."-".$shortname."-".$today.".doc";
+
+    // Return as downloadable Word document
+    return Response::make($html, 200, [
+        'Content-Type' => 'application/msword',
+        'Content-Disposition' => 'attachment; filename="'.$filename.'"'
+    ]);
+}
     // view pdf purchase order ..
     public function viewpurchaseorder($id)
 {
@@ -790,195 +968,254 @@ class CreditPdfController extends Controller
     return $pdf->stream("PO-{$poNumber}-{$porder->customer}.pdf");
 }
     // download pdf purchase order ..
-    public function downloadpurchaseorder($id){
-            $porder = porder_tb::findOrFail($id);
-            $items = items_tb::where('pid', $porder->poid)->orderBy('item')->get();
+    public function downloaddocpurchaseorder($id) {
+    $porder = porder_tb::findOrFail($id);
+    $items = items_tb::where('pid', $porder->poid)->orderBy('item')->get();
+    $vendor = vendor_tb::find($porder->vid);
+    $shipper = str_starts_with($porder->sid, 'c') 
+        ? data_tb::find(substr($porder->sid, 1)) 
+        : shipper_tb::find($porder->sid);
+    $order = order_tb::where('cust_name', $porder->customer)
+        ->where('part_no', $porder->part_no)
+        ->first();
+    $poNote = notes_tb::where('ntype', 'po')->first();
+    $poNumber = $porder->poid + 9933;
 
-            $vendor = vendor_tb::find($porder->vid);
+    $itemDescriptions = [
+        'pcbp' => 'PCB Fabrication (Production)',
+        'pcbeo' => 'PCB Fabrication (Expedited Order)',
+        'nre' => 'NRE',
+        'exf' => 'Expedite fee',
+        'suc' => 'Set-up charge',
+        'frt' => 'Freight',
+        'etst' => 'E-Test',
+        'fpb' => 'Flying Probe',
+        'etstf' => 'E-Test Fixture',
+        'sf' => 'Surface Finish',
+        'oth' => 'Other',
+    ];
 
-            $shipper = (str_starts_with($porder->sid, 'c'))
-                ? data_tb::find(substr($porder->sid, 1))
-                : shipper_tb::find($porder->sid);
-
-            $order = order_tb::where('cust_name', $porder->customer)
-                ->where('part_no', $porder->part_no)
-                ->first();
-
-            $poNote = notes_tb::where('ntype', 'po')->first();
-
-            $specialInstructions = $order?->special_instadmin;
-            $poNumber = $porder->poid + 9933;
-
-            $itemDescriptions = [
-                'pcbp' => 'PCB Fabrication (Production)',
-                'pcbeo' => 'PCB Fabrication (Expedited Order)',
-                'nre' => 'NRE',
-                'exf' => 'Expedite fee',
-                'suc' => 'Set-up charge',
-                'frt' => 'Freight',
-                'etst' => 'E-Test',
-                'fpb' => 'Flying Probe',
-                'etstf' => 'E-Test Fixture',
-                'sf' => 'Surface Finish',
-                'oth' => 'Other',
-            ];
-            $path = public_path('images/logo.png'); // Make sure the image is actually here
-            $type = pathinfo($path, PATHINFO_EXTENSION); // png
-            $data = file_get_contents($path);
-            $base64Logo = 'data:image/' . $type . ';base64,' . base64_encode($data);
-            
-            $pdf = Pdf::loadView('pdf.purchase-order', compact(
-                'porder', 'items', 'vendor', 'shipper', 'order', 'specialInstructions','base64Logo',
-                'itemDescriptions', 'poNumber', 'poNote'
-            ))->setPaper('a4', 'portrait')->setOptions([
-                'isHtml5ParserEnabled' => true,
-                'isRemoteEnabled' => true,
-                'defaultFont' => 'DejaVu Sans',
-            ]);
-
-            return $pdf->download("PO-{$poNumber}-{$porder->customer}.pdf");
-
+    // Calculate totals
+    $total = 0;
+    foreach ($items as $item) {
+        $total += $item->qty2 * $item->uprice;
     }
-    // download doc purchase order ...
-    public function downloaddocpurchaseorder($id){
-        $porder = porder_tb::findOrFail($id);
-        $items = items_tb::where('pid', $porder->poid)->orderBy('item')->get();
-        $vendor = vendor_tb::find($porder->vid);
-        $shipper = str_starts_with($porder->sid, 'c') 
-            ? data_tb::find(substr($porder->sid, 1)) 
-            : shipper_tb::find($porder->sid);
-        $order = order_tb::where('cust_name', $porder->customer)
-            ->where('part_no', $porder->part_no)
-            ->first();
-        $poNote = notes_tb::where('ntype', 'po')->first();
-        $poNumber = $porder->poid + 9933;
 
-        $phpWord = new PhpWord();
-        $section = $phpWord->addSection();
-
-        // Header Row
-        $table = $section->addTable();
-        $table->addRow();
-
-        // Logo Cell
-        $cell = $table->addCell(4000);
-        $logoPath = public_path('images/logo.png');
-        if (file_exists($logoPath)) {
-            $cell->addImage($logoPath, ['width' => 120, 'height' => 100]);
-        }
-
-        // PO Info Cell
-        $cell = $table->addCell(5000);
-        $cell->addText('Purchase Order', ['bold' => true, 'size' => 14, 'color' => '5660B1']);
-        $cell->addText("Date: " . $porder->podate);
-        $cell->addText("PO #: " . $poNumber);
-
-        // Address
-        $section->addTextBreak(1);
-        $section->addText("PCBs Global Incorporated\n2500 E. La Palma Ave.\nAnaheim Ca. 92806\nPhone: (855) 722-7456\nFax: (855) 262-5305", ['size' => 10]);
-
-        $section->addTextBreak(1);
-
-        // Vendor & Ship To
-        $table = $section->addTable();
-        $table->addRow();
-        $vendorCell = $table->addCell(4500);
-        $shipperCell = $table->addCell(4500);
-
-        $vendorCell->addText("VENDOR", ['bold' => true, 'bgColor' => '656BBC', 'color' => 'FFFFFF']);
-        $vendorCell->addText($vendor->c_name ?? '');
-        $vendorCell->addText($vendor->c_address ?? '');
-        $vendorCell->addText(trim($vendor->c_address2 . ' ' . $vendor->c_address3));
-        $vendorCell->addText("Phone: {$vendor->c_phone}");
-        $vendorCell->addText("Fax: {$vendor->c_fax}");
-        $vendorCell->addText($vendor->c_website);
-
-        $shipperCell->addText("SHIP TO", ['bold' => true, 'bgColor' => '656BBC', 'color' => 'FFFFFF']);
-        $shipperCell->addText($shipper->c_name ?? '');
-        $shipperCell->addText($shipper->c_address ?? '');
-        $shipperCell->addText(trim($shipper->c_address2 . ' ' . $shipper->c_address3));
-        $shipperCell->addText("Phone: {$shipper->c_phone}");
-        $shipperCell->addText("Fax: {$shipper->c_fax}");
-        $shipperCell->addText($shipper->c_website);
-
-        $section->addTextBreak(1);
-
-        // Shipment Info Table
-        $table = $section->addTable(['borderSize' => 6, 'borderColor' => '999999']);
-        $table->addRow();
-        $table->addCell(2000)->addText('REQUISITIONER', ['bold' => true]);
-        $table->addCell(2000)->addText('SHIP VIA', ['bold' => true]);
-        $table->addCell(2000)->addText('F.O.B.', ['bold' => true]);
-        $table->addCell(2000)->addText('SHIPPING TERMS', ['bold' => true]);
-
-        $table->addRow();
-        $table->addCell(2000)->addText($porder->namereq);
-        $table->addCell(2000)->addText($porder->svia === 'Other' ? $porder->svia_oth : $porder->svia);
-        $table->addCell(2000)->addText($porder->city . ', ' . $porder->state);
-        $table->addCell(2000)->addText($porder->sterms);
-
-        $section->addTextBreak(1);
-
-        // Items Table
-        $table = $section->addTable(['borderSize' => 6, 'borderColor' => '999999']);
-        $table->addRow();
-        $table->addCell()->addText('ITEM #', ['bold' => true]);
-        $table->addCell()->addText('PART NUMBER', ['bold' => true]);
-        $table->addCell()->addText('REV', ['bold' => true]);
-        $table->addCell()->addText('LYRS', ['bold' => true]);
-        $table->addCell()->addText('DESCRIPTION', ['bold' => true]);
-        $table->addCell()->addText('QTY', ['bold' => true]);
-        $table->addCell()->addText('UNIT PRICE', ['bold' => true]);
-        $table->addCell()->addText('TOTAL', ['bold' => true]);
-
-        $total = 0;
-        foreach ($items as $i => $item) {
-            $lineTotal = $item->qty2 * $item->uprice;
-            $total += $lineTotal;
-            $table->addRow();
-            $table->addCell()->addText($item->item);
-            $table->addCell()->addText($i === 0 ? $porder->part_no : '');
-            $table->addCell()->addText($i === 0 ? $porder->rev : '');
-            $table->addCell()->addText(explode('Lyrs', $porder->no_layer)[0]);
-            $table->addCell()->addText($item->desc);
-            $table->addCell()->addText($item->qty2);
-            $table->addCell()->addText('$' . number_format($item->uprice, 2));
-            $table->addCell()->addText('$' . number_format($lineTotal, 2));
-        }
-
-        $section->addText("Total: $" . number_format($total, 2), ['bold' => true]);
-
-        // Customer Info
-        $section->addText("Customer: {$porder->customer}");
-        $section->addText("PO #: {$porder->po}");
-        $section->addText("Boards to dock at destination {$porder->date1}");
-
-        // Notes and special instructions
-        if ($order?->special_instadmin) {
-            $section->addText("Special Instructions:", ['bold' => true]);
-            $instructions = explode('|', $order->special_instadmin);
-            foreach ($instructions as $index => $inst) {
-                $section->addText(($index + 1) . ') ' . $inst);
+    // Generate HTML content matching PDF structure
+    $html = '
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="utf-8">
+        <title>Purchase Order</title>
+        <style>
+            @page {
+                margin: 10px 15px;
             }
-        }
+            body {
+                font-family: DejaVu Sans, sans-serif;
+                font-size: 8pt;
+                margin: 0;
+                padding: 0;
+            }
+            table {
+                page-break-inside: avoid;
+            }
+            .title {
+                font-size: 15pt;
+                color: #5660B1;
+            }
+            .section-title {
+                background: #656BBC;
+                color: #FFF;
+                padding: 2px;
+                font-weight: bold;
+            }
+            .table, .table td, .table th {
+                border-collapse: collapse;
+                border: 1px solid #999;
+                padding: 2px;
+            }
+            .text-center {
+                text-align: center;
+            }
+            .text-right {
+                text-align: right;
+            }
+            .currency {
+                text-align: right;
+                padding-right: 5px;
+            }
+        </style>
+    </head>
+    <body>
+        <!-- Header matching PDF structure -->
+        <table width="100%">
+            <tr>
+                <td><img src="'.public_path('images/logo.png').'" width="150" height="100px" /></td>
+                <td></td>
+                <td class="text-right">
+                    <h1 class="title">Purchase Order</h1>
+                    Date: <strong>'.$porder->podate.'</strong><br>
+                    PO #: <strong>'.$poNumber.'</strong>
+                </td>
+            </tr>
+        </table>
 
-        if ($poNote?->note) {
-            $section->addText("Additional Notes:", ['bold' => true]);
-            Html::addHtml($section, nl2br(e($poNote->note)));
-        }
+        <!-- Company Info -->
+        <table width="100%">
+            <tr>
+                <td><strong>PCBs Global Incorporated</strong><br>
+                    2500 E. La Palma Ave.<br>
+                    Anaheim Ca. 92806<br>
+                    Phone: (855) 722-7456<br>
+                    Fax: (855) 262-5305
+                </td>
+            </tr>
+        </table>
 
-        // Footer
-        $section->addTextBreak();
-        $section->addText("THANK YOU FOR YOUR BUSINESS AND TRUST!", ['bold' => true, 'size' => 12], ['alignment' => 'center']);
-        $section->addText("FM8.4.1", ['size' => 8], ['alignment' => 'right']);
+        <!-- Vendor/Ship To -->
+        <table width="100%">
+            <tr>
+                <td class="section-title" colspan="2" width="45%">VENDOR</td>
+                <td width="10%"></td>
+                <td class="section-title" colspan="2" width="45%">SHIP TO</td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    '.($vendor->c_name ?? '').'<br>
+                    '.($vendor->c_address ?? '').'<br>
+                    '.$vendor->c_address2.' '.$vendor->c_address3.'<br>
+                    Phone: '.($vendor->c_phone ?? '').'<br>
+                    Fax: '.($vendor->c_fax ?? '').'<br>
+                    '.($vendor->c_website ?? '').'
+                </td>
+                <td></td>
+                <td colspan="2">
+                    '.($shipper->c_name ?? '').'<br>
+                    '.($shipper->c_address ?? '').'<br>
+                    '.($shipper->c_address2 ?? '').' '.($shipper->c_address3 ?? '').'<br>
+                    Phone: '.($shipper->c_phone ?? '').'<br>
+                    Fax: '.($shipper->c_fax ?? '').'<br>
+                    '.($shipper->c_website ?? '').'
+                </td>
+            </tr>
+        </table>
 
-        $filename = "PO-{$poNumber}-" . preg_replace('/[^A-Za-z0-9\-]/', '_', $porder->customer) . ".docx";
-        $tempFile = storage_path("app/{$filename}");
+        <!-- Shipment Info -->
+        <table width="100%">
+            <tr class="section-title text-center">
+                <td>REQUISITIONER</td>
+                <td>SHIP VIA</td>
+                <td>F.O.B.</td>
+                <td>SHIPPING TERMS</td>
+            </tr>
+            <tr class="text-center">
+                <td>'.$porder->namereq.'</td>
+                <td>'.($porder->svia === 'Other' ? $porder->svia_oth : $porder->svia).'</td>
+                <td>'.$porder->city.', '.$porder->state.'</td>
+                <td>'.$porder->sterms.'</td>
+            </tr>
+        </table>
 
-        IOFactory::createWriter($phpWord, 'Word2007')->save($tempFile);
+        <!-- Items Table -->
+        <table width="100%" class="table">
+            <thead class="text-center section-title">
+                <tr>
+                    <th>ITEM #</th>
+                    <th>PART NUMBER</th>
+                    <th>REV</th>
+                    <th>LYRS</th>
+                    <th>DESCRIPTION</th>
+                    <th>QTY</th>
+                    <th>UNIT PRICE</th>
+                    <th>TOTAL</th>
+                </tr>
+            </thead>
+            <tbody>';
 
-        return response()->download($tempFile)->deleteFileAfterSend(true);
+    foreach ($items as $i => $item) {
+        $lineTotal = $item->qty2 * $item->uprice;
+        $html .= '
+                <tr class="text-center">
+                    <td>'.$item->item.'</td>
+                    <td>'.($i == 0 ? $porder->part_no : '').'</td>
+                    <td>'.($i == 0 ? $porder->rev : '').'</td>
+                    <td>'.explode('Lyrs', $porder->no_layer)[0].'</td>
+                    <td>'.($itemDescriptions[$item->dpval] ?? $item->desc).'</td>
+                    <td>'.$item->qty2.'</td>
+                    <td class="currency">$'.number_format($item->uprice, 2).'</td>
+                    <td class="currency">$'.number_format($lineTotal, 2).'</td>
+                </tr>';
     }
+
+    $html .= '
+            </tbody>
+        </table>
+
+        <!-- Total -->
+        <table width="100%">
+            <tr>
+                <td width="70%"></td>
+                <td>
+                    <strong>Total:</strong> $'.number_format($total, 2).'
+                </td>
+            </tr>
+        </table>
+
+        <!-- Footer Notes -->
+        <table width="100%">
+            <tr>
+                <td style="font-size: 10pt">
+                    '.($porder->iscancel === 'no' ? '
+                    Customer: '.$porder->customer.'<br>
+                    PO #: '.$porder->po.'<br>
+                    Boards to dock at destination '.$porder->date1.'<br>
+                    '.($porder->rohs === 'yes' ? 'RoHS Certs required<br>' : '').'
+                    '.($poNote && $poNote->ntext ? nl2br(e($poNote->ntext)).'<br>' : '').'
+                    ' : '').'
+
+                    '.($porder->sp_reqs ? '
+                    <strong>Special Requirements:</strong><br>
+                    <div style="width: 750px; font-size: 9pt; padding-bottom: 0px">
+                        '.implode('<br>', array_map(function($req, $index) {
+                            return ($index + 1).'.) '.$req;
+                        }, explode('|', $porder->sp_reqs), array_keys(explode('|', $porder->sp_reqs)))).'
+                    </div>
+                    ' : '').'
+
+                    '.($porder->comments ? '
+                    <div style="padding-bottom:5px;"><strong>Additional Requirements</strong></div>
+                    '.nl2br(e($porder->comments)).'<br>
+                    ' : '').'
+
+                    '.($porder->iscancel === 'no' ? '
+                    <p>
+                        Invoice: armando@pcbsglobal.com and silvia@pcbsglobal.com<br>
+                        Email working data to: armando@pcbsglobal.com and isaac@pcbsglobal.com<br>
+                        Please refer any questions to: armando@pcbsglobal.com and isaac@pcbsglobal.com<br>
+                    </p>
+                    ' : '
+                    Please refer any questions to: armando@pcbsglobal.com and isaac@pcbsglobal.com<br>
+                    ').'
+                </td>
+            </tr>
+        </table>
+
+        <p class="text-center" style="font-size: 14pt;"><strong>THANK YOU FOR YOUR BUSINESS AND TRUST!</strong></p>
+        <span style="position:absolute;bottom:0px;font-size:8px;">FM8.4.1</span>
+    </body>
+    </html>';
+
+    // Generate filename
+    $filename = "PO-".$poNumber."-".preg_replace('/[^A-Za-z0-9\-]/', '_', $porder->customer).".doc";
+
+    // Return as downloadable Word document
+    return Response::make($html, 200, [
+        'Content-Type' => 'application/msword',
+        'Content-Disposition' => 'attachment; filename="'.$filename.'"'
+    ]);
+}
     // for qoute section pdf ..
     public function viewPdfqoute($id)
     {

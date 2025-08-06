@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html>
-
 <head>
     <meta charset="utf-8">
     <title>{{ $title }}</title>
@@ -39,18 +38,58 @@
     .right {
         text-align: right;
     }
+    
+    .currency {
+        text-align: right;
+        padding-right: 10px;
+    }
     </style>
 </head>
 
 <body>
+
+    @php
+    // Custom date parsing function
+    function formatCustomDate($dateString) {
+        if (empty($dateString)) {
+            return '';
+        }
+        
+        // Handle "Wednesday-10-10-2018" format
+        if (preg_match('/^[A-Za-z]+-\d{1,2}-\d{1,2}-\d{4}$/', $dateString)) {
+            $parts = explode('-', $dateString);
+            $month = $parts[1];
+            $day = $parts[2];
+            $year = $parts[3];
+            
+            try {
+                return \Carbon\Carbon::createFromDate($year, $month, $day)->format('l, m/d/Y');
+            } catch (\Exception $e) {
+                return $dateString;
+            }
+        }
+        
+        // Try standard parsing as fallback
+        try {
+            return \Carbon\Carbon::parse($dateString)->format('m/d/Y');
+        } catch (\Exception $e) {
+            return $dateString;
+        }
+    }
+
+    // Format currency with $ sign
+    function formatCurrency($value) {
+        return '$' . number_format($value, 2);
+    }
+    @endphp
 
     <table width="100%">
         <tr>
             <td><img src="{{ public_path('images/logo.png') }}" width="150"></td>
             <td class="header">
                 <span class="title"><b>Packing Slip</b></span><br>
-                Ordered Date: <strong>{{ \Carbon\Carbon::parse($packing->odate)->format('l-m-d-Y') }}</strong><br>
-                Date: <strong>{{ \Carbon\Carbon::parse($packing->podate)->format('m/d/Y') }}</strong><br>
+                Ordered Date: <strong>{{ formatCustomDate($packing->odate) }}</strong><br>
+                Date: <strong>{{ formatCustomDate($packing->podate) }}</strong><br>
                 Our Order No: <strong>{{ $packing->our_ord_num }}</strong><br>
                 Packing Slip No: <strong>{{ $invoiceNo }}</strong><br>
                 Purchase Order No: <strong>{{ $packing->po }}</strong><br>
@@ -106,8 +145,7 @@
                 Phone: {{ $shipper->c_phone ?? '' }}<br>
                 Fax: {{ $shipper->c_fax ?? '' }}<br>
                 @if ($packing->delto) Delivered to: {{ $packing->delto }}<br> @endif
-                @if ($packing->date1) Delivered On: {{ \Carbon\Carbon::parse($packing->date1)->format('l-m-d-Y') }}
-                @endif
+                @if ($packing->date1) Delivered On: {{ formatCustomDate($packing->date1) }} @endif
             </td>
         </tr>
     </table>
@@ -122,21 +160,33 @@
                 <th>REV</th>
                 <th>LYRS</th>
                 <th>DESCRIPTION</th>
-                <th>QTY ORDERED</th>
-                <th>QTY DELIVERED</th>
+                <th class="currency">UNIT PRICE</th>
+                <th class="currency">QTY ORDERED</th>
+                <th class="currency">QTY DELIVERED</th>
+                <th class="currency">LINE TOTAL</th>
             </tr>
         </thead>
         <tbody>
-            @php $qtot = 0; $totq = 0; @endphp
+            @php 
+            $qtot = 0; 
+            $totq = 0;
+            $grandTotal = 0;
+            @endphp
             @foreach ($packing->items as $index => $item)
+            @php
+            $lineTotal = $item->uprice * $item->shipqty;
+            $grandTotal += $lineTotal;
+            @endphp
             <tr>
                 <td>{{ $item->item }}</td>
                 <td>{{ $index === 0 ? $packing->part_no : '' }}</td>
                 <td>{{ $index === 0 ? $packing->rev : '' }}</td>
                 <td>{{ $index === 0 ? explode('Lyrs', $packing->no_layer)[0] : '' }}</td>
                 <td>{{ $item->itemdesc }}</td>
-                <td>{{ $item->qty2 }}</td>
-                <td>{{ $item->shipqty }}</td>
+                <td class="currency">{{ formatCurrency($item->uprice) }}</td>
+                <td class="currency">{{ $item->qty2 }}</td>
+                <td class="currency">{{ $item->shipqty }}</td>
+                <td class="currency">{{ formatCurrency($lineTotal) }}</td>
             </tr>
             @php
             $qtot += (int)$item->qty2;
@@ -150,10 +200,11 @@
 
     <table width="100%">
         <tr>
-            <td width="70%"></td>
+            <td width="60%"></td>
             <td>
                 <strong>Total Ordered:</strong> {{ $qtot }}<br>
-                <strong>Total Delivered:</strong> {{ $totq }}
+                <strong>Total Delivered:</strong> {{ $totq }}<br>
+                <strong>Grand Total:</strong> {{ formatCurrency($grandTotal) }}
             </td>
         </tr>
     </table>
@@ -173,5 +224,4 @@
     <span style="position:absolute;bottom:0px;font-size:8px;">FM8.5.1</span>
 
 </body>
-
 </html>

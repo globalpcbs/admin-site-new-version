@@ -19,7 +19,7 @@
                         <select class="form-select" wire:model.defer="vid">
                             <option value="">Select customer…</option>
                             @foreach ($customers as $c)
-                            <option value="{{ $c->data_id }}">{{ $c->c_name }}</option>
+                                <option value="{{ $c->data_id }}">{{ $c->c_name }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -36,11 +36,11 @@
                         <select class="form-select" wire:model.defer="sid">
                             <option value="">Select…</option>
                             @foreach ($customers as $c)
-                            <option value="c{{ $c->data_id }}">{{ $c->c_name }}</option>
+                                <option value="c{{ $c->data_id }}">{{ $c->c_name }}</option>
                             @endforeach
                             <option disabled>────────── Shippers List ──────────</option>
                             @foreach ($shippers as $s)
-                            <option value="s{{ $s->data_id }}">{{ $s->c_name }}</option>
+                                <option value="s{{ $s->data_id }}">{{ $s->c_name }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -81,16 +81,16 @@
 
                 <!-- Ship Via – Other -->
                 @if ($svia === 'Other')
-                <div class="col-md-4">
-                    <label class="form-label fw-semibold">
-                        <i class="fa fa-pencil"></i> Specify
-                    </label>
-                    <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-pencil"></i></span>
-                        <input type="text" class="form-control" wire:model.defer="svia_oth">
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">
+                            <i class="fa fa-pencil"></i> Specify
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fa fa-pencil"></i></span>
+                            <input type="text" class="form-control" wire:model.defer="svia_oth">
+                        </div>
+                        @error('svia_oth') <div class="text-danger small">{{ $message }}</div> @enderror
                     </div>
-                    @error('svia_oth') <div class="text-danger small">{{ $message }}</div> @enderror
-                </div>
                 @endif
 
                 <!-- Freight Charge -->
@@ -166,45 +166,45 @@
 
                     <tbody>
                         @foreach ($items as $index => $row)
-                        <tr wire:key="row-{{ $index }}">
-                            <!-- Item -->
-                            <td>
-                                <div class="input-group input-group-sm">
-                                    <span class="input-group-text"><i class="fa fa-tag"></i></span>
-                                    <input type="text" class="form-control" wire:model.defer="items.{{ $index }}.item">
-                                </div>
-                            </td>
+                            <tr wire:key="row-{{ $index }}">
+                                <!-- Item -->
+                                <td>
+                                    <div class="input-group input-group-sm">
+                                        <span class="input-group-text"><i class="fa fa-tag"></i></span>
+                                        <input type="text" class="form-control" wire:model.defer="items.{{ $index }}.item">
+                                    </div>
+                                </td>
 
-                            <!-- Description -->
-                            <td>
-                                <input type="text" class="form-control form-control-sm"
-                                    wire:model.defer="items.{{ $index }}.desc">
-                            </td>
+                                <!-- Description -->
+                                <td>
+                                    <input type="text" class="form-control form-control-sm"
+                                        wire:model.defer="items.{{ $index }}.desc">
+                                </td>
 
-                            <!-- Qty -->
-                            <td>
-                                <div class="input-group input-group-sm">
-                                    <span class="input-group-text"><i class="fa fa-sort-numeric-asc"></i></span>
-                                    <input type="text" class="form-control text-end"
-                                        wire:model.lazy="items.{{ $index }}.qty">
-                                    {{--  ↑  change .lazy  or  .debounce.300ms  --}}
-                                </div>
-                            </td>
+                                <!-- Qty -->
+                                <td>
+                                    <div class="input-group input-group-sm">
+                                        <span class="input-group-text"><i class="fa fa-sort-numeric-asc"></i></span>
+                                        <input type="text" class="form-control text-end"
+                                            wire:model.lazy="items.{{ $index }}.qty">
+                                        {{-- ↑ change .lazy or .debounce.300ms --}}
+                                    </div>
+                                </td>
 
-                            <!-- Unit price -->
-                            <td>
-                                <div class="input-group input-group-sm">
-                                    <span class="input-group-text"><i class="fa fa-usd"></i></span>
-                                    <input type="text" class="form-control text-end"
-                                        wire:model.lazy="items.{{ $index }}.uprice">
-                                </div>
-                            </td>
+                                <!-- Unit price -->
+                                <td>
+                                    <div class="input-group input-group-sm">
+                                        <span class="input-group-text"><i class="fa fa-usd"></i></span>
+                                        <input type="text" class="form-control text-end"
+                                            wire:model.lazy="items.{{ $index }}.uprice">
+                                    </div>
+                                </td>
 
-                            <!-- Line total -->
-                            <td class="text-end">
-                                ${{ number_format($this->lineTotal($index), 2) }}
-                            </td>
-                        </tr>
+                                <!-- Line total -->
+                                <td class="text-end">
+                                    ${{ number_format($this->lineTotal($index), 2) }}
+                                </td>
+                            </tr>
                         @endforeach
                     </tbody>
 
@@ -236,15 +236,15 @@
                     </div>
 
                     @if($matches)
-                    <ul class="list-group position-absolute w-100 shadow-sm"
-                        style="z-index:1050; max-height:220px; overflow-y:auto;">
-                        @foreach($matches as $i => $m)
-                        <li wire:key="match-{{ $i }}" class="list-group-item list-group-item-action"
-                            wire:click="useMatch({{ $i }})">
-                            {{ $m['label'] }}
-                        </li>
-                        @endforeach
-                    </ul>
+                        <ul class="list-group position-absolute w-100 shadow-sm"
+                            style="z-index:1050; max-height:220px; overflow-y:auto;">
+                            @foreach($matches as $i => $m)
+                                <li wire:key="match-{{ $i }}" class="list-group-item list-group-item-action"
+                                    wire:click="useMatch({{ $i }})">
+                                    {{ $m['label'] }}
+                                </li>
+                            @endforeach
+                        </ul>
                     @endif
                 </div>
                 <!-- {{ $search }} -->
@@ -382,7 +382,7 @@
 
             <!-- Alerts panel -->
             @if ($alertHtml)
-            <div class="alert alert-info mb-4" {!! $alertHtml !!}></div>
+                <div class="alert alert-info mb-4" {!! $alertHtml !!}></div>
             @endif
 
             <!-- Buttons -->
@@ -397,11 +397,11 @@
         </form>
     </div>
     <!-- Alert Modal -->
-    <div class="modal fade @if($showAlertPopup) show d-block @endif" tabindex="-1"
+    <div class="modal fade @if($showAlertPopup) show d-block @endif" id="alertModal" tabindex="-1"
         style="@if($showAlertPopup) display: block; @endif" role="dialog">
-        <div class="modal-dialog modal-dialog-centered" style="max-width: 500px;">
+        <div class="modal-dialog modal-dialog-centered draggable-modal" style="max-width: 500px;">
             <div class="modal-content" style="background: #ccffff; border: 1px solid #999; font-size: 13px;">
-                <div class="modal-header py-2 px-3" id="alertModalHeader"
+                <div class="modal-header py-2 px-3 modal-drag-handle"
                     style="background: transparent; border-bottom: 1px solid #999; cursor: move;">
                     <label class="modal-title fw-bold text-dark m-0" style="font-size: 18px;">
                         <i class="fa fa-bell"></i> Part no Alerts</label>
@@ -411,64 +411,69 @@
 
                 <div class="modal-body pt-2 px-3">
                     @if(!empty($alertMessages))
-                    @foreach($alertMessages as $index => $message)
-                    <div class="pb-1 mb-1 border-bottom" wire:key="alert-{{ $message->id }}">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <strong>{{ $index + 1 }}.</strong>
-                                <span style="font-size: 13px;">{{ $message->alert }}</span>
+                        @php 
+                        $count = 1;
+                        @endphp
+                        @foreach($alertMessages as $index => $message)
+                            <div class="pb-1 mb-1 border-bottom" wire:key="alert-{{ $message->id }}">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <strong>{{ $count++ }}.</strong>
+                                        <span style="font-size: 13px;">{{ $message->alert }}</span>
+                                    </div>
+                                    <div class="d-flex gap-1">
+                                        <button type="button" class="btn btn-sm text-primary" style="font-size: 12px;"
+                                            wire:click="editAlert({{ $message->id }})">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-sm text-danger" style="font-size: 12px;"
+                                            wire:click="deleteAlert({{ $message->id }})">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="d-flex gap-1">
-                                <button type="button" class="btn btn-sm text-primary" style="font-size: 12px;"
-                                    wire:click="editAlert({{ $message->id }})">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button type="button" class="btn btn-sm text-danger" style="font-size: 12px;"
-                                    wire:click="deleteAlert({{ $message->id }})">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    @endforeach
+                        @endforeach
                     @else
-                    <div class="text-muted mb-3" style="font-size: 13px;">No alerts found.</div>
+                        <div class="text-muted mb-3" style="font-size: 13px;">No alerts found.</div>
                     @endif
 
-                    <!-- New/Edit Alert Form -->
                     <div class="mt-2 mb-2">
                         <label class="form-label small mb-1">
-                            @if($editingAlertId) Edit Alert @else Add New Alert @endif
+                            @if($editingAlertId)
+                                Edit Alert
+                            @else
+                                Add New Alert
+                            @endif
                         </label>
                         <div class="input-group mb-2">
-                            <input type="text" class="form-control" wire:model="newAlert">
+                            <input type="text" class="form-control" value="{{ $newAlert }}" wire:model="newAlert"
+                                style="pointer-events: auto;"> <!-- Ensure input is always clickable -->
+                            <br />
+                            @error('newAlert')
+                                <font color="red">{{ $message }}</font>
+                            @enderror
                             @if($editingAlertId)
-                            <button class="btn btn-success" wire:click.prevent="updateAlert">Update</button>
-                            <button class="btn btn-secondary" wire:click="cancelEdit">Cancel</button>
+                                <button class="btn btn-success" wire:click.prevent="updateAlert">Update</button>
+                                <button class="btn btn-secondary" wire:click="cancelEdit">Cancel</button>
                             @else
-                            <button class="btn btn-outline-dark" wire:click="addAlert">Add Alert</button>
+                                <button class="btn btn-outline-dark" wire:click="addAlert">Add Alert</button>
                             @endif
                         </div>
-                        @error('newAlert') <div class="text-danger small">{{ $message }}</div> @enderror
                     </div>
 
-                    <!-- Alert Type Checkboxes -->
                     <div class="d-flex flex-wrap gap-2">
-                        @foreach([
-                        'quo' => 'Quote',
-                        'con' => 'Confirmation',
-                        'po' => 'Purchase Order',
-                        'pac' => 'Packing',
-                        'inv' => 'Invoice',
-                        'cre' => 'Credit'
-                        ] as $value => $label)
-                        <div class="form-check">
-                            <input type="checkbox" class="form-check-input" id="type-{{ $value }}" value="{{ $value }}"
-                                wire:model="alertTypes">
-                            <label class="form-check-label" for="type-{{ $value }}">{{ $label }}</label>
-                        </div>
+                        @foreach(['quo' => 'Quote', 'con' => 'Confirmation', 'pac' => 'Packing', 'inv' => 'Invoice', 'cre' => 'Credit'] as $value => $label)
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" id="type-{{ $value }}" value="{{ $value }}"
+                                    wire:model="alertTypes"
+                                    wire:key="alert-type-{{ $value }}-{{ $editingAlertId ?? 'new' }}">
+                                <label class="form-check-label" for="type-{{ $value }}">{{ $label }}</label>
+                            </div>
                         @endforeach
-                        @error('alertTypes') <span class="text-danger small">{{ $message }}</span> @enderror
+                        @error('alertTypes')
+                            <span class="text-danger small">{{ $message }}</span>
+                        @enderror
                     </div>
                 </div>
             </div>
@@ -476,11 +481,11 @@
     </div>
 
     <!-- Profile Modal -->
-    <div class="modal fade @if($showProfilePopup) show d-block @endif" tabindex="-1"
+    <div class="modal fade @if($showProfilePopup) show d-block @endif" id="profileModal" tabindex="-1"
         style="@if($showProfilePopup) display: block; @endif" role="dialog">
-        <div class="modal-dialog modal-dialog-centered" style="max-width: 400px; width: 50%;">
+        <div class="modal-dialog modal-dialog-centered draggable-modal" style="max-width: 400px; width: 50%;">
             <div class="modal-content" style="background: #f0f8ff; border: 1px solid #999; font-size: 13px;">
-                <div class="modal-header py-2 px-3"
+                <div class="modal-header py-2 px-3 modal-drag-handle"
                     style="background: transparent; border-bottom: 1px solid #999; cursor: move;">
                     <label class="modal-title fw-bold text-dark m-0" style="font-size: 16px;">
                         <i class="fa fa-user-circle"></i> Customer Profile Requirements</label>
@@ -490,60 +495,161 @@
 
                 <div class="modal-body pt-2 px-4" style="max-height: 70vh; overflow-y: auto;">
                     @if(!empty($profileMessages))
-                    @foreach($profileMessages as $profile)
-                    @foreach($profile->details as $detail)
-                    @if(str_contains($detail->viewable, 'cre'))
-                    <div class="pb-2 mb-2 border-bottom">
-                        <div class="d-flex justify-content-between">
-                            <div style="width: 95%;">
-                                <strong>{{ $loop->iteration }}.</strong>
-                                <span style="font-size: 13px; word-wrap: break-word;">{{ $detail->reqs }}</span>
+                        @foreach($profileMessages as $profile)
+                            <div class="mb-3">
+                                @foreach($profile->details as $detail)
+                                    @if(str_contains($detail->viewable, 'cre'))
+                                        <div class="pb-2 mb-2 border-bottom">
+                                            <div class="d-flex justify-content-between">
+                                                <div style="width: 95%;">
+                                                    <strong>{{ $loop->iteration }}.</strong>
+                                                    <span style="font-size: 13px; word-wrap: break-word;">{{ $detail->reqs }}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endif
+                                @endforeach
                             </div>
-                        </div>
-                    </div>
-                    @endif
-                    @endforeach
-                    @endforeach
+                        @endforeach
                     @else
-                    <div class="text-muted mb-3" style="font-size: 13px;">No profile requirements found.</div>
+                        <div class="text-muted mb-3" style="font-size: 13px;">No profile requirements found.</div>
                     @endif
                 </div>
             </div>
         </div>
-    </div>
-    <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const modal = document.querySelector('.modal-dialog');
-        const header = document.getElementById('alertModalHeader');
+        </di v>
 
-        let isDragging = false;
-        let offsetX = 0,
-            offsetY = 0;
-
-        header.addEventListener('mousedown', function(e) {
-            isDragging = true;
-            const rect = modal.getBoundingClientRect();
-            offsetX = e.clientX - rect.left;
-            offsetY = e.clientY - rect.top;
-
-            modal.style.position = 'absolute';
-            modal.style.margin = 0;
-            modal.style.zIndex = 1055;
-
-            document.body.style.userSelect = 'none';
-        });
-
-        document.addEventListener('mousemove', function(e) {
-            if (isDragging) {
-                modal.style.left = `${e.clientX - offsetX}px`;
-                modal.style.top = `${e.clientY - offsetY}px`;
+        <style>
+            .modal {
+                z-index: 1040;
+                background-color: transparent;
+                pointer-events: none;
+                /* Allow clicks to pass through modal container */
             }
-        });
 
-        document.addEventListener('mouseup', function() {
-            isDragging = false;
-            document.body.style.userSelect = '';
-        });
-    });
-    </script>
-</div>
+            .modal.show {
+                z-index: 1050;
+                display: block;
+            }
+
+            .draggable-modal {
+                position: fixed;
+                margin: 0;
+                z-index: 1050;
+                pointer-events: auto;
+                /* Enable interactions within modal */
+            }
+
+            .mod al-drag-handle {
+                cursor: move;
+            }
+
+            /* Ensure all interactive elements are clickable */
+            .modal-content * {
+                pointer-events: auto;
+            }
+        </style>
+
+        <script src="https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js"></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                let zIndexCounter = 1050;
+
+                // Initializ  e interact.js for draggable modals
+                interact('.d raggable-modal').draggable({
+                    allo  wFrom: '.modal-drag-handle',
+                    ignoreFrom: 'button, input, a, .btn, [wire\\:click], [wire\\:model]',
+                    modifiers: [
+                        interact.modifiers.restrictRect({
+                            restriction: 'parent',
+                            endOnly: true
+                        })
+                    ],
+                    listener  s: {
+                        start(event) {
+                            bringToFront(event.target);
+                        },
+                        move(event) {
+                            const target = event.target;
+                            const x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx;
+                            const y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
+
+                            target.style.transform = `translate(${x}px, ${y}px)`;
+                            target.setAttribute('data-x', x);
+                            target.setAttribute('data-y', y);
+                        }
+                    }
+                });
+
+                function bringToFront(modal) {
+                    zIndexCounter++;
+                    modal.style.zIndex = zIndexCounter;
+                }
+
+                // Cente    r modals when they appear
+                function centerModal(modalId) {
+                    const modal = document.querySelector(`#${modalId} .draggable-modal`);
+                    if (modal) {
+                        const windowWidth = window.innerWidth;
+                        const windowHeight = window.innerHeight;
+                        const modalWidth = modal.offsetWidth;
+                        const modalHeight = modal.offsetHeight;
+
+                        modal.style.left = `${(windowWidth - modalWidth) / 2}px`;
+                        modal.style.top = `${(windowHeight - modalHeight) / 2}px`;
+                        modal.style.transform = 'translate(0px, 0px)';
+                        modal.setAttribute('data-x', 0);
+                        modal.setAttribute('data-y', 0);
+
+                        bringToFront(modal);
+                    }
+                }
+
+                // L   ivewire event listeners
+                document.addEventListener('livewire:init', () => {
+                    Livewire.on('alert-types-updated', () => {
+                        document.querySelectorAll('[wire\\:model="alertTypes"]').forEach(checkbox => {
+                            checkbox.checked = checkbox.value.includes(checkbox.value);
+                        });
+                    });
+
+                    Livewire.on('showAlertPopup', () => {
+                        centerModal('alertModal');
+                    });
+
+                    Livewire.on('showProfilePopup', () => {
+                        centerModal('profileModal');
+                    });
+                });
+
+                // Initial centering if modals are already visible
+                if (document.querySelector('#alertModal.show')) {
+                    centerModal('alertModal');
+                }
+                if (document.querySelector('#profileModal.show')) {
+                    centerModal('profileModal');
+                }
+            });
+            // for alert edit 
+            document.addEventListener('livewire:load', function () {
+                Livewire.on('alert-types-updated', () => {
+                    // Force re-render checkboxes
+                    document.querySelectorAll('[wire\\:model="alertTypes"]').forEach(checkbox => {
+                        checkbox.checked = @json($this->alertTypes).includes(checkbox.value);
+                    });
+                });
+            });
+            document.addEventListener('livewire:init', function () {
+                // Force checkbox updates when Livewire finishes rendering
+                Livewire.on('alert-types-updated', () => {
+                    setTimeout(() => {
+                        document.querySelectorAll('[wire\\:model="alertTypes"]').forEach(checkbox => {
+                            const shouldBeChecked = @this.alertTypes.includes(checkbox.value);
+                            checkbox.checked = shouldBeChecked;
+                            checkbox.dispatchEvent(new Event('change'));
+                        });
+                    }, 50);
+                });
+            });
+        </script>
+    </div>
