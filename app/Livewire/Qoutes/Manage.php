@@ -3,7 +3,7 @@
 namespace App\Livewire\Qoutes;
 
 use Livewire\Component;
-use App\Models\Order_tb as Order;
+use App\Models\order_tb as Order;
 use App\Models\reminder_tb as Reminder;
 use Livewire\WithPagination;
 
