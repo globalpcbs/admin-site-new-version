@@ -1,5 +1,4 @@
 <div>
-    @include('includes.flash')
     <div class="card mb-3">
         <div class="card-body">
             <form class="row g-2" wire:submit.prevent>
