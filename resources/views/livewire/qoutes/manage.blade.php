@@ -109,7 +109,7 @@
                             <a href="{{ route('download.downloadPdfqoute',$quote->ord_id)}}"
                                 class="btn btn-primary btn-xs btn-sm">Download PDF</a>
                             <a href="{{ route('view.viewPdfqoute',$quote->ord_id)}}"
-                                class="btn btn-info btn-xs btn-sm">VIEW PDF</a>
+                                class="btn btn-info btn-xs btn-sm" target="_blank">VIEW PDF</a>
                             <a href="{{ route('downloaddoc.viewdocqoute',$quote->ord_id)}}"
                                 class="btn btn-warning btn-xs btn-sm">Download DOC</a>
                         </td>
