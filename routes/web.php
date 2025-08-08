@@ -106,7 +106,7 @@ use App\Livewire\Misc\StockReport;
 use App\Livewire\Misc\ManageNotes;
 use App\Livewire\Misc\Editnote as Editnote;
 use App\Livewire\Misc\PoFileUpload;
-use App\Livewire\Misc\pofileuploadswork;
+use App\Livewire\Misc\Pofileuploadswork as pofileuploadswork;
 use App\Livewire\Misc\OrderPlacedReport;
 use App\Livewire\Misc\PackingSlipsReport;
 use App\Livewire\Misc\RecevingLog;
