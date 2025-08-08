@@ -77,7 +77,7 @@
                                         <i class="fa fa-download"></i>
                                     </button>
                                 </a>
-                                <a href="{{ route('view.confirmationorder',$order->poid) }}">
+                                <a href="{{ route('view.confirmationorder',$order->poid) }}" target="_blank">
                                     <button class="btn btn-sm btn-xs btn-secondary"><i class="fa fa-eye"></i></button>
                                 </a>
                             </td>
