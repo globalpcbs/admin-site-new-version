@@ -125,23 +125,25 @@
                                     <input type="text" class="form-control" wire:model.live="items.{{ $i }}.item">
                                 </td>
                                 <td>
-                                    <select class="form-select mb-1" wire:model.live="items.{{ $i }}.dpdesc">
-                                        <option value="">Select</option>
-                                        <option value="pcbp">PCB Fabrication (Production)</option>
-                                        <option value="pcbeo">PCB Fabrication (Expedited Order)</option>
-                                        <option value="nre">NRE</option>
-                                        <option value="exf">Expedite Fee</option>
-                                        <option value="suc">Set-up Charge</option>
-                                        <option value="frt">Freight</option>
-                                        <option value="etst">E-Test</option>
-                                        <option value="fpb">Flying Probe</option>
-                                        <option value="etstf">E-Test Fixture</option>
-                                        <option value="sf">Surface Finish</option>
-                                        <option value="oth">Other</option>
-                                    </select>
-                                    @if($items[$i]['dpdesc'] ?? '' === 'oth')
+                                    <div wire:key="item-{{ $i }}">
+                                        <select class="form-select mb-1" wire:model="items.{{ $i }}.dpdesc">
+                                            <option value="">Select</option>
+                                            <option value="pcbp">PCB Fabrication (Production)</option>
+                                            <option value="pcbeo">PCB Fabrication (Expedited Order)</option>
+                                            <option value="nre">NRE</option>
+                                            <option value="exf">Expedite Fee</option>
+                                            <option value="suc">Set-up Charge</option>
+                                            <option value="frt">Freight</option>
+                                            <option value="etst">E-Test</option>
+                                            <option value="fpb">Flying Probe</option>
+                                            <option value="etstf">E-Test Fixture</option>
+                                            <option value="sf">Surface Finish</option>
+                                            <option value="oth">Other</option>
+                                        </select>
+                                    </div>
+                                    @if(($items[$i]['dpdesc'] ?? '') === 'oth')
                                         <input type="text" class="form-control" placeholder="Other desc"
-                                            wire:model.live="items.{{ $i }}.desc">
+                                            wire:model="items.{{ $i }}.desc">
                                     @endif
                                 </td>
                                 <td>
