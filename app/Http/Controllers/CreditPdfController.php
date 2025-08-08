@@ -19,7 +19,7 @@ use App\Models\packing_tb;
 use App\Models\maincont_tb;
 use App\Models\data_tb;
 use App\Models\invoice_tb as Invoice;
-use App\Models\Order_tb as Order;
+use App\Models\order_tb as Order;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Response; // Add this import
 use Carbon\Carbon;
