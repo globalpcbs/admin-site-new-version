@@ -82,26 +82,33 @@
                         <td>{{ $order->poid }}</td>
                         <td>{{ $order->poid + 9933 }}</td>
                         <td>{{ $order->customer }}</td>
-                        <td>
+                            <td style="position: relative;">
                             @php
-                            $alerts = \App\Models\alerts_tb::where('part_no', $order->part_no)
-                            ->where('rev', $order->rev)
-                            ->where('customer', $order->customer)
-                            ->get();
-
-                            $tooltip = '';
-                            foreach ($alerts as $index => $alert) {
-                            $tooltip .= ($index + 1) . '. ' . e($alert->alert) . '<br>';
-                            }
+                                $alerts = \App\Models\alerts_tb::where('part_no', $order->part_no)
+                                    ->where('rev', $order->rev)
+                                    ->where('customer', $order->customer)
+                                    ->get();
                             @endphp
 
                             @if($alerts->count() > 0)
-                            <span class="text-danger" data-bs-toggle="tooltip" data-bs-html="true"
-                                title="{!! $tooltip !!}">
-                                {{ $order->part_no }}
-                            </span>
+                                <a href="javascript:void(0);" class="ttip_trigger text-danger">
+                                    {{ $order->part_no }}
+                                </a>
+
+                                <div class="ttip_overlay bg-light p-3 border shadow"
+                                    style="position: absolute; top: 100%; left: 0; width: 300px; display: none; z-index: 9999;">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <h6 class="mb-2 text-danger">Alerts</h6>
+                                        <a href="javascript:void(0);" class="ttip_close text-danger">×</a>
+                                    </div>
+                                    <ul class="mb-0 ps-3">
+                                        @foreach ($alerts as $index => $alert)
+                                            <li>{{ $alert->alert }}</li>
+                                        @endforeach
+                                    </ul>
+                                </div>
                             @else
-                            {{ $order->part_no }}
+                                {{ $order->part_no }}
                             @endif
                         </td>
                         <td>{{ $order->rev }}</td>
@@ -152,4 +159,31 @@
             </div>
         </div>
     </div>
+        <script>
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.ttip_trigger').forEach(function (trigger) {
+        const tooltip = trigger.nextElementSibling;
+        const closeBtn = tooltip.querySelector('.ttip_close');
+
+        // Show on click
+        trigger.addEventListener('click', function (e) {
+            e.stopPropagation(); // prevent closing immediately
+            document.querySelectorAll('.ttip_overlay').forEach(t => t.style.display = 'none');
+            tooltip.style.display = 'block';
+        });
+
+        // Close tooltip on clicking close button
+        closeBtn.addEventListener('click', function () {
+            tooltip.style.display = 'none';
+        });
+
+        // Hide tooltip on clicking outside
+        document.addEventListener('click', function (e) {
+            if (!tooltip.contains(e.target) && e.target !== trigger) {
+                tooltip.style.display = 'none';
+            }
+        });
+    });
+});
+</script>
 </div>
