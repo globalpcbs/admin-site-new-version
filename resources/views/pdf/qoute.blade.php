@@ -134,10 +134,10 @@
                 </div>
             </td>
             <td class="quote-details">
-                <strong>Quote No :</strong> {{ $quote->id }}<br>
+                <strong>Quote No :</strong> {{ $quote->ord_id + 10000 }}<br>
                 <strong>Quotation Date :</strong> {{ \Carbon\Carbon::parse($quote->created_at)->format('m/d/Y') }}<br>
                 <strong>Quote Valid for :</strong> 30 Days<br><br>
-                <strong>Quote To:</strong><br>{{ $quote->customer }}
+                <strong>Quote To:</strong><br>{{ $quote->cust_name }}, <br /> {{ $quote->email }}
             </td>
         </tr>
     </table>
@@ -184,11 +184,11 @@
                         </td>
                         <td>
                             <ol start="6">
-                                @if($quote->design_array)<li>Factory to Design Array</li>@endif
-                                @if($quote->array_type2)<li>V Score Array Type</li>@endif
+                                @if($quote->design_array != 'no')<li>Factory to Design Array</li>@endif
+                                @if($quote->array_type2)<li>V Score Array Type</li>@endif 
                                 @if($quote->array_require1)<li>Array Requires Tooling Holes</li>@endif
-                                @if($quote->counter_sink)<li>Countersink Required</li>@endif
-                                @if($quote->cut_outs)<li>Control Depth Required</li>@endif
+                                @if($quote->counter_sink != 'no')<li>Countersink Required</li>@endif
+                                @if($quote->cut_outs != 'No')<li>Control Depth Required </li>@endif
                             </ol>
                         </td>
                         <td>
@@ -196,8 +196,8 @@
                                 @if($quote->logo === 'Factory')<li>Factory Logo</li>@endif
                                 @if($quote->date_code)<li>{{ $quote->date_code }} Date Code Format</li>@endif
                                 @if($quote->array_rail)<li>In Array Rail Electrical Test Stamp</li>@endif
-                                @if($quote->xouts)<li>X-Out Allowed per Array</li>@endif
-                                @if($quote->rosh_cert)<li>RoHS Cert Required</li>@endif
+                                @if($quote->xouts != 'no')<li>X-Out Allowed per Array </li>@endif
+                                @if($quote->rosh_cert != 'No')<li>RoHS Cert Required  </li>@endif
                             </ol>
                         </td>
                     </tr>
