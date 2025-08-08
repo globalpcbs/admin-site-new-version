@@ -53,9 +53,9 @@ class Add extends Component
     public $desdesc2;
     
     // Order Details
-    public $cancharge = 'no';
+    public $cancharge;
     public $ccharge;
-    public $fob = 'Anaheim';
+    public $fob;
     public $fob_oth;
     public $vid;
     public $vid_oth;
@@ -66,72 +66,72 @@ class Add extends Component
     public $price1 = null, $price2 = null, $price3 = null, $price4 = null;
     
     // PCB Specifications
-    public $ipc_class = '3';
-    public $no_layer = 'Double Sided';
-    public $m_require = 'FR-4';
-    public $thickness = '0.062';
-    public $thickness_tole = '+/- 10%';
-    public $inner_copper = '1';
-    public $start_cu = '1';
-    public $plated_cu = '.0014';
-    public $fingers_gold = false;
-    public $trace_min = '.006';
-    public $space_min = '.006';
-    public $con_impe_sing = false;
-    public $con_impe_diff = false;
-    public $tore_impe = '+/- 10%';
+    public $ipc_class;
+    public $no_layer;
+    public $m_require;
+    public $thickness;
+    public $thickness_tole;
+    public $inner_copper;
+    public $start_cu;
+    public $plated_cu;
+    public $fingers_gold;
+    public $trace_min;
+    public $space_min;
+    public $con_impe_sing;
+    public $con_impe_diff;
+    public $tore_impe;
     public $hole_size;
     public $pad;
-    public $blind = false;
-    public $buried = false;
-    public $hdi_design = false;
-    public $resin_filled = false;
-    public $cond_vias = false;
+    public $blind;
+    public $buried;
+    public $hdi_design;
+    public $resin_filled;
+    public $cond_vias;
     
     // Finish Options
-    public $finish = 'HASL';
-    public $mask_size = 'Both';
-    public $mask_type = 'Glossy';
-    public $color = 'Green';
-    public $ss_side = '1';
-    public $ss_color = 'White';
+    public $finish;
+    public $mask_size;
+    public $mask_type;
+    public $color;
+    public $ss_side;
+    public $ss_color;
     
     // Board Details
     public $board_size1;
     public $board_size2;
-    public $array = false;
+    public $array;
     public $b_per_array;
     public $array_size1;
     public $array_size2;
-    public $route_tole = '+/-.005';
-    public $array_design = false;
-    public $design_array = false;
-    public $array_type1 = false;
-    public $array_type2 = false;
-    public $array_require1 = false;
-    public $array_require2 = false;
-    public $array_require3 = false;
-    public $bevel = false;
-    public $counter_sink = false;
-    public $cut_outs = false;
-    public $slots = false;
+    public $route_tole;
+    public $array_design;
+    public $design_array;
+    public $array_type1;
+    public $array_type2;
+    public $array_require1;
+    public $array_require2;
+    public $array_require3;
+    public $bevel;
+    public $counter_sink;
+    public $cut_outs;
+    public $slots;
     
     // Markings and QA
-    public $logo = 'Factory';
-    public $mark = false;
-    public $date_code = 'WWYY';
+    public $logo;
+    public $mark;
+    public $date_code;
     public $other_marking;
-    public $micro_section = false;
-    public $test_stamp = false;
-    public $in_board = false;
-    public $array_rail = false;
-    public $xouts = false;
+    public $micro_section;
+    public $test_stamp;
+    public $in_board;
+    public $array_rail;
+    public $xouts;
     public $xoutsnum;
-    public $rosh_cert = false;
+    public $rosh_cert;
     
     // Special Instructions
     public $special_instadmin;
-    public $is_spinsadmact = 'no';
+    public $is_spinsadmact;
     public $sp_reqs;
     
     // Other fields
@@ -150,14 +150,14 @@ class Add extends Component
     public $inputKey;
     public $customer_id; // Add this to store the ID
           // for alerts 
-    public bool $showAlertPopup = false;
+    public bool $showAlertPopup;
     public $alertMessages = [];
-    public bool $showProfilePopup = false;
+    public bool $showProfilePopup;
     public $profileMessages = [];
 
     // Alert management properties
     public $newAlert = '';
-    public $editingAlertId = null;
+    public $editingAlertId;
     protected $listeners = [
         'simpleQuoteToggled' => 'handleSimpleQuoteToggle',
         'fobChanged' => 'handleFobChange',

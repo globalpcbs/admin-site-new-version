@@ -613,7 +613,7 @@
                             <input name="chk65" type="checkbox" wire:model="array_design" value="Yes" /> Yes
                             <br /><br />
                             <strong>Factory to Design Array: </strong>
-                            <input name="chk67" type="checkbox" wire:model="design_array" value="yes" /> Yes
+                            <input name="chk67" type="checkbox" wire:model="design_array" /> Yes
                             <br /><br />
                             <strong>Array Type:</strong> Tab Route
                             <input name="chk69" type="checkbox" wire:model="array_type1" value="Tab Route" />
@@ -635,11 +635,11 @@
                             <br />
                             <br />
                             <strong>Countersink:</strong>
-                            <input name="chk77" type="checkbox" wire:model="counter_sink" value="yes" /> Yes
+                            <input name="chk77" type="checkbox" wire:model="counter_sink" /> Yes
                             <br />
                             <br />
                             <strong>Control Depth:</strong>
-                            <input name="chk79" type="checkbox" wire:model="cut_outs" value="Yes" /> Yes
+                            <input name="chk79" type="checkbox" wire:model="cut_outs" /> Yes
                             <br />
                             <br />
                             <strong>Edge Plating:</strong>
@@ -697,7 +697,7 @@
 
                         <td height="25" class="p-2">
                             <strong>X-Outs Allowed:</strong>
-                            <input name="chk95" type="checkbox" wire:model="xouts" value="yes" onClick="xoutsnot();" />
+                            <input name="chk95" type="checkbox" wire:model="xouts" onClick="xoutsnot();" />
                             Yes
                             <br />
                             <br />
@@ -705,7 +705,7 @@
                             <input name="txtother28" wire:model="xoutsnum" type="text" size="4" />
                             <br /><br />
                             <strong>RoHS Cert:</strong>
-                            <input name="chk97" type="checkbox" wire:model="rosh_cert" value="Yes" /> Yes
+                            <input name="chk97" type="checkbox" wire:model="rosh_cert" /> Yes
                         </td>
                     </tr>
                 </table>
