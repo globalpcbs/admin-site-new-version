@@ -3,9 +3,9 @@
 namespace App\Livewire\Qoutes;
 
 use Livewire\Component;
-use App\Models\Order_tb as Order;
-use App\Models\Data_tb as Customer;
-use App\Models\Vendor_tb as Vendor;
+use App\Models\order_tb as Order;
+use App\Models\data_tb as Customer;
+use App\Models\vendor_tb as Vendor;
 use App\Models\reminder_tb as Reminder;
 // for alerts ..
 use App\Models\alerts_tb    as Alert;
