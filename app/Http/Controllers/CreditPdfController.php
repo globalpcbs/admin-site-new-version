@@ -1426,7 +1426,7 @@ public function viewdocqoute($id)
                     <strong>Quote No :</strong> '.$order->id.'<br>
                     <strong>Quotation Date :</strong> '.Carbon::parse($order->created_at)->format('m/d/Y').'<br>
                     <strong>Quote Valid for :</strong> 30 Days<br><br>
-                    <strong>Quote To:</strong><br>'.$order->customer.'
+                    <strong>Quote To:</strong><br>'.$order->cust_name.'<br />'.$quote->email;
                 </td>
             </tr>
         </table>
