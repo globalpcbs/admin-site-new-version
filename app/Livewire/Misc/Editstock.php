@@ -69,7 +69,7 @@ private function cleanDate(?string $dateString): ?string
         // $this->date_added = $stock->dtadded;
         // $this->manufacturing_date = $stock->manuf_dt;
         $this->date_added = $this->cleanDate($stock->dtadded);
-$this->manufacturing_date = $this->cleanDate($stock->manuf_dt);
+        $this->manufacturing_date = $this->cleanDate($stock->manuf_dt);
         $this->uprice = $stock->uprice;
         $this->qty = $stock->qty;
         $this->comments = $stock->comments;
@@ -185,13 +185,14 @@ private function formatDate($value)
     public function render()
     {
         $suppliers = Supplier::orderBy('c_name')->get();
-         $pending = StockAllocation::where('stock_id', $this->stockid)
+         $pending = StockAllocation::where('stock_id', $this->stockId)
         ->where('delivered_on', '0000-00-00')->orWhere('delivered_on', null)
         ->get();
-
-        $delivered = StockAllocation::where('stock_id', $this->stockid)
-            ->where('delivered_on', '!=', '0000-00-00')->orWhere('delivered_on', '!=' ,null)
+//        dd($this->stockId);
+        $delivered = StockAllocation::where('stock_id', $this->stockId)
+            ->where('delivered_on', '!=', '0000-00-00')
             ->get();
+      //  dd($delivered->count());
         return view('livewire.misc.editstock', compact('suppliers','pending', 'delivered'))
             ->layout('layouts.app', ['title' => 'Edit Stock']);
     }
