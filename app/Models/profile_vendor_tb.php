@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Models\Profile_vendor_tb2 as ProfileVendor2;
+use App\Models\profile_vendor_tb2 as ProfileVendor2;
 
 class profile_vendor_tb extends Model
 {
