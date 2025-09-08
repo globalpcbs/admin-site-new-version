@@ -1,5 +1,4 @@
 <div class="mt-4">
-    @include('includes.flash')
     <div class="card">
         <div class="card-header bg-primary text-white">
             <label class="mb-0"> <i class="fa fa-list"></i> Manage Vendor Main Contacts <i class="fa fa-spinner fa-spin" wire:loading></i> </label>
