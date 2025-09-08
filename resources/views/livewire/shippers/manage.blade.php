@@ -1,5 +1,4 @@
 <div>
-    @include('includes.flash')
     <div class="card shadow-sm">
         <div class="card-header bg-primary">
             <h5 class="card-title mb-2 text-white">
