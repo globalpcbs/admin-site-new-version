@@ -1,35 +1,64 @@
 <div class="container py-4">
-    @include('includes.flash')
-    <div class="card mb-3">
+        <div class="card mb-4">
+        <div class="card-header fw-bold">Search By</div>
         <div class="card-body">
-            <form class="row g-2" wire:submit.prevent>
-                <div class="col-md-4">
-                    <label class="form-label fw-bold"> <i class="fa fa-search"></i> Search By Part Number</label>
+            <div class="row g-3">
+                <!-- Search by Part Number -->
+                <div class="col-lg-5">
+                    <label><i class="fa fa-cogs"></i> Search by Part Number:</label>
                     <div class="input-group">
-                        <input type="text" wire:model.defer="partSearchInput" class="form-control"
-                            placeholder="Enter Part Number">
-                        <button type="button" wire:click="searchByPartNo" class="btn btn-primary">
-                            <i class="fa fa-search"></i> Search
+                        <span class="input-group-text"><i class="fa fa-barcode"></i></span>
+                        <input type="text" class="form-control" wire:model="searchPartNoInput"
+                            placeholder="Enter part number" wire:keydown.enter="searchq" wire:keyup="usekeyupno($event.target.value)" wire:key="searchPartNoInput-{{ now()->timestamp }}" />
+                        <button class="btn btn-primary" type="button" wire:click="searchq">
+                            <i class="fa fa-search"></i>
                         </button>
                     </div>
-                </div>
-                <div class="col-md-4">
-                    <label class="form-label fw-bold"> <i class="fa fa-search"></i> Search By Customer Name</label>
-                    <div class="input-group">
-                        <input type="text" wire:model.defer="customerSearchInput" class="form-control"
-                            placeholder="Enter Customer Name">
-                        <button type="button" wire:click="searchByCustomer" class="btn btn-primary">
-                            <i class="fa fa-search"></i> Search
-                        </button>
+                    <div wire:ignore.self>
+                        @if($matches_partno)
+                            <ul class="list-group position-absolute w-100 shadow-sm"
+                                style="z-index:1050; max-height:220px; overflow-y:auto;">
+                                @foreach($matches_partno as $i => $m)
+                                    <li wire:key="match-{{ $i }}" class="list-group-item list-group-item-action"
+                                        wire:click="useMatchpn({{ $i }})">
+                                        {{ $m['part_no'] }}
+                                    </li>
+                                @endforeach
+                            </ul>
+                        @endif
                     </div>
                 </div>
-                <div class="col-md-4 d-flex align-items-end">
-                    <button type="button" class="btn btn-secondary" wire:click="clearFilters">
-                        <i class="fa fa-times-circle"></i> Reset Filters
-                    </button>
-                </div>
-            </form>
 
+                <!-- Search by Customer Name -->
+                <div class="col-lg-5">
+                    <label><i class="fa fa-user"></i> Search by Customer Name:</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fa fa-user"></i></span>
+                        <input type="text" class="form-control" wire:model="searchCustomerInput"
+                            placeholder="Enter customer name" wire:keydown.enter="searchbyCustomer" wire:keyup="onKeyUp($event.target.value)" wire:key="searchCustomerInput-{{ now()->timestamp }}">
+                        <button class="btn btn-primary" type="button" wire:click="searchbyCustomer">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+                    <div wire:ignore.self>
+                        @if($matches)
+                            <ul class="list-group position-absolute w-100 shadow-sm"
+                                style="z-index:1050; max-height:220px; overflow-y:auto;">
+                                @foreach($matches as $i => $m)
+                                    <li wire:key="match-{{ $i }}" class="list-group-item list-group-item-action"
+                                        wire:click="useMatch({{ $i }})">
+                                        {{ $m['customer'] }}
+                                    </li>
+                                @endforeach
+                            </ul>
+                        @endif
+                    </div>
+                </div>
+                <div class="col-lg-2">
+                    <br />
+                    <button class="btn btn-info mt-2" wire:click="resetFilters"><i class="fa fa-rotate-right"></i> Reset Filter</button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -47,6 +76,7 @@
                         <tr>
                             @foreach ([
     'credit_id' => '#',
+    'Credit_no' => 'credit #',
     'podate' => 'Date',
     'customer' => 'Customer',
     'part_no' => 'Part #',
@@ -61,8 +91,6 @@
                                     @endif
                                 </th>
                             @endforeach
-                            <th>PDF</th>
-                            <th>Duplicate</th>
                             <th>Action</th>
                         </tr>
                     </thead>
@@ -71,6 +99,7 @@
                         @forelse ($credits as $credit)
                             <tr>
                                 <td>{{ $credit->credit_id }}</td>
+                                <td>{{ $credit->credit_id + 10098 }}</td>
                                 <td>{{ $credit->podate }}</td>
                                 <td>{{ $credit->customer }}</td>
                                 <td>{{ $credit->part_no }}</td>
@@ -84,20 +113,16 @@
                                         class="btn btn-sm btn-warning btn-xs">
                                         <i class="fa fa-eye"></i> View
                                     </a>
-                                </td>
-                                <td>
                                     <button class="btn btn-sm btn-info btn-xs"
-                                        wire:click="duplicateRecord({{ $credit->credit_id }})">
+                                        wire:click="duplicateRecord({{ $credit->credit_id }})" wire:key="duplicate-{{ $credit->credit_id }}">
                                         <i class="fa fa-clone"></i> Duplicate
                                     </button>
-                                </td>
-                                <td>
                                     <a href="{{ route('credit.edit', $credit->credit_id) }}" class="btn btn-sm btn-xs btn-success">
-                                        <i class="fa fa-edit"></i>
+                                        <i class="fa fa-edit"></i> Edit
                                     </a>
                                     <button class="btn btn-sm btn-xs btn-danger"
-                                        wire:click="confirmDelete({{ $credit->credit_id }})">
-                                        <i class="fa fa-trash"></i>
+                                        wire:click="confirmDelete({{ $credit->credit_id }})" wire:key="delete-{{ $credit->credit_id }}">
+                                        <i class="fa fa-trash"></i> Delete
                                     </button>
                                 </td>
                             </tr>

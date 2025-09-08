@@ -288,7 +288,7 @@
 
                 {{-- Submit Buttons --}}
                 <div class="mt-3">
-                    <button type="submit" class="btn btn-success btn-sm">
+                    <button type="submit" class="btn btn-success btn-sm @if($button_status == 1) disabled @endif">
                         <i class="fa fa-save"></i> Submit <i class="fa fa-spin fa-spinner" wire:loading></i>
                     </button>
                     <button type="reset" class="btn btn-secondary btn-sm">

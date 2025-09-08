@@ -38,14 +38,25 @@ class Editpartnumber extends Component
         $this->alerts = $rows->isEmpty()
             ? [['text' => '', 'viewable' => []]]
             : $rows->map(fn ($row) => [
+                   'id'       => uniqid(),
                   'text'     => $row->alert,
                   'viewable' => explode('|', $row->viewable ?? ''),
               ])->all();
     }
 
     /* ───────── Helpers ───────── */
-    public function addAlert()          { $this->alerts[] = ['text'=>'', 'viewable'=>[]]; }
-    public function removeAlert($idx)   { unset($this->alerts[$idx]); $this->alerts = array_values($this->alerts); }
+    public function addAlert()          { 
+        $this->alerts[] = [
+            'id' => uniqid(),   // unique key
+            'text'=>'', 
+            'viewable'=>[]
+        ]; 
+    }
+    public function removeAlert($idx)   
+    { 
+       // dd($idx);
+        unset($this->alerts[$idx]); $this->alerts = array_values($this->alerts); 
+    }
 
     /* ───────── Validation rules ───────── */
     protected function rules(): array

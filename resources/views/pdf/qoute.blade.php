@@ -21,7 +21,7 @@
 
     .header-table td {
         vertical-align: top;
-        padding: 4px;
+        padding: 0px;
     }
 
     .logo {
@@ -121,7 +121,7 @@
     <table class="header-table">
         <tr>
             <td class="logo">
-                <img src="{{ public_path('images/logo.png') }}" style="width:120px;">
+                <img src="{{ public_path('images/logo.png') }}" style="width:150px; height:150px;">
             </td>
             <td>
                 <div class="quote-title">Quotation</div>

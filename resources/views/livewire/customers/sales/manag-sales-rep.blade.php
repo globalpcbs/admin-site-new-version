@@ -36,7 +36,7 @@
                             <i class="fa fa-edit"></i> Edit
                         </a>
 
-                        <button class="btn btn-sm btn-danger" wire:click="deleteConfirm({{ $rep->repid }})">
+                        <button class="btn btn-sm btn-danger" wire:click="deleteConfirm({{ $rep->repid }})" wire:key="delete-{{ $rep->repid }}">
                             <i class="fa fa-trash"></i> Delete
                         </button>
                     </td>

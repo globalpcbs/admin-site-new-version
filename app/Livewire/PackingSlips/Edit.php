@@ -35,6 +35,8 @@ class Edit extends Component
     // Alert management properties
     public $newAlert = '';
     public $editingAlertId = null;
+    
+    public $button_status = 0;
 
     public function mount($id)
     {
@@ -97,6 +99,7 @@ class Edit extends Component
 
     public function update()
     {
+            $this->button_status = 1;
            $alerts = Alert::where('customer', $this->customer_look)
                 ->where('part_no', $this->part_no)
                 ->where('rev', $this->rev)

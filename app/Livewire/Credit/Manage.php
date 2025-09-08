@@ -28,6 +28,11 @@ class Manage extends Component
     public $customerSearchInput = '';
     public $searchPartNo = '';
     public $searchCustomer = '';
+        // for search ...
+    public $searchPartNoInput = '';
+    public $matches    = [];          // array of suggestions ⬅️  NEW
+    public $matches_partno = []; // array of part no ..
+    public $searchCustomerInput = '';
 
     public function mount()
     {
@@ -38,12 +43,6 @@ class Manage extends Component
     public function searchByPartNo()
     {
         $this->searchPartNo = $this->partSearchInput;
-        $this->resetPage();
-    }
-
-    public function searchByCustomer()
-    {
-        $this->searchCustomer = $this->customerSearchInput;
         $this->resetPage();
     }
 
@@ -142,6 +141,65 @@ class Manage extends Component
     
         return view('livewire.credit.manage', compact('credits'))
             ->layout('layouts.app', ['title' => 'Credits']);
+    }
+        // search ...
+    public function searchq(){
+         // assign the input values to the actual search vars
+        $this->searchPartNo = $this->searchPartNoInput;
+       // dd($this->partSearchInput);
+        //  dd($this->searchPartNo);
+            // reset pagination
+        $this->resetPage();
+
+        // clear the input fields (but keep actual filters intact)
+       $this->reset(['searchPartNoInput']);  
+    }
+    public function searchbyCustomer() {
+       // $customer = data_tb::where('c_name',$this->searchCustomerInput)->first();
+       // dd($customer->data_id);
+        $this->searchCustomer = $this->searchCustomerInput;
+       // reset pagination
+       $this->resetPage();
+
+        // clear the input fields (but keep actual filters intact)
+       $this->reset(['searchCustomerInput']);    
+    }
+        // search ...
+    public function onKeyUp(string $value){
+       // dd($value);
+         if (mb_strlen(trim($value)) < 2) {
+            $this->matches = [];
+            return;
+        }
+        $this->matches = Credit::query()
+            ->where('customer', 'like', "%{$value}%")
+            ->get()
+            ->toArray();
+        //dd($this->matches);
+    }   
+    public function useMatch($i){
+       // dd($this->matches[$i]['data_id']);
+        $this->searchCustomerInput = $this->matches[$i]['customer'];
+        $this->matches = [];
+    }
+    public function usekeyupno(string $value){
+         if (mb_strlen(trim($value)) < 2) {
+            $this->matches_partno = [];
+            return;
+        }
+        $this->matches_partno = Credit::query()
+        ->select('part_no')
+        ->where('part_no', 'like', "%{$value}%")
+        ->get()
+        ->toArray();
+    }
+    public function useMatchpn($i){
+        $this->searchPartNoInput = $this->matches_partno[$i]['part_no'];
+        $this->matches_partno = [];
+    }
+        public function resetFilters()
+    {
+        $this->reset(['searchPartNo', 'searchCustomer']);
     }
     
 }

@@ -34,6 +34,8 @@ class Edit extends Component
     // Alert management properties
     public $newAlert = '';
     public $editingAlertId = null;
+    public $button_status = 0;
+
 
 
     public function mount($id)
@@ -126,6 +128,7 @@ class Edit extends Component
             'items.*.commission' => ['boolean'],
         ]);
         // dd("wewq");
+        $this->button_status = 1;
         $alerts = Alert::where('customer', $this->customer)
             ->where('part_no', $this->part_no)
             ->where('rev', $this->rev)
@@ -328,22 +331,23 @@ class Edit extends Component
                 'commision' => $this->commission,
                 'comval' => $this->totalCommission,
             ]);
-
+           // dd($this->items);
             InvoiceItem::where('pid', $invoice->invoice_id)->delete();
             foreach ($this->items as $row) {
                 if (!empty($row['item'])) {
                     $qty = (float) $row['qty'];
                     $uprice = (float) str_replace(',', '', $row['unit_price']);
 
-                    InvoiceItem::create([
-                        'pid' => $invoice->invoice_id,
-                        'item' => $row['item'],
-                        'itemdesc' => $row['description'],
-                        'qty2' => $qty,
-                        'uprice' => $uprice,
-                        'commision' => $row['commission'] ? 1 : 0,
-                        'tprice' => $qty * $uprice,
-                    ]);
+                    $item = new InvoiceItem();
+                    $item->pid = $invoice->invoice_id;
+                    $item->item = $row['item'];
+                    $item->itemdesc = $row['description'] ?? 'Hello World';
+                    $item->qty2 = $qty;
+                    $item->uprice = $uprice;
+                    $item->commision = !empty($row['commission']) ? 1 : 0;
+                    $item->tprice = $qty * $uprice;
+        
+                    $item->save();
                 }
             }
         });

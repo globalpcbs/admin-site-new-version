@@ -387,7 +387,7 @@
 
             <!-- Buttons -->
             <div class="d-flex gap-2">
-                <button type="submit" class="btn btn-success">
+                <button type="submit" class="btn btn-success @if($button_status == 1) disabled @endif">
                     <i class="fa fa-save"></i> Update <i class="fa fa-spinner fa-spin" wire:loading></i>
                 </button>
                 <button type="reset" wire:click=\"$refresh\" class="btn btn-warning" class=\"btn btn-secondary\">

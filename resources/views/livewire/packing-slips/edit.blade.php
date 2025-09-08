@@ -284,7 +284,7 @@
                 </div>
                 {{-- Submit Buttons --}}
                 <div class="mt-3">
-                    <button type="submit" class="btn btn-primary btn-sm">
+                    <button type="submit" class="btn btn-primary btn-sm @if($button_status == 1) disabled @endif">
                         <i class="fa fa-save"></i> Update <i class="fa fa-spin fa-spinner" wire:loading></i>
                     </button>
                     <a href="{{ route('packing.manage') }}" class="btn btn-secondary btn-sm">

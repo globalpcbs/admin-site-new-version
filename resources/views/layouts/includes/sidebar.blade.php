@@ -232,10 +232,6 @@
             <li class="nav-item"><a href="{{ route('misc.manage-notes') }}" class="nav-link">Manage Notes</a></li>
             <div class="sidebar-divider my-2"></div>
             <li class="nav-item"><a href="{{ route('misc.po-upload') }}" class="nav-link">PO File Upload</a></li>
-            <li class="nav-item"><a href="{{ route('purchase.orders.manage') }}" class="nav-link">Orders Placed
-                    Report</a></li>
-            <li class="nav-item"><a href="{{ route('packing.manage') }}" class="nav-link">Packing Slips
-                    Report</a></li>
             <li class="nav-item"><a href="{{ route('misc.receiving-log') }}" class="nav-link">Receiving Log</a></li>
         </ul>
 

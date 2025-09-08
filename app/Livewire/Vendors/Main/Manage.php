@@ -43,7 +43,7 @@ class Manage extends Component
         }
 
         $contacts = $query->orderBy('enggcont_id', 'desc')->paginate(15);
-        $vendorList = Vendor::orderBy('c_name')->get();
+        $vendorList = Vendor::orderBy('c_name')->orderby('c_name','asc')->get();
 
         return view('livewire.vendors.main.manage', compact('contacts', 'vendorList'))
             ->layout('layouts.app', ['title' => 'Vendor Main Contacts']);

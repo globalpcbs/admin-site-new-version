@@ -349,7 +349,7 @@
                 </div>
 
                 <div class="text-end">
-                    <button type="submit" class="btn btn-success">
+                    <button type="submit" class="btn btn-success @if($button_status == 1) disabled @endif">
                         <i class="fa fa-save"></i> Update Invoice <i class="fa fa-spinner fa-spin" wire:loading></i>
                     </button>
                 </div>

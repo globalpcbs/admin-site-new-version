@@ -13,7 +13,7 @@
                                 <i class="fa fa-users"></i> Select Customer
                             </td>
                             <td>
-                                <select wire:model="cid" class="form-select form-select-sm">
+                                <select wire:model="cid" class="form-select form-select-sm" disabled>
                                     <option value="">-- Select Customer --</option>
                                     @foreach ($customers as $cust)
                                         <option value="{{ $cust->data_id }}">{{ $cust->c_name }}</option>

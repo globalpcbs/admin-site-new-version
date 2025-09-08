@@ -11,6 +11,8 @@ use App\Models\reminder_tb as Reminder;
 use App\Models\alerts_tb    as Alert;
 use App\Models\profile_tb as Profile;
 use App\Models\profile_tb2 as ProfileDetail;
+use App\Models\maincont_tb as customermain;
+use App\Models\enggcont_tb as customereng;
 
 class Edit extends Component
 {
@@ -153,6 +155,8 @@ class Edit extends Component
     public $customer_id; // Add this to store the ID
           // for alerts 
     public bool $showAlertPopup = false;
+    public $customers_main = [];
+    public $customers_eng = [];
     public $alertMessages = [];
     public bool $showProfilePopup = false;
     public $profileMessages = [];
@@ -160,7 +164,10 @@ class Edit extends Component
     // Alert management properties
     public $newAlert = '';
     public $editingAlertId = null;
+    public $request_by;
     
+    // button status ..
+    public $button_status = 0;
 
     protected $listeners = [
         'simpleQuoteToggled' => 'handleSimpleQuoteToggle',
@@ -190,9 +197,13 @@ class Edit extends Component
     
     // Basic Information
     $this->cust_name = $this->order->cust_name;
+    $customer = Customer::where('c_name', $this->order->cust_name)->first();
+    $this->customers_main = customermain::where('coustid',$customer->data_id)->get(); 
+    $this->customers_eng  = customereng::where('coustid',$customer->data_id)->get(); 
     $this->part_no = $this->order->part_no;
     $this->rev = $this->order->rev;
     $this->new_or_rep = $this->order->new_or_rep;
+    $this->request_by = $this->order->req_by;
     $this->email = $this->order->email;
     $this->phone = $this->order->phone;
     $this->fax = $this->order->fax;
@@ -412,8 +423,6 @@ class Edit extends Component
         $this->validate([
             'cust_name' => 'required',
             'part_no' => 'required',
-            'email' => 'required|email',
-            'phone' => 'required',
             // Add more validation rules as needed
         ]);
         $customer = Customer::where('c_name', $this->cust_name)->first();
@@ -435,7 +444,7 @@ class Edit extends Component
         // dd($profiles->count());
             $hasAlerts = $alerts->count() > 0;
             $hasProfiles = $profiles->count() > 0;
-
+             $this->button_status = 1;
             if ($hasAlerts) {
                 $this->showAlertPopup = true;
                 $this->alertMessages = $alerts;
@@ -608,7 +617,7 @@ class Edit extends Component
                 'cust_name' => $this->cust_name,
                 'part_no' => $this->part_no,
                 'rev' => $this->rev,
-                'req_by' => $this->cust_name, // Assuming same as customer name
+                'req_by' => $this->request_by, // Assuming same as customer name
                 'email' => $this->email,
                 'phone' => $this->phone,
                 'fax' => $this->fax,
@@ -800,5 +809,20 @@ class Edit extends Component
     public function render()
     {
         return view('livewire.qoutes.edit')->layout('layouts.app', ['title' => 'Edit Quote']);
+    }
+        public function requestby(){
+       //bbbbbbbbbbbbbbbb  , dd($this->request_by);
+       // $this->customers_main = customermain::where('coustid',$customer->data_id)->get(); 
+        $main = customermain::where('name',$this->request_by)->first();
+        $eng = customereng::where('name',$this->request_by)->first();
+        if(!empty($main)){
+            $this->email = $main->email;
+            $this->phone = $main->phone;
+        } else if(!empty($eng)){
+            $this->email = $eng->email;
+            $this->phone = $eng->phone;
+        }
+        $this->inputKey = uniqid();
+      //  dd($this->email);
     }
 }

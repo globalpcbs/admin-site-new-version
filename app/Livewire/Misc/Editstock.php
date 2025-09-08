@@ -5,6 +5,7 @@ namespace App\Livewire\Misc;
 use Livewire\Component;
 use App\Models\stock_tb;
 use App\Models\vendor_tb as Supplier;
+use App\Models\data_tb;
 use App\Models\order_tb  as Order;
 use Carbon\Carbon;
 use App\Models\stock_allocation as StockAllocation;
@@ -33,6 +34,7 @@ class Editstock extends Component
     public $search = '';
     public $matches = [];
     public $inputKey;
+    public $customer_search = [];
 
     // Helper to clean and format date
 private function cleanDate(?string $dateString): ?string
@@ -153,8 +155,10 @@ public function edit($id)
             $stock = stock_tb::where('stkid', $this->stockId)->first();
             $stock->qty -= $this->alloc_qut;
             $stock->save();
+            $this->qty = $stock->qty;
+            $this->inputKey = uniqid();
         }
-
+       // dd($this->qty);
         $this->showModal = false;
         $this->resetInput();
     }
@@ -195,6 +199,26 @@ private function formatDate($value)
       //  dd($delivered->count());
         return view('livewire.misc.editstock', compact('suppliers','pending', 'delivered'))
             ->layout('layouts.app', ['title' => 'Edit Stock']);
+    }
+    // for search customer ...
+    public function onKeyUpForCustomer(string $value){
+        if (mb_strlen(trim($value)) < 2) {
+            $this->customer_search = [];
+            return;
+        }
+        $this->customer_search  = data_tb::query()
+        ->select('c_shortname')
+        ->where('c_name','like',"%{$value}%")
+        ->orWhere('c_shortname','like',"%{$value}%")
+        ->get()
+        ->toArray();
+       // dd($this->customer_search);
+    }
+    public function useCustomerMatch(int $i){
+        $customer = $this->customer_search[$i]['c_shortname'];
+        $this->alloc_customer = $customer;
+        $this->customer_search = [];
+        $this->inputKey = uniqid();
     }
       public function onKeyUp(string $value)
     {

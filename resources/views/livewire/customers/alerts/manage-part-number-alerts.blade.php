@@ -60,7 +60,7 @@
                 </thead>
                 <tbody>
                     @forelse ($alerts as $index => $row)
-                    <tr>
+                    <tr wire:key="alert-row-{{ $row->first_id  }}">
                         <td class="text-center">
                             {{ ($alerts->currentPage() - 1) * $alerts->perPage() + $index + 1 }}.
                         </td>
@@ -69,8 +69,12 @@
 
                         <td>{{ $row->part_no }} / {{ $row->rev }}</td>
 
-                        <td style="white-space: pre-line">
-                            {!! nl2br(e($row->alerts)) !!}
+                        <td>
+                                @foreach(explode("\n", $row->alerts) as $index => $alert)
+                                    @if(trim($alert) !== '')
+                                        {{ $index + 1 }}. {{ $alert }} <br />
+                                    @endif
+                                @endforeach
                         </td>
 
                         <td class="text-center">

@@ -39,7 +39,7 @@
                                 <td>{{ $contact->enggcont_id }}</td>
                                 <td>{{ $contact->customer->c_name }}</td>
                                 <td>{{ $contact->name }}</td>
-                                <td>{{ $contact->last_name }}</td>
+                                <td>{{ $contact->lastname }}</td>
                                 <td>
                                     <a href="{{ route('customers.main.edit',$contact->enggcont_id) }}">
                                         <button class="btn btn-sm btn-success">
@@ -48,7 +48,7 @@
                                     </a>
                                 </td>
                                 <td>
-                                    <button class="btn btn-sm btn-danger" wire:click="confirmDelete({{ $contact->enggcont_id }})">
+                                    <button class="btn btn-sm btn-danger" wire:key="delete-{{ $contact->enggcont_id }}" wire:click="confirmDelete({{ $contact->enggcont_id }})">
                                         <i class="fa fa-trash"></i>
                                     </button>
                                 </td>

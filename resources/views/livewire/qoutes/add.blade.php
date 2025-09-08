@@ -40,33 +40,51 @@
                                 {{ $customer->c_name }}
                             </option>
                             @endforeach
-                        </select>
+                        </select> <br />
+                        @error('cust_name')
+                        <font color="red"><small>{{ $message }}</small></font>
+                        @enderror
                     </td>
 
                     <td width="252"><strong>Part Number :</strong>
-                        <input type="text" name="txtpno" wire:model="part_no" wire:key="part-{{ $inputKey }}" />
+                        <input type="text" name="txtpno" wire:model="part_no" wire:key="part-{{ $inputKey }}" /> <br />
+                        @error('part_no')
+                        <font color="red"><small>{{ $message }}</small></font>
+                        @enderror
                     </td>
 
                     <td width="238"><strong>Rev :</strong>
                         <input name="txtrev" wire:model="rev" wire:key="rev-{{ $inputKey }}" size="2" />
                         <label for="new"><strong> New</strong></label>
-                        <input type="radio" name="nor1" wire:model="new_or_rep" value="New Part" id="new" />
+                        <input type="radio" name="nor1" wire:model.live="new_or_rep" value="New Part" id="new" />
                         &nbsp;&nbsp;&nbsp;
                         <label for="rep"><strong>Repeat</strong></label>
-                        <input type="radio" name="nor1" wire:model="new_or_rep" value="Repeat Order" id="rep" />
+                        <input type="radio" name="nor1" wire:model.live="new_or_rep" value="Repeat Order" id="rep" />
                     </td>
                 </tr>
 
                 <tr>
                     <td height="25" class="p-2"><strong>Requested By :</strong>
-                        <span id="content"></span>
+                        <select class="w-50" wire:change="requestby" wire:model="request_by">
+                            <option>Select Requested By</option>
+                             @foreach($customers_main as $main)
+                                <option value="{{ $main->name }}" @if($request_by == $main->name) selected @endif>
+                                    {{ $main->name }}
+                                </option>
+                            @endforeach
+                            @foreach($customers_eng as $eng)
+                                <option value="{{ $eng->name }}" @if($request_by == $eng->name) selected @endif>
+                                    {{ $eng->name }}
+                                </option>
+                            @endforeach
+                        </select>
                     </td>
 
                     <td colspan="2" class="p-2" id="content2" height="25">
-                        <strong>Email :</strong>
-                        <input type="text" name="txtemail" wire:model="email" />
+                        <strong>Email : </strong>
+                        <input type="text" name="txtemail" wire:key="email-{{ $inputKey }}" wire:model="email" />
                         <strong>Phone :</strong>
-                        <input type="text" name="txtphone" wire:model="phone" />
+                        <input type="text" name="txtphone" wire:key="phone-{{ $inputKey }}" wire:model="phone" />
                     </td>
                 </tr>
 
@@ -77,8 +95,10 @@
 
                         <strong>Quote Needed by: </strong>
                         <input name="txtquote" wire:model="quote_by" size="10" />
+                        @if($new_or_rep == "Repeat Order")
                         <strong> NRE Charge:</strong>
                         <input size="3" type="text" name="necharge" wire:model="necharge">
+                        @endif
                         Select Misc :
                         <select name="txtmisc" wire:model="selectedMisc" onchange="getmisc();"
                             wire:change="showMiscField">
@@ -721,7 +741,7 @@
 
                 <tr>
                     <td height="25" colspan="3" class="p-3">
-                        <input type="button" class="btn btn-sm btn-primary" wire:click="save" value="Submit">
+                        <input type="button" class="btn btn-sm btn-primary @if($button_status == 1) disabled @endif" wire:click="save" value="Submit">
                         &nbsp;
                         <label><input type="reset" class="btn btn-sm btn-warning" name="button2"
                                 value="Reset" /></label>

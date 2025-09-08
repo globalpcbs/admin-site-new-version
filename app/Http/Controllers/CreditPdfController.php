@@ -35,12 +35,20 @@ class CreditPdfController extends Controller
         $temp1 = substr($temp, 0, 1);  
         $temp2 = substr($temp,1, strlen($temp));
         $temp2 = intval($temp2);
-        $shipper = shipper_tb::find($temp2);
+    //    dd($temp1);
+        if($temp1 == "c"){
+            $shipper = data_tb::find($temp2);
+        } else if ($temp1 == "s"){
+            $shipper = shipper_tb::find($temp2);
+        }
         // Calculate subtotal, tax, and total
         $subtotal = $credit->items->sum('tprice');
         $tax = $subtotal * (float) $credit->saletax;
         $total = $subtotal + $tax + (float) $credit->fcharge;
-        $filename = "credit-".$credit->custo->c_name.'-'.$credit->part_no.'-'.$credit->rev.'-'.date("m-d-y").".pdf";
+        $filename = "credit-" . ($credit->custo?->c_name ?? 'unknown')
+        . '-' . $credit->part_no
+        . '-' . $credit->rev
+        . '-' . date("m-d-y") . ".pdf";
         // Load PDF view
         $pdf = Pdf::loadView('pdf.credit', [
             'credit'   => $credit,
@@ -63,7 +71,11 @@ class CreditPdfController extends Controller
         $temp1 = substr($temp, 0, 1);  
         $temp2 = substr($temp,1, strlen($temp));
         $temp2 = intval($temp2);
-        $shipper = shipper_tb::find($temp2);
+        if($temp1 == "c"){
+            $shipper = data_tb::find($temp2);
+        } else if ($temp1 == "s"){
+            $shipper = shipper_tb::find($temp2);
+        }
         // Calculate subtotal, tax, and total
         $subtotal = $credit->items->sum('tprice');
         $tax = $subtotal * (float) $credit->saletax;
@@ -92,7 +104,11 @@ class CreditPdfController extends Controller
         $temp1 = substr($temp, 0, 1);  
         $temp2 = substr($temp,1, strlen($temp));
         $temp2 = intval($temp2);
-        $shipper = shipper_tb::find($temp2);
+        if($temp1 == "c"){
+            $shipper = data_tb::find($temp2);
+        } else if ($temp1 == "s"){
+            $shipper = shipper_tb::find($temp2);
+        }
        // return $shipper;
 
         $subtotal = $invoice->items->sum('tprice');
@@ -118,7 +134,11 @@ class CreditPdfController extends Controller
         $temp1 = substr($temp, 0, 1);  
         $temp2 = substr($temp,1, strlen($temp));
         $temp2 = intval($temp2);
-        $shipper = shipper_tb::find($temp2);
+        if($temp1 == "c"){
+            $shipper = data_tb::find($temp2);
+        } else if ($temp1 == "s"){
+            $shipper = shipper_tb::find($temp2);
+        }
        // return $shipper;
 
         $subtotal = $invoice->items->sum('tprice');
@@ -1216,7 +1236,7 @@ public function downloadPackingDoc($id)
         'Content-Disposition' => 'attachment; filename="'.$filename.'"'
     ]);
 }
-    // for qoute section pdf ..
+// for quote section pdf ..
     public function viewPdfqoute($id)
     {
         $quote = Order::findOrFail($id);

@@ -6,7 +6,7 @@
             <i class="fa fa-spinner fa-spin float-end" wire:loading></i>
         </div>
         <div>
-            <table class="table table-bordered font-xs2 table-striped table-sm">
+            <table class="table table-bordered table-responsive font-xs table-striped table-sm">
                 <thead class="table-light text-center">
                     <tr>
                         <th>Customer</th>

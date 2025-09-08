@@ -62,6 +62,8 @@ class Add extends Component
 
     public $search = '';
     public $matches = [];
+    public $button_status = 0;
+
 
     protected function rules(): array
     {
@@ -111,6 +113,7 @@ class Add extends Component
     public function save(): void
     {
         $this->validate();
+        $this->button_status = 1;
         $alerts = Alert::where('customer', $this->customer)
             ->where('part_no', $this->part_no)
             ->where('rev', $this->rev)

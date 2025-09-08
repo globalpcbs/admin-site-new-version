@@ -14,8 +14,8 @@ use Illuminate\Support\Facades\DB;
 use App\Models\alerts_tb    as Alert;
 use App\Models\profile_tb as Profile;
 use App\Models\profile_tb2 as ProfileDetail;
-use App\Models\Profile_vendor_tb as ProfileVendor;
-use App\Models\Profile_vendor_tb2 as ProfileVendor2;
+use App\Models\profile_vendor_tb as ProfileVendor;
+use App\Models\profile_vendor_tb2 as ProfileVendor2;
 
 class Add extends Component
 {
@@ -75,6 +75,8 @@ class Add extends Component
     // Add these properties
     public bool $showVendorAlertPopup = false;
     public $vendorAlertMessages = [];
+    
+    public $button_status = 0;
     public function mount()
     {
         $this->podate = date('Y-m-d');
@@ -106,6 +108,7 @@ class Add extends Component
     public function save(){
         $customer = Customer::where('c_name', $this->customer)->first();
         $this->customer_id = $customer ? $customer->data_id : null;
+        $this->button_status = 1;
        // dd($this->customer_id);
           $alerts = Alert::where('customer', $this->customer)
                 ->where('part_no', $this->part_no)

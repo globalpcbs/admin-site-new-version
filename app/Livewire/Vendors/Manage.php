@@ -36,7 +36,7 @@ class Manage extends Component
 
     public function render()
     {
-        $allVendors = Vendor::select('c_name')->distinct()->get();
+        $allVendors = Vendor::select('c_name')->distinct()->orderby('c_name','asc')->get();
 
         $vendors = Vendor::when($this->search, function ($query) {
             $query->where('c_name', $this->search);

@@ -136,11 +136,11 @@
                             </a>
 
                             <button wire:click="delete({{ $order->poid }})" class="btn btn-xs btn-sm btn-danger"
-                                onclick="return confirm('Are you sure to delete?')">
+                                onclick="return confirm('Are you sure to delete?')" wire:key="delete-{{ $order->poid }}">
                                 <i class="fa fa-trash"></i> Delete
                             </button>
 
-                            <button wire:click="duplicate({{ $order->poid }})" class="btn btn-xs btn-sm btn-warning">
+                            <button wire:click="duplicate({{ $order->poid }})" wire:key="duplicate-{{ $order->poid }}" class="btn btn-xs btn-sm btn-warning">
                                 <i class="fa fa-copy"></i> Duplicate
                             </button>
 
