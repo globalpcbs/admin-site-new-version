@@ -41,6 +41,7 @@
                                             @error("requirements.$index.req") <div class="text-danger small">{{ $message }}</div> @enderror
                                         </div>
                                         <div class="col-lg-2 col-md-2 col-sm-2">
+    
                                             @foreach (['quo1' => 'Quote', 'po1' => 'Purchase', 'con1' => 'Confirmation', 'pac1' => 'Packing', 'inv1' => 'Invoices', 'cre1' => 'Credit'] as $key => $label)
                                                 <div class="form-check">
                                                     <input class="form-check-input" type="checkbox"
@@ -51,6 +52,7 @@
                                             @endforeach
                                         </div>
                                         <div class="col-lg-2 col-md-2 col-sm-2">
+                                            <small class="text-danger"><b>Press shift while mulipleselecting</b></small>
                                             <select class="form-select form-select-md" wire:model="requirements.{{ $index }}.viewable" multiple size="9" style="width: 150px;">
                                                 @foreach (['quo0' => 'Quote', 'po0' => 'Purchase', 'con0' => 'Confirmation', 'pac0' => 'Packing', 'inv0' => 'Invoices', 'cre0' => 'Credit'] as $key => $label)
                                                     <option value="{{ $key }}">{{ $label }}</option>
