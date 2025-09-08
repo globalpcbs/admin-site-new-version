@@ -1,36 +1,58 @@
 <div>
-    @include('includes.flash')
     <div class="card mb-3">
         <div class="card-body">
             <div class="row g-3 align-items-end">
 
-                {{-- Search by Part Number --}}
-                <div class="col-md-4">
-                    <label class="form-label fw-bold">
-                        <i class="fa fa-search"></i> Search By Part Number
-                    </label>
-                    <div class="input-group">
-                        <input type="text" wire:model.lazy="searchPart" class="form-control"
-                            placeholder="Enter Part Number">
-                        <button class="btn btn-primary" wire:click="$refresh">
-                            <i class="fa fa-search"></i> Search
-                        </button>
+                 <div class="col-lg-4">
+                        <label><i class="fa fa-cogs"></i> Search by Part Number:</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fa fa-barcode"></i></span>
+                            <input type="text" class="form-control" wire:model="searchPartNoInput"
+                                placeholder="Enter part number" wire:keydown.enter="searchq" wire:keyup="usekeyupno($event.target.value)" wire:key="searchPartNoInput-{{ now()->timestamp }}" />
+                            <button class="btn btn-primary" type="button" wire:click="searchq">
+                                <i class="fa fa-search"></i>
+                            </button>
+                        </div>
+                        <div wire:ignore.self>
+                            @if($matches_partno)
+                                <ul class="list-group position-absolute w-100 shadow-sm"
+                                    style="z-index:1050; max-height:220px; overflow-y:auto;">
+                                    @foreach($matches_partno as $i => $m)
+                                        <li wire:key="match-{{ $i }}" class="list-group-item list-group-item-action"
+                                            wire:click="useMatchpn({{ $i }})">
+                                            {{ $m['part_no'] }}
+                                        </li>
+                                    @endforeach
+                                </ul>
+                            @endif
+                        </div>
                     </div>
-                </div>
 
-                {{-- Search by Customer --}}
-                <div class="col-md-4">
-                    <label class="form-label fw-bold">
-                        <i class="fa fa-search"></i> Search By Customer Name
-                    </label>
-                    <div class="input-group">
-                        <input type="text" wire:model.lazy="searchCustomer" class="form-control"
-                            placeholder="Enter Customer Name">
-                        <button class="btn btn-primary" wire:click="$refresh">
-                            <i class="fa fa-search"></i> Search
-                        </button>
+                    <!-- Search by Customer Name -->
+                    <div class="col-lg-4">
+                        <label><i class="fa fa-user"></i> Search by Customer Name:</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fa fa-user"></i></span>
+                            <input type="text" class="form-control" wire:model="searchCustomerInput"
+                                placeholder="Enter customer name" wire:keydown.enter="searchbyCustomer" wire:keyup="onKeyUp($event.target.value)" wire:key="searchCustomerInput-{{ now()->timestamp }}">
+                            <button class="btn btn-primary" type="button" wire:click="searchbyCustomer">
+                                <i class="fa fa-search"></i>
+                            </button>
+                        </div>
+                        <div wire:ignore.self>
+                            @if($matches)
+                                <ul class="list-group position-absolute w-100 shadow-sm"
+                                    style="z-index:1050; max-height:220px; overflow-y:auto;">
+                                    @foreach($matches as $i => $m)
+                                        <li wire:key="match-{{ $i }}" class="list-group-item list-group-item-action"
+                                            wire:click="useMatch({{ $i }})">
+                                            {{ $m['customer'] }}
+                                        </li>
+                                    @endforeach
+                                </ul>
+                            @endif
+                        </div>
                     </div>
-                </div>
 
                 {{-- Search by Vendor --}}
                 <div class="col-md-4">
@@ -38,12 +60,26 @@
                         <i class="fa fa-search"></i> Search By Vendor Name
                     </label>
                     <div class="input-group">
-                        <input type="text" wire:model.lazy="searchVendor" class="form-control"
+                        <input type="text" wire:model="searchVendorInput" wire:keydown.enter="searchv" wire:keyup="usekeyupvendor($event.target.value)" wire:key="searchVendorInput-{{ now()->timestamp }}" class="form-control"
                             placeholder="Enter Vendor Name">
-                        <button class="btn btn-primary" wire:click="$refresh">
+                        <button class="btn btn-primary" wire:click="searchv">
                             <i class="fa fa-search"></i> Search
                         </button>
                     </div>
+                     <div wire:ignore.self>
+                            @if($matches_vendor)
+                                <ul class="list-group position-absolute w-100 shadow-sm"
+                                    style="z-index:1050; max-height:220px; overflow-y:auto;">
+                                    @foreach($matches_vendor as $i => $vendor)
+                                        <li wire:key="match-{{ $vendor['data_id'] }}" 
+                                            class="list-group-item list-group-item-action"
+                                            wire:click="useMatchve({{ $i }})">
+                                            {{ $vendor['c_shortname'] ?? $vendor['c_name'] }}
+                                        </li>
+                                    @endforeach
+                                </ul>
+                            @endif
+                        </div>
                 </div>
 
                 {{-- Reset Button --}}
@@ -60,6 +96,7 @@
     <div class="card">
         <div class="card-header">
             <i class="fa fa-list"></i> Manage Purchase Orders
+            <i class="fa fa-spinner fa-spin float-end" wire:loading></i>
         </div>
 
         <div>
@@ -136,12 +173,12 @@
                                 <i class="fa fa-file-text"></i> DOC
                             </a>
 
-                            <button wire:click="delete({{ $order->poid }})" class="btn btn-xs btn-sm btn-danger"
+                            <button wire:click="delete({{ $order->poid }})" wire:key="delete-{{ $order->poid }}" class="btn btn-xs btn-sm btn-danger"
                                 onclick="return confirm('Are you sure to delete?')">
                                 <i class="fa fa-trash"></i> Delete
                             </button>
 
-                            <button wire:click="duplicate({{ $order->poid }})" class="btn btn-xs btn-sm btn-warning">
+                            <button wire:click="duplicate({{ $order->poid }})" wire:key="duplicate-{{ $order->poid }}" class="btn btn-xs btn-sm btn-warning">
                                 <i class="fa fa-copy"></i> Duplicate
                             </button>
 

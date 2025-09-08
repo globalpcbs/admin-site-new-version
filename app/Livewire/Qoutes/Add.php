@@ -11,6 +11,8 @@ use App\Models\reminder_tb as Reminder;
 use App\Models\alerts_tb    as Alert;
 use App\Models\profile_tb as Profile;
 use App\Models\profile_tb2 as ProfileDetail;
+use App\Models\maincont_tb as customermain;
+use App\Models\enggcont_tb as customereng;
 
 class Add extends Component
 {
@@ -139,25 +141,30 @@ class Add extends Component
     public $txtother8, $txtother9, $txtother10, $txtother11, $txtother12, $txtother13, $txtother14;
     public $txtother15, $txtother16, $txtother17, $txtother19, $txtother28, $txtother51, $txtother52;
     public $txtother53, $txtother54, $txtother55, $txtother56;
+    public $request_by;
     
     
     // Data for dropdowns
     public $customers;
     public $vendors;
+    public $customers_main = [];
+    public $customers_eng = [];
     // for search ...
     public $search = '';
     public $matches = [];
     public $inputKey;
     public $customer_id; // Add this to store the ID
           // for alerts 
-    public bool $showAlertPopup;
+    public bool $showAlertPopup = false;
     public $alertMessages = [];
-    public bool $showProfilePopup;
+    public bool $showProfilePopup = false;
     public $profileMessages = [];
 
     // Alert management properties
     public $newAlert = '';
     public $editingAlertId;
+    // button status ..
+    public $button_status = 0;
     protected $listeners = [
         'simpleQuoteToggled' => 'handleSimpleQuoteToggle',
         'fobChanged' => 'handleFobChange',
@@ -317,8 +324,6 @@ public function updateCustomerId($selectedName)
         $this->validate([
             'cust_name' => 'required',
             'part_no' => 'required',
-            'email' => 'required|email',
-            'phone' => 'required',
             // Add more validation rules as needed
         ]);
         $customer = Customer::where('c_name', $this->cust_name)->first();
@@ -337,6 +342,7 @@ public function updateCustomerId($selectedName)
             // Check for profile alerts
             $profiles = Profile::where('custid',$this->customer_id)->with('details')
                 ->get();
+            $this->button_status = 1;
         // dd($profiles->count());
             $hasAlerts = $alerts->count() > 0;
             $hasProfiles = $profiles->count() > 0;
@@ -515,7 +521,7 @@ public function updateCustomerId($selectedName)
             'cust_name' => $this->cust_name,
             'part_no' => $this->part_no,
             'rev' => $this->rev,
-            'req_by' => $this->cust_name, // Assuming same as customer name
+            'req_by' => $this->request_by, // Assuming same as customer name
             'email' => $this->email,
             'phone' => $this->phone,
             'fax' => $this->fax,
@@ -693,14 +699,15 @@ public function updateCustomerId($selectedName)
             ->where('rev', $rev)
             ->where('cust_name', $cust)
             ->first();
-
+        $customer = Customer::where('c_name', $order->cust_name)->first();
+        $this->customers_main = customermain::where('coustid',$customer->data_id)->get(); 
+        $this->customers_eng  = customereng::where('coustid',$customer->data_id)->get(); 
         if ($order) {
             $this->cust_name = $order->cust_name;
             $this->rev = $order->rev;
             $this->part_no = $order->part_no;
         }
         $this->inputKey = uniqid();
-       // dd($this->part_no);
     }
 
     public function useMatch(int $i): void
@@ -708,5 +715,20 @@ public function updateCustomerId($selectedName)
         if (!isset($this->matches[$i])) return;
         $m = $this->matches[$i];
         $this->selectLookup($m['part'], $m['rev'], $m['cust']);
+    }
+    public function requestby(){
+       //bbbbbbbbbbbbbbbb  , dd($this->request_by);
+       // $this->customers_main = customermain::where('coustid',$customer->data_id)->get(); 
+        $main = customermain::where('name',$this->request_by)->first();
+        $eng = customereng::where('name',$this->request_by)->first();
+        if(!empty($main)){
+            $this->email = $main->email;
+            $this->phone = $main->phone;
+        } else if(!empty($eng)){
+            $this->email = $eng->email;
+            $this->phone = $eng->phone;
+        }
+        $this->inputKey = uniqid();
+      //  dd($this->email);
     }
 }

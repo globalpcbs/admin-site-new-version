@@ -43,14 +43,14 @@
                     </th>
                     <td colspan="2">
                         @foreach ($alerts as $idx => $alert)
-                        <div class="row mb-2">
+                        <div class="row mb-2" wire:key="alert-{{ $alert['id'] }}">
                             <div class="col-md-6">
                                 <label><i class="fa fa-comment"></i> Alert #{{ $idx + 1 }}</label>
                                 <input wire:model="alerts.{{ $idx }}.text" type="text" class="form-control">
                                 @error("alerts.$idx.text") <span class="text-danger">{{ $message }}</span> @enderror
                             </div>
                             <div class="col-md-5">
-                                <label><i class="fa fa-eye"></i> Viewable In</label>
+                                <label><i class="fa fa-eye"></i> Viewable In <small class="text-danger">(Press Shift For Select Or Deselect)</small></label>
                                 <select wire:model="alerts.{{ $idx }}.viewable" multiple class="form-select" size="6">
                                     <option value="quo">Quote</option>
                                     <option value="po">Purchase</option>

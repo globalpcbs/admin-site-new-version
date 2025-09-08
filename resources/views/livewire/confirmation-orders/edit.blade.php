@@ -236,7 +236,7 @@
 
                 {{-- Buttons --}}
                 <div class="mt-4">
-                    <button type="submit" class="btn btn-primary">
+                    <button type="submit" class="btn btn-primary @if($button_status == 1) disabled @endif">
                         <i class="fa fa-save"></i> Update <i class="fa fa-spin fa-spinner" wire:loading></i>
                     </button>
                     <a href="{{ url()->previous() }}" class="btn btn-link">

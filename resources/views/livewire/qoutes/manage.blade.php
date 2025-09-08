@@ -1,5 +1,4 @@
 <div>
-    @include('includes.flash')
     <div class="container mt-4">
         <div class="card mb-4">
             <div class="card-header fw-bold">Search By</div>
@@ -10,11 +9,24 @@
                         <label><i class="fa fa-cogs"></i> Search by Part Number:</label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-barcode"></i></span>
-                            <input type="text" class="form-control" wire:model.debounce.500ms="searchPartNo"
-                                placeholder="Enter part number">
-                            <button class="btn btn-primary" type="button" wire:click="$refresh">
+                            <input type="text" class="form-control" wire:model="searchPartNoInput"
+                                placeholder="Enter part number" wire:keydown.enter="searchq" wire:keyup="usekeyupno($event.target.value)" wire:key="searchPartNoInput-{{ now()->timestamp }}" />
+                            <button class="btn btn-primary" type="button" wire:click="searchq">
                                 <i class="fa fa-search"></i>
                             </button>
+                        </div>
+                        <div wire:ignore.self>
+                            @if($matches_partno)
+                                <ul class="list-group position-absolute w-100 shadow-sm"
+                                    style="z-index:1050; max-height:220px; overflow-y:auto;">
+                                    @foreach($matches_partno as $i => $m)
+                                        <li wire:key="match-{{ $i }}" class="list-group-item list-group-item-action"
+                                            wire:click="useMatchpn({{ $i }})">
+                                            {{ $m['part_no'] }}
+                                        </li>
+                                    @endforeach
+                                </ul>
+                            @endif
                         </div>
                     </div>
 
@@ -23,21 +35,38 @@
                         <label><i class="fa fa-user"></i> Search by Customer Name:</label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-user"></i></span>
-                            <input type="text" class="form-control" wire:model.debounce.500ms="searchCustomer"
-                                placeholder="Enter customer name">
-                            <button class="btn btn-primary" type="button" wire:click="$refresh">
+                            <input type="text" class="form-control" wire:model="searchCustomerInput"
+                                placeholder="Enter customer name" wire:keydown.enter="searchbyCustomer" wire:keyup="onKeyUp($event.target.value)" wire:key="searchCustomerInput-{{ now()->timestamp }}">
+                            <button class="btn btn-primary" type="button" wire:click="searchbyCustomer">
                                 <i class="fa fa-search"></i>
                             </button>
                         </div>
+                        <div wire:ignore.self>
+                            @if($matches)
+                                <ul class="list-group position-absolute w-100 shadow-sm"
+                                    style="z-index:1050; max-height:220px; overflow-y:auto;">
+                                    @foreach($matches as $i => $m)
+                                        <li wire:key="match-{{ $i }}" class="list-group-item list-group-item-action"
+                                            wire:click="useMatch({{ $i }})">
+                                            {{ $m['c_name'] }}
+                                        </li>
+                                    @endforeach
+                                </ul>
+                            @endif
+                        </div>
+                    </div>
+                    <div class="col-lg-2">
+                        <br />
+                        <button class="btn btn-info mt-2" wire:click="filterclose"><i class="fa fa-rotate-right"></i> Reset Filter</button>
                     </div>
                 </div>
             </div>
         </div>
 
-
         <div class="card">
             <div class="card-header">
                 <i class="fa fa-list"></i> Manage Quotes
+                <i class="fa fa-spin fa-spinner float-end" wire:loading></i>
             </div>
         </div>
         <div class="table-responsive">
@@ -50,7 +79,6 @@
                         <th><i class="fa fa-cube"></i> Part No</th>
                         <th><i class="fa fa-refresh"></i> Rev</th>
                         <th><i class="fa fa-calendar"></i> Added Date</th>
-                        <th><i class="fa fa-download"></i> Downloads</th>
                         <th><i class="fa fa-cogs"></i> Action</th>
                     </tr>
                 </thead>
@@ -112,18 +140,16 @@
                                 class="btn btn-info btn-xs btn-sm" target="_blank">VIEW PDF</a>
                             <a href="{{ route('downloaddoc.viewdocqoute',$quote->ord_id)}}"
                                 class="btn btn-warning btn-xs btn-sm">Download DOC</a>
-                        </td>
-                        <td>
                             <a href="{{ route('qoutes.edit',$quote->ord_id) }}" class="btn btn-success btn-xs btn-sm"><i
-                                    class="fa fa-edit"></i></a>
-                            <button wire:click="deleteQuote({{ $quote->ord_id }})"
+                                    class="fa fa-edit"></i> Edit </a>
+                            <button wire:click="deleteQuote({{ $quote->ord_id }})" wire:key="delete-{{ $quote->ord_id }}"
                                 onclick="confirm('Are you sure you want to delete this quote?') || event.stopImmediatePropagation()"
                                 class="btn btn-sm btn-xs btn-danger">
-                                <i class="fa fa-trash"></i>
+                                <i class="fa fa-trash"></i> Delete
                             </button>
-                            <button wire:click="duplicateQuote({{ $quote->ord_id }})"
-                                class="btn btn-xs btn-sm btn-primary">
-                                <i class="fa fa-copy"></i>
+                            <button wire:click="duplicateQuote({{ $quote->ord_id }})" wire:key="duplicate-{{ $quote->ord_id }}"
+                                class="btn btn-xs btn-sm btn-primary" >
+                                <i class="fa fa-copy"></i> Clone
                             </button>
                         </td>
                     </tr>

@@ -62,6 +62,8 @@ class Add extends Component
     // Alert management properties
     public $newAlert = '';
     public $editingAlertId = null;
+    public $button_status = 0;
+
 
     public function mount()
     {
@@ -111,77 +113,79 @@ class Add extends Component
         }
     }
 
-        public function save()
-        {
-            $this->validate([
-                'vid' => ['required', 'exists:data_tb,data_id'],
-                'sid' => ['required'],
-                'namereq' => ['nullable', 'string', 'max:100'],
-                'svia' => ['required'],
-                'svia_oth' => ['nullable', 'required_if:svia,Other', 'string', 'max:50'],
-                'fcharge' => ['nullable', 'numeric'],
-                'city' => ['nullable', 'string', 'max:100'],
-                'state' => ['nullable', 'string', 'max:50'],
-                'sterms' => ['required'],
-                'comments' => ['nullable', 'string'],
-                'customer' => ['nullable', 'string', 'max:100'],
-                'part_no' => ['nullable', 'string', 'max:50'],
-                'rev' => ['nullable', 'string', 'max:20'],
-                'oo' => ['nullable', 'string', 'max:50'],
-                'po' => ['nullable', 'string', 'max:50'],
-                'ord_by' => ['nullable', 'string', 'max:50'],
-                'lyrcnt' => ['nullable', 'string'],
-                'delto' => ['nullable', 'string', 'max:100'],
-                'date1' => ['nullable', 'date_format:Y-m-d'],
-                'stax' => ['nullable', 'numeric'],
-                'commission' => ['nullable', 'numeric'],
-                'items' => ['array', 'size:6'],
-                'items.*.item' => ['nullable', 'string', 'max:50'],
-                'items.*.description' => ['nullable', 'string'],
-                'items.*.qty' => ['nullable', 'numeric'],
-                'items.*.unit_price' => ['nullable', 'numeric'],
-                'items.*.commission' => ['boolean'],
-            ]);
-           // dd("wewq");
-            $alerts = Alert::where('customer', $this->customer)
-                ->where('part_no', $this->part_no)
-                ->where('rev', $this->rev)
-                ->where('atype', 'p')
-                ->orderBy('id', 'desc')
-                ->get()
-                ->filter(function ($alert) {
-                    return in_array('inv', explode('|', $alert->viewable));
-                });
-                // for profile alert ..
-            // Check for profile alerts
-            $profiles = Profile::where('custid',$this->vid)->with('details')
-                ->get();
-        // dd($profiles->count());
-            $hasAlerts = $alerts->count() > 0;
-            $hasProfiles = $profiles->count() > 0;
+    public function save()
+    {
+        // dd($this->sid);
+        $this->validate([
+            'vid' => ['required', 'exists:data_tb,data_id'],
+            'sid' => ['required'],
+            'namereq' => ['nullable', 'string', 'max:100'],
+            'svia' => ['required'],
+            // 'svia_oth' => ['nullable', 'required_if:svia,Other', 'string', 'max:50'],
+            // 'fcharge' => ['nullable', 'numeric'],
+            // 'city' => ['nullable', 'string', 'max:100'],
+            // 'state' => ['nullable', 'string', 'max:50'],
+            // 'sterms' => ['required'],
+            // 'comments' => ['nullable', 'string'],
+            // 'customer' => ['nullable', 'string', 'max:100'],
+            // 'part_no' => ['nullable', 'string', 'max:50'],
+            // 'rev' => ['nullable', 'string', 'max:20'],
+            // 'oo' => ['nullable', 'string', 'max:50'],
+            // 'po' => ['nullable', 'string', 'max:50'],
+            // 'ord_by' => ['nullable', 'string', 'max:50'],
+            // 'lyrcnt' => ['nullable', 'string'],
+            // 'delto' => ['nullable', 'string', 'max:100'],
+            // 'date1' => ['nullable', 'date_format:Y-m-d'],
+            // 'stax' => ['nullable', 'numeric'],
+            // 'commission' => ['nullable', 'numeric'],
+            // 'items' => ['array', 'size:6'],
+            // 'items.*.item' => ['nullable', 'string', 'max:50'],
+            // 'items.*.description' => ['nullable', 'string'],
+            // 'items.*.qty' => ['nullable', 'numeric'],
+            // 'items.*.unit_price' => ['nullable', 'numeric'],
+            // 'items.*.commission' => ['boolean'],
+        ]);
+        // dd("wewq");
+        $this->button_status = 1;
+        $alerts = Alert::where('customer', $this->customer)
+            ->where('part_no', $this->part_no)
+            ->where('rev', $this->rev)
+            ->where('atype', 'p')
+            ->orderBy('id', 'desc')
+            ->get()
+            ->filter(function ($alert) {
+                return in_array('inv', explode('|', $alert->viewable));
+            });
+            // for profile alert ..
+        // Check for profile alerts
+        $profiles = Profile::where('custid',$this->vid)->with('details')
+            ->get();
+    // dd($profiles->count());
+        $hasAlerts = $alerts->count() > 0;
+        $hasProfiles = $profiles->count() > 0;
 
-            if ($hasAlerts) {
-                $this->showAlertPopup = true;
-                $this->alertMessages = $alerts;
-            }
-
-            if ($hasProfiles) {
-                $this->showProfilePopup = true;
-                $this->profileMessages = $profiles;
-            }
-
-            // If no alerts at all, save immediately
-            if (!$hasAlerts && !$hasProfiles) {
-                $this->saveproccess();
-            }
-          
+        if ($hasAlerts) {
+            $this->showAlertPopup = true;
+            $this->alertMessages = $alerts;
         }
-        public function closeAlertPopup(): void
-        {
-            $this->showAlertPopup = false;
-            // dd($this->showAlertPopup);
-            $this->checkIfShouldSave();
+
+        if ($hasProfiles) {
+            $this->showProfilePopup = true;
+            $this->profileMessages = $profiles;
         }
+
+        // If no alerts at all, save immediately
+        if (!$hasAlerts && !$hasProfiles) {
+            $this->saveproccess();
+        }
+        
+    }
+    public function closeAlertPopup(): void
+    {
+        $this->showAlertPopup = false;
+        // dd($this->showAlertPopup);
+        $this->checkIfShouldSave();
+    }
 
         public function closeProfilePopup(): void
         {
@@ -344,8 +348,8 @@ class Add extends Component
                 $invoice->no_layer   = $this->lyrcnt;
                 $invoice->comval     = $this->totalCommission;
                 $invoice->save();
+                //dd($this->items);
                 try {
-                   // dd($this->items);
                     foreach ($this->items as $index => $row) {
                         if (!empty($row['item'])) {
                             $qty = (float) ($row['qty'] ?? 0);
@@ -354,7 +358,7 @@ class Add extends Component
                             $item = new InvoiceItem();
                             $item->pid = $invoice->invoice_id;
                             $item->item = $row['item'];
-                            $item->itemdesc = $row['description'] ?? null;
+                            $item->itemdesc = $row['description'] ?? 'Hello World';
                             $item->qty2 = $qty;
                             $item->uprice = $uprice;
                             $item->commision = !empty($row['commission']) ? 1 : 0;

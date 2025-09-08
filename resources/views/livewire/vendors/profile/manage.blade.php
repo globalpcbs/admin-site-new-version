@@ -32,7 +32,7 @@
                         </a>
                     </td>
                     <td>
-                        <button class="btn btn-sm btn-danger" wire:click="confirmDelete({{ $vendor->profid }})">
+                        <button class="btn btn-sm btn-danger" wire:click="confirmDelete({{ $vendor->profid }})" wire:key="delete-{{ $vendor->profid }}">
                             <i class="fa fa-trash"></i> Delete
                         </button>
                     </td>

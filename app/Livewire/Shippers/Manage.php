@@ -28,7 +28,7 @@ class Manage extends Component
 
         $shippers = Shipper::when($this->search, function ($query) {
             $query->where('c_name', $this->search);
-        })->paginate(20); // 20 per page
+        })->orderby('data_id','desc')->paginate(20); // 20 per page
 
         return view('livewire.shippers.manage', [
             'shippers' => $shippers,

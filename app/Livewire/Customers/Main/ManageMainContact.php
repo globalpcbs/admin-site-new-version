@@ -27,7 +27,7 @@ class ManageMainContact extends Component
     public function render()
     {
         // Get distinct customer names from data_tb
-        $customers = Customer::select('data_id', 'c_name')->distinct()->get();
+        $customers = Customer::select('data_id', 'c_name')->distinct()->orderby('c_name','asc')->get();
 
         // Get contacts with optional filtering
         $contacts = MainContact::when($this->searchCustomer, function ($query) {

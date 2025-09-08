@@ -58,6 +58,8 @@ class EditCredit extends Component
     public $newAlert = '';
     public $editingAlertId = null;
     public $alertTypes = [];
+    public $button_status = 0;
+
 
     /* ——— identical rules from Add ——— */
     protected function rules(): array
@@ -127,6 +129,7 @@ class EditCredit extends Component
     public function update(): void
 {
     $this->validate();
+    $this->button_status = 1;
     
     // Check for alerts
     $alerts = Alert::where('customer', $this->customer)

@@ -155,7 +155,7 @@
                                 <label class="form-label">
                                     <i class="fa fa-sort-numeric-asc"></i> Qty
                                 </label>
-                                <input type="number" class="form-control" wire:model="qty">
+                                <input type="number" class="form-control" wire:model.live="qty" wire:key="qty-{{ $inputKey }}">
                                 @error('qty') <span class="text-danger small">{{ $message }}</span> @enderror
                             </div>
                         </div>
@@ -235,20 +235,40 @@
                         <div class="modal show d-block" style="background: rgba(0,0,0,0.5);">
                             <div class="modal-dialog">
                                 <div class="modal-content p-3">
-                                    <h5>Allocate Stock</h5>
-                                    <input type="text" class="form-control mb-2" placeholder="Customer"
-                                        wire:model.defer="alloc_customer">
-                                    <input type="text" class="form-control mb-2" placeholder="PO#"
+                                    <label class="text-danger"> <b> <i class="fa fa-plus-circle"></i> Allocate Stock </b></label>
+                                    <label for="">Customer</label>
+                                    <input type="text" class="form-control form-control-sm mb-2" wire:keyup="onKeyUpForCustomer($event.target.value)" placeholder="Customer"
+                                        wire:model.defer="alloc_customer" wire:key="alloc_customer-{{ $inputKey }}">
+                                    <div wire:ignore.self>
+                                        @if($customer_search)
+                                        <ul class="list-group position-absolute w-100 shadow-sm"
+                                            style="z-index:1050; min-height:220px; font-size: 10px; overflow-y:auto;">
+                                            @foreach($customer_search as $i => $m)
+                                            <li wire:key="match-{{ $i }}" class="list-group-item list-group-item-action"
+                                                wire:click="useCustomerMatch({{ $i }})">
+                                                {{ $m['c_shortname'] }}
+                                            </li>
+                                            @endforeach
+                                        </ul>
+                                        @endif
+                                    </div>
+                                    <label for="">PO#</label>
+                                    <input type="text" class="form-control form-control-sm mb-2" placeholder="PO#"
                                         wire:model.defer="alloc_pono">
-                                    <input type="date" class="form-control mb-2" placeholder="Due Date"
+                                    <label for="">Due Date</label>
+                                    <input type="date" class="form-control form-control-sm mb-2" placeholder="Due Date"
                                         wire:model.defer="alloc_duedate">
-                                    <input type="date" class="form-control mb-2" placeholder="Allocation Date"
+                                    <label for="">Allocation Date</label>
+                                    <input type="date" class="form-control form-control-sm mb-2" placeholder="Allocation Date"
                                         wire:model.defer="alloc_allocationdate">
-                                    <input type="number" class="form-control mb-2" placeholder="Quantity"
+                                    <label for="">Quantity</label>
+                                    <input type="number" class="form-control form-control-sm mb-2" placeholder="Quantity"
                                         wire:model.defer="alloc_qut">
-                                    <input type="text" class="form-control mb-2" placeholder="Allocate By"
+                                    <label for="">Allocate By</label>
+                                    <input type="text" class="form-control form-control-sm mb-2" placeholder="Allocate By"
                                         wire:model.defer="alloc_allocate_by">
-                                    <input type="date" class="form-control mb-2" placeholder="Delivered On"
+                                    <label for="">Delivered On</label>
+                                    <input type="date" class="form-control form-control-sm mb-2" placeholder="Delivered On"
                                         wire:model.defer="alloc_deliveredon">
 
                                     <div class="d-flex justify-content-end">

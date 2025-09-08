@@ -76,6 +76,9 @@ class ManagePartNumberAlerts extends Component
             ->when($this->searchPart,
                 fn ($q) => $q->where('part_no', 'like', "%{$this->searchPart}%"))
             ->groupBy('customer', 'part_no', 'rev')
+            ->orderBy('customer', 'asc')
+            ->orderBy('part_no', 'desc')
+            ->orderBy('rev', 'desc')
             ->orderByDesc('first_id');
     }
 
@@ -95,9 +98,14 @@ class ManagePartNumberAlerts extends Component
             ->where('rev',     $this->delRev)
             ->delete();
 
-        $this->resetPage();
-        $this->confirmingDelete = false;
-        $this->delCustomer = $this->delPart = $this->delRev = null;
+        // $this->resetPage();
+        // $this->confirmingDelete = false;
+        // $this->delCustomer = $this->delPart = $this->delRev = null;
+           // reset pagination
+            $this->resetPage();
+
+            // reset all modal-related state
+            $this->reset(['confirmingDelete', 'delCustomer', 'delPart', 'delRev']);
 
         session()->flash('warning', 'Alert group deleted successfully.');
     }

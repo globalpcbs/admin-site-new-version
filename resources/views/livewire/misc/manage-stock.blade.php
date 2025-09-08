@@ -1,5 +1,24 @@
 <div>
-    @include('includes.flash')
+    <style>
+        .ttip_overlay {
+    display: none;
+    position: absolute;
+    z-index: 1000;
+    top: -50px;
+    left: -290px;
+    width: 270px;
+    padding: 10px;
+    background: #fff;
+    border: 1px solid #336699;
+    box-shadow: 2px 2px 8px rgba(0,0,0,0.2);
+}
+
+td:hover .ttip_overlay {
+    display: block;
+}
+
+
+    </style>
     <div class="card">
         <div class="card-header">
             <i class="fa fa-search"></i> Search Here
@@ -42,7 +61,6 @@
                         <th>D/C</th>
                         <th>Finish</th>
                         <th>Mfg Date</th>
-                        <th>Docs<br>Ready</th>
                         <th width="40">Stock Qty</th>
                         <th width="40">Remaining Qty</th>
                         <th>Actions</th>
@@ -72,125 +90,73 @@
                     <tr class="{{ $rowbg }}">
                         <td>{{ $s->stkid }}</td>
                         <td>{{ $s->customer }}</td>
-                        <td class="ctr">
+                    <td class="ctr" style="position: relative;">
                             @php
-                            $comment = $s->comments;
-                            $aflag = strlen($comment);
+                                $comment = $s->comments;
                             @endphp
 
-                            @if ($comment != '')
-                            <div style="position: relative; clear: both">
-                                <div class="ttip_overlay" id="div_{{ $s->stkid }}" style="z-index: 1000;
-                        padding: 0px 10px 10px;
-                        background: rgb(255, 238, 238);
-                        border: 1px solid rgb(51, 102, 153);
-                        position: absolute;
-                        top: -10px;
-                        left: 150px;
-                        text-align: left;
-                        width: 200px;
-                        margin-top: -50px;
-                        display: none;">
+                            <span @if($comment) style="color:red; font-weight:bold;" @endif>
+                                {{ $s->part_no }}
+                            </span>
+
+                            @if ($comment)
+                                <div class="ttip_overlay">
                                     <h6 class="fw-bold">Comment</h6>
                                     {!! nl2br(e($comment)) !!}
                                 </div>
-                            </div>
-                            @endif
-
-                            @if ($aflag > 1)
-                            <a href="javascript:void(0)" class="dalerts text-decoration-underline text-primary"
-                                data-stkid="{{ $s->stkid }}">
-                                {{ $s->part_no }}
-                            </a>
-                            @else
-                            {{ $s->part_no }}
                             @endif
                         </td>
-
                         <td>{{ $s->rev }}</td>
                         <td>{{ $s->vendor->c_name ?? '-' }}</td>
                         <td>{{ substr($s->dtadded, -10) }} </td>
                         <td>{{ $s->dc }}</td>
                         <td>{{ $s->finish }}</td>
                         <td>{{ $s->manuf_dt }}</td>
-                        <td>{{ $s->docs_ready ? 'Yes' : 'No' }}</td>
-                        <td>{{ $s->qty }}</td>
                         <td>
-                            @php
-                            // Fetch allocated quantity (undelivered)
-                            $remaining_qut = 0;
-                            $allocation = DB::select("SELECT SUM(qut) AS qut FROM stock_allocation WHERE stock_id = ?
-                            AND delivered_on = '00-00-0000'", [$s->stkid]);
+                           {{ $s->allocations->sum('qut') + $s->qty }}
 
-                            if (!empty($allocation[0]->qut)) {
-                            $remaining_qut = $s->qty - $allocation[0]->qut;
-                            } else {
-                            $remaining_qut = $s->qty;
-                            }
-
-                            // Get allocation rows (undelivered)
-                            $allocations = DB::select("SELECT * FROM stock_allocation WHERE stock_id = ? AND
-                            delivered_on = '00-00-0000'", [$s->stkid]);
-                            @endphp
-
-                            @if(count($allocations) > 0)
-                            <div style="position: relative; clear: both">
-                                <div class="ttip_overlay" id="aldiv_{{ $s->stkid }}" style="z-index: 1000;
-                                padding: 0px 10px 10px;
-                                background: rgb(255, 238, 238);
-                                border: 1px solid rgb(51, 102, 153);
-                                position: absolute;
-                                top: -50px;
-                                left: -290px;
-                                text-align: left;
-                                width: 270px;
-                                margin-top: -40px;
-                                display: none;">
-                                    <label>Stock Allocation</label>
-                                    <table class="al_tb table table-bordered table-sm">
-                                        <thead>
-                                            <tr>
-                                                <th>Customer</th>
-                                                <th>PO#</th>
-                                                <th>Qty</th>
-                                                <th>Due Date</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @foreach($allocations as $allocation)
-                                            <tr>
-                                                <td>{{ $allocation->customer }}</td>
-                                                <td>{{ $allocation->pono }}</td>
-                                                <td>{{ $allocation->qut }}</td>
-                                                <td>{{ \Carbon\Carbon::parse($allocation->due_date)->format('m-d-Y') }}
-                                                </td>
-                                            </tr>
-                                            @endforeach
-                                        </tbody>
-                                    </table>
-
-                                    <label>Comment</label>
-                                    {!! nl2br(e($s->comments)) !!}
-                                </div>
-                            </div>
-                            @endif
-
-                            @if($s->qty > $remaining_qut)
-                            <a href="javascript:void(0)" class="allocations" id="p{{ $s->stkid }}"
-                                style="color:red;">{{ $remaining_qut }}</a>
-                            @else
-                            {{ $remaining_qut }}
-                            @endif
                         </td>
+                     <td style="position: relative;">
+                                <span @if($s->qty == 0) style="color:red; font-weight:bold;" @endif>
+                                    {{ $s->qty }}
+                                </span>
+
+                                @if($s->qty == 0 && $s->allocations->count() > 0)
+                                    <div class="ttip_overlay" id="aldiv_{{ $s->stkid }}">
+                                        <label>Stock Allocation</label>
+                                        <table class="al_tb table table-bordered table-sm">
+                                            <thead>
+                                                <tr>
+                                                    <th>Customer</th>
+                                                    <th>PO#</th>
+                                                    <th>Qty</th>
+                                                    <th>Due Date</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach($s->allocations as $allocation)
+                                                    <tr>
+                                                        <td>{{ $allocation->customer }}</td>
+                                                        <td>{{ $allocation->pono }}</td>
+                                                        <td>{{ $allocation->qut }}</td>
+                                                        <td>{{ \Carbon\Carbon::parse($allocation->due_date)->format('m-d-Y') }}</td>
+                                                    </tr>
+                                                @endforeach
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                @endif
+                            </td>
+
 
                         <td>
                             <a href="{{ route('misc.edit.stock',$s->stkid) }}" class="btn btn-sm btn-xs btn-info">
                                 <i class="fa fa-pencil"></i>
                             </a>
-                            <button class="btn btn-sm btn-xs btn-danger" wire:click="delete({{ $s->stkid }})">
+                            <button class="btn btn-sm btn-xs btn-danger" wire:click="delete({{ $s->stkid }})" wire:key="delete-{{ $s->stkid }}">
                                 <i class="fa fa-trash"></i>
                             </button>
-                            <button class="btn btn-sm btn-xs btn-secondary" wire:click="duplicate({{ $s->stkid }})">
+                            <button class="btn btn-sm btn-xs btn-secondary" wire:click="duplicate({{ $s->stkid }})" wire:key="duplicate-{{ $s->stkid }}">
                                 <i class="fa fa-copy"></i>
                             </button>
                         </td>

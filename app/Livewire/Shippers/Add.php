@@ -21,7 +21,7 @@ class Add extends Component
         'c_address3' => 'nullable|string|max:255',
         'c_phone' => 'required|string|max:20',
         'c_fax' => 'nullable|string|max:20',
-        'c_website' => 'nullable|url|max:255',
+        'c_website' => 'nullable|max:255',
         'c_bcontact' => 'nullable|string|max:255',
         'e_name' => 'nullable|string|max:255',
         'e_lname' => 'nullable|string|max:255',

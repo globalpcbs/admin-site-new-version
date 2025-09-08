@@ -46,7 +46,7 @@
                                         </td>
                                         <td>
                                             <button wire:click="confirmDelete({{ $contact->enggcont_id }})"
-                                                class="btn btn-sm btn-danger">
+                                                class="btn btn-sm btn-danger" wire:key="delete-{{ $contact->enggcont_id }}">
                                                 <i class="fas fa-trash-alt"></i> Delete
                                             </button>
                                         </td>

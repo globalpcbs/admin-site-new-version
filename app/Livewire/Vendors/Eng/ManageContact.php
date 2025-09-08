@@ -48,7 +48,7 @@ class ManageContact extends Component
             ->orderByDesc('vendor_enggcont_tb.enggcont_id')
             ->paginate(10);
 
-        $vendorList = DB::table('vendor_tb')->select('data_id', 'c_name')->get();
+        $vendorList = DB::table('vendor_tb')->select('data_id', 'c_name')->orderby('c_name','asc')->get();
 
         return view('livewire.vendors.eng.manage-contact', compact('contacts', 'vendorList'))
             ->layout('layouts.app', ['title' => 'Manage Vendors Eng Contact']);

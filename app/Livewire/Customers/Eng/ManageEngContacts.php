@@ -51,7 +51,7 @@ class ManageEngContacts extends Component
             ->orderByDesc('enggcont_id')
             ->paginate(10);
 
-        $customers = Customer::orderBy('c_name')->get();
+        $customers = Customer::orderBy('c_name','asc')->get();
 
         return view('livewire.customers.eng.manage-eng-contacts', [
             'contacts' => $contacts,

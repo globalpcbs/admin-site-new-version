@@ -27,6 +27,15 @@ class stock_tb extends Model
     public function allocations()
     {
         return $this->hasMany(StockAllocation::class, 'stock_id')
-            ->where('delivered_on', '00-00-0000');
+            ->where('delivered_on','!=' ,'00-00-0000')->orWhere('delivered_on',null);
+    }
+    public function getAllocatedQtyAttribute()
+    {
+        return $this->allocations->sum('qut');
+    }
+
+    public function getRemainingQtyAttribute()
+    {
+        return $this->qty + $this->allocated_qty;
     }
 }

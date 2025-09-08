@@ -60,6 +60,8 @@ class Edit extends Component
     public $newAlert = '';
     public $editingAlertId = null;
 
+    public $button_status = 0;
+
     public function mount($id)
     {
         $this->corder = corder_tb::findOrFail($id);
@@ -110,6 +112,7 @@ class Edit extends Component
             'specialreqval' => 'nullable|string',
             'svia_oth' => 'nullable|string',
         ]);
+        $this->button_status = 1;
         $alerts = Alert::where('customer', $this->customer)
                 ->where('part_no', $this->part_no)
                 ->where('rev', $this->rev)

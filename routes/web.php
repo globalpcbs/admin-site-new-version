@@ -119,7 +119,7 @@ Route::middleware('auth')->group(function(){
         Route::get('/dashboard', Dashboard::class)->name('dashboard');
 
         // Quotes
-        Route::prefix('qoutes')->group(function(){
+        Route::prefix('qoute')->group(function(){
             Route::get('/add', QuoteAdd::class)->name('add.qoutes');
             Route::get('/manage', QuoteManage::class)->name('qoutes.manage');
             Route::get('/edit/{id}', Edit::class)->name('qoutes.edit');
@@ -294,6 +294,7 @@ Route::get('/purchase-order/download/docs/{id}',[CreditPdfController::class,'dow
 Route::get('/qoute/pdf/{id}',[CreditPdfController::class,'viewPdfqoute'])->name('view.viewPdfqoute'); // purchase order ..
 Route::get('/qoute/pdf/download/{id}',[CreditPdfController::class,'downloadPdfqoute'])->name('download.downloadPdfqoute'); // purchaser order downloa pdf ..
 Route::get('/qoute/download/docs/{id}',[CreditPdfController::class,'viewdocqoute'])->name('downloaddoc.viewdocqoute'); // download doc purchase order ..
+// Legacy PDF quote route
 // pdf and docs view and download for qoute section ..
 Route::get('/logout',function(){
     Auth::logout();

@@ -13,8 +13,8 @@ use App\Models\order_tb as Order;
 use App\Models\alerts_tb    as Alert;
 use App\Models\profile_tb as Profile;
 use App\Models\profile_tb2 as ProfileDetail;
-use App\Models\Profile_vendor_tb as ProfileVendor;
-use App\Models\Profile_vendor_tb2 as ProfileVendor2;
+use App\Models\profile_vendor_tb as ProfileVendor;
+use App\Models\profile_vendor_tb2 as ProfileVendor2;
 
 class Edit extends Component
 {
@@ -43,6 +43,8 @@ class Edit extends Component
     // Add these properties
     public bool $showVendorAlertPopup = false;
     public $vendorAlertMessages = [];
+    
+    public $button_status = 0;
 
     public function mount($id)
     {
@@ -71,6 +73,7 @@ class Edit extends Component
         $this->no_layer = $po->no_layer;
         $this->cancharge = $po->cancharge;
         $this->ordon = $po->ordon;
+      //  dd($po->date1);
         $this->iscancel = $po->iscancel;
         $this->ccharge = $po->ccharge;
         $this->specialreqval = $po->sp_reqs;
@@ -113,6 +116,7 @@ class Edit extends Component
     {
        $customer = Customer::where('c_name', $this->customer)->first();
         $this->customer_id = $customer ? $customer->data_id : null;
+        $this->button_status = 1;
        // dd($this->customer_id);
           $alerts = Alert::where('customer', $this->customer)
                 ->where('part_no', $this->part_no)
@@ -369,6 +373,7 @@ class Edit extends Component
             ->select('part_no', 'rev', 'cust_name')
             ->where('part_no', 'like', "%{$value}%")
             ->orWhere('cust_name', 'like', "%{$value}%")
+            ->distinct()
             ->get()
             ->map(fn ($row) => [
                 'label' => "{$row->part_no}_{$row->rev}_{$row->cust_name}",
@@ -396,6 +401,7 @@ class Edit extends Component
             ->where('rev', $rev)
             ->where('cust_name', $cust)
             ->first();
+            
 
         if ($order) {
             $this->part_no = $order->part_no;

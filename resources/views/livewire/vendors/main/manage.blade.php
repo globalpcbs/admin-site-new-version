@@ -36,7 +36,7 @@
                             <td>{{ $contact->lastname }}</td>
                             <td><a href="{{ route('vendors.main.edit',$contact->enggcont_id) }}" class="btn btn-success btn-sm text-white"> <i class="fa fa-edit"></i> Edit</a></td>
                             <td>
-                                <a href="#" wire:click.prevent="confirmDelete({{ $contact->enggcont_id }})" class="btn btn-danger btn-sm text-white">
+                                <a href="#" wire:click.prevent="confirmDelete({{ $contact->enggcont_id }})" wire:key="delete-{{ $contact->enggcont_id }}" class="btn btn-danger btn-sm text-white">
                                    <i class="fa fa-trash"></i> Delete
                                 </a>
                             </td>

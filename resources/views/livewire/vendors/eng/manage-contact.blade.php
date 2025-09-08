@@ -50,7 +50,7 @@
                                     </a>
                                 </td>
                                 <td>
-                                    <button class="btn btn-danger btn-sm" wire:click="confirmDelete({{ $contact->enggcont_id }})">
+                                    <button class="btn btn-danger btn-sm" wire:click="confirmDelete({{ $contact->enggcont_id }})" wire:key="delete-{{ $contact->enggcont_id }}">
                                         <i class="fa fa-trash"></i> Delete
                                     </button>
                                 </td>

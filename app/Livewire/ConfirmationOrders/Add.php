@@ -59,6 +59,8 @@ class Add extends Component
     // Alert management properties
     public $newAlert = '';
     public $editingAlertId = null;
+    
+    public $button_status = 0;
 
     public function mount()
     {
@@ -108,6 +110,7 @@ class Add extends Component
                     return in_array('con', explode('|', $alert->viewable));
                 });
                 // for profile alert ..
+                $this->button_status = 1;
             // Check for profile alerts
             $profiles = Profile::where('custid',$this->vid)->with('details')
                 ->get();

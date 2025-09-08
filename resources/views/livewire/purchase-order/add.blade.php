@@ -126,7 +126,7 @@
                                 </td>
                                 <td>
                                     <div wire:key="item-{{ $i }}">
-                                        <select class="form-select mb-1" wire:model="items.{{ $i }}.dpdesc">
+                                        <select class="form-select mb-1" wire:model.live="items.{{ $i }}.dpdesc">
                                             <option value="">Select</option>
                                             <option value="pcbp">PCB Fabrication (Production)</option>
                                             <option value="pcbeo">PCB Fabrication (Expedited Order)</option>
@@ -265,7 +265,7 @@
             </div>
             {{-- Buttons --}}
             <div>
-                <button type="submit" class="btn btn-primary">
+                <button type="submit" class="btn btn-primary @if($button_status == 1) disabled @endif">
                     <i class="fa fa-save"></i> Submit <i class="fa fa-spinner fa-spin" wire:loading></i>
                 </button>
                 <button type="reset" class="btn btn-secondary">
