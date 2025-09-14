@@ -12,6 +12,7 @@
         "laravel/tinker": "^2.10.1",
         "livewire/livewire": "^3.6",
         "phpoffice/phpword": "^1.4",
+        "power-components/livewire-powergrid": "^6.6",
         "spipu/html2pdf": "^5.3"
     },
     "require-dev": {

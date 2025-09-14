@@ -32,7 +32,14 @@
 
                 <tr>
                     <td width="312" class="p-2" height="25"><strong>Customer :</strong>
-                        <input type="text" wire:model="cust_name" wire:key="cust_name-{{ $inputKey }}" />
+                         <select wire:model="cust_name" id="cust_name" wire:change="changecustomer" wire:key="cust_name-{{ $inputKey }}">
+                            <option value="">Select Customer</option>
+                            @foreach($customers as $customer)
+                            <option value="{{ $customer->c_name }}" @selected($cust_name==$customer->c_name)>
+                                {{ $customer->c_name }}
+                            </option>
+                            @endforeach
+                        </select> <br />
                         @error('cust_name')
                         <font color="red"><small>{{ $message }}</small></font>
                         @enderror
@@ -60,12 +67,12 @@
                         <select class="w-50" wire:change="requestby" wire:model="request_by">
                             <option>Select Requested By</option>
                              @foreach($customers_main as $main)
-                                <option value="{{ $main->name }}">
+                                <option value="{{ $main->name }}" @if($request_by == $main->name) selected @endif>
                                     {{ $main->name }}
                                 </option>
                             @endforeach
                             @foreach($customers_eng as $eng)
-                                <option value="{{ $eng->name }}">
+                                <option value="{{ $eng->name }}" @if($request_by == $main->name) selected @endif>
                                     {{ $eng->name }}
                                 </option>
                             @endforeach

@@ -1,4 +1,5 @@
 <div>
+       @include('includes.flash')
        <div class="card mb-3">
         <div class="card-body">
             <div class="row g-3 align-items-end">
@@ -113,11 +114,11 @@
                                     <i class="fa fa-edit"></i> Edit
                                 </a>
                                  <button class="btn btn-sm btn-xs btn-danger" wire:click="delete({{ $order->poid }})"
-                                    onclick="return confirm('Are you sure you want to delete this order?')" wire:key="delete-{{ $order->poid }}">
+                                    wire:confirm="Are you sure you want to delete this order?" wire:key="delete-{{ $order->poid }}">
                                     <i class="fa fa-trash"></i> Delete
                                 </button>
                                  <button class="btn btn-sm btn-xs btn-info" wire:click="duplicate({{ $order->poid }})"
-                                    onclick="return confirm('Duplicate this confirmation order?')" wire:key="duplicate-{{ $order->poid }}">
+                                     wire:key="duplicate-{{ $order->poid }}">
                                     <i class="fa fa-clone"></i> Duplicate
                                 </button>
                             </td>

@@ -1,4 +1,5 @@
 <div>
+    @include('includes.flash')
     <div class="container mt-4">
         <div class="card mb-4">
             <div class="card-header fw-bold">Search By</div>
@@ -70,7 +71,7 @@
             </div>
         </div>
         <div class="table-responsive">
-            <table class="table table-bordered table-sm font-xs table-hover table-striped align-middle text-center">
+            <table class="table table-bordered table-sm table-hover table-striped">
                 <thead>
                     <tr>
                         <th><i class="fa fa-hashtag"></i> ID</th>
@@ -149,7 +150,7 @@
                             </button>
                             <button wire:click="duplicateQuote({{ $quote->ord_id }})" wire:key="duplicate-{{ $quote->ord_id }}"
                                 class="btn btn-xs btn-sm btn-primary" >
-                                <i class="fa fa-copy"></i> Clone
+                                <i class="fa fa-copy"></i> Duplicate
                             </button>
                         </td>
                     </tr>

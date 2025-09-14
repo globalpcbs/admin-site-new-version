@@ -1237,33 +1237,71 @@ public function downloadPackingDoc($id)
     ]);
 }
 // for quote section pdf ..
-    public function viewPdfqoute($id)
-    {
-        $quote = Order::findOrFail($id);
-        
-        // Prepare price matrix data
-        $prices = [];
-        for ($i = 1; $i <= 3; $i++) {
-            if (!empty($quote->{'qty'.$i})) {
-                $prices[] = [
-                    'qty' => $quote->{'qty'.$i},
-                    'day1' => $quote->{'pr'.$i.'1'} ?? 0,
-                    'day2' => $quote->{'pr'.$i.'2'} ?? 0,
-                    'day3' => $quote->{'pr'.$i.'3'} ?? 0,
-                ];
-            }
+public function viewPdfqoute($id)
+{
+    $quote = Order::findOrFail($id);
+    
+    // Prepare price matrix data for ALL options (10 quantities × 5 days)
+    $prices = [];
+    $dayOptions = [];
+    
+    // Collect available day options
+    for ($d = 1; $d <= 5; $d++) {
+        if (!empty($quote->{'day'.$d}) && $quote->{'day'.$d} > 0) {
+            $dayOptions[] = [
+                'day' => $d,
+                'value' => $quote->{'day'.$d}
+            ];
         }
-        
-        $filename = "Quotation-".$quote->ord_id."-".str_replace(' ', '-', $quote->cust_name)."-".$quote->part_no."-".$quote->rev."_".date("m-d-Y").".pdf";
-        
-        $pdf = Pdf::loadView('pdf.qoute', [
-            'quote' => $quote,
-            'prices' => $prices,
-            'title' => $filename
-        ]);
-        
-        return $pdf->stream($filename);
     }
+    
+    // Collect available quantity options with their prices
+    for ($q = 1; $q <= 10; $q++) {
+        if (!empty($quote->{'qty'.$q}) && $quote->{'qty'.$q} > 0) {
+            $priceRow = ['qty' => $quote->{'qty'.$q}];
+            
+            foreach ($dayOptions as $dayOpt) {
+                $dayNum = $dayOpt['day'];
+                $priceValue = $quote->{'pr'.$q.$dayNum} ?? 0;
+                
+                // Ensure the price is numeric (handle string values with commas)
+                if (is_string($priceValue)) {
+                    $priceValue = (float) str_replace(',', '', $priceValue);
+                }
+                
+                $priceRow['day'.$dayNum] = $priceValue;
+            }
+            
+            $prices[] = $priceRow;
+        }
+    }
+    
+    // Calculate totals with misc charges - FIXED VARIABLE NAMES
+    $misccharge = $quote->necharge ?? 0;
+    $nre = $quote->descharge ?? 0;
+    $descharge1 = $quote->descharge1 ?? 0;
+    $descharge2 = $quote->descharge2 ?? 0;
+    
+    // Convert all to numbers to avoid string concatenation issues
+    $misccharge = (float) $misccharge;
+    $nre = (float) $nre;
+    $descharge1 = (float) $descharge1;
+    $descharge2 = (float) $descharge2;
+    
+    $totalMisc = $misccharge + $nre + $descharge1 + $descharge2;
+    
+    $filename = "Quotation-".$quote->ord_id."-".str_replace(' ', '-', $quote->cust_name)."-".$quote->part_no."-".$quote->rev."_".date("m-d-Y").".pdf";
+    
+    $pdf = Pdf::loadView('pdf.qoute', [
+        'quote' => $quote,
+        'prices' => $prices,
+        'dayOptions' => $dayOptions,
+        'totalMisc' => $totalMisc,
+        'title' => $filename
+    ]);
+    
+    return $pdf->stream($filename);
+}
     public function downloadPdfqoute($id)
     {
         $quote = Order::findOrFail($id);
@@ -1584,5 +1622,11 @@ public function viewdocqoute($id)
         'Content-Type' => 'application/msword',
         'Content-Disposition' => 'attachment; filename="'.$filename.'"'
     ]);
+}
+function format_num($number, $decimals = 2) {
+    if (is_numeric($number)) {
+        return number_format((float)$number, $decimals);
+    }
+    return $number;
 }
 }

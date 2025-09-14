@@ -5,113 +5,218 @@
     <meta charset="utf-8">
     <title>{{ $title }}</title>
     <style>
-    body {
-        font-family: DejaVu Sans, sans-serif;
-        font-size: 9pt;
-        line-height: 1.3;
-        margin: 0;
-        padding: 0;
-    }
+            body {
+                font-family: DejaVu Sans, sans-serif;
+                font-size: 9pt;
+                line-height: 1.3;
+                margin: 0;
+                padding: 0;
+            }
 
-    /* HEADER */
-    .header-table {
-        width: 100%;
-        border-collapse: collapse;
-    }
+            /* HEADER */
+            .header-table {
+                width: 100%;
+                border-collapse: collapse;
+            }
 
-    .header-table td {
-        vertical-align: top;
-        padding: 0px;
-    }
+            .header-table td {
+                vertical-align: top;
+                padding: 0px;
+            }
 
-    .logo {
-        width: 120px;
-    }
+            .logo {
+                width: 120px;
+            }
 
-    .quote-title {
-        font-size: 28pt;
-        font-weight: bold;
-        color: #3A4FA5;
-        margin-bottom: 5px;
-    }
+            .quote-title {
+                font-size: 28pt;
+                font-weight: bold;
+                color: #3A4FA5;
+                margin-bottom: 5px;
+            }
 
-    .company-info {
-        font-size: 9pt;
-        font-weight: normal;
-    }
+            .company-info {
+                font-size: 9pt;
+                font-weight: normal;
+            }
 
-    .quote-details {
-        text-align: right;
-        font-size: 9pt;
-        line-height: 1.4;
-    }
+            .quote-details {
+                text-align: right;
+                font-size: 9pt;
+                line-height: 1.4;
+            }
 
-    .quote-details strong {
-        color: #000;
-    }
+            .quote-details strong {
+                color: #000;
+            }
 
-    /* SECTION TITLE */
-    .section-bar {
-        background: #3A4FA5;
-        color: #fff;
-        font-weight: bold;
-        text-align: center;
-        padding: 6px;
-        font-size: 11pt;
-        margin: 10px 0 0 0;
-    }
+            /* SECTION TITLE */
+            .section-bar {
+                background: #3A4FA5;
+                color: #fff;
+                font-weight: bold;
+                text-align: center;
+                padding: 6px;
+                font-size: 11pt;
+                margin: 10px 0 0 0;
+            }
 
-    /* ORDER DETAILS */
-    .info-table {
-        width: 100%;
-        border-collapse: collapse;
-        font-size: 9pt;
-    }
+            /* ORDER DETAILS */
+            .info-table {
+                width: 100%;
+                border-collapse: collapse;
+                font-size: 9pt;
+            }
 
-    .info-table td {
-        border: 1px solid #000;
-        padding: 4px;
-    }
+            .info-table td {
+                border: 1px solid #000;
+                padding: 4px;
+            }
 
-    .notes-row td {
-        border: 1px solid #000;
-        padding: 4px;
-    }
+            .notes-row td {
+                border: 1px solid #000;
+                padding: 4px;
+            }
 
-    .notes-table {
-        width: 100%;
-        border-collapse: collapse;
-        font-size: 8.5pt;
-    }
+            .notes-table {
+                width: 100%;
+                border-collapse: collapse;
+                font-size: 8.5pt;
+            }
 
-    .notes-table td {
-        vertical-align: top;
-        width: 33%;
-    }
+            .notes-table td {
+                vertical-align: top;
+                width: 33%;
+            }
 
-    /* PRICE TABLE WITH DOUBLE BORDER */
-    .price-table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 8px;
-        border: 3px double #000;
-        /* Double border */
-    }
+            /* PRICE TABLE WITH DOUBLE BORDER */
+            /* PRICE TABLE STYLES */
+        .price-table {
+            width: 100%;
+            border-collapse: collapse;
+            border: 3px double #000;
+            margin-top: 8px;
+            table-layout: fixed; /* This is key for consistent column widths */
+        }
 
-    .price-table th,
-    .price-table td {
-        border: 1px solid #000;
-        padding: 4px;
-        text-align: center;
-        font-size: 9pt;
-    }
+        .price-table th, 
+        .price-table td {
+            border: 1px solid #000;
+            padding: 3px;
+            text-align: center;
+            font-size: 7.5pt; /* Smaller font */
+            line-height: 1.1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap; /* Prevent text wrapping */
+        }
 
-    /* FOOTER */
-    .footer {
-        font-size: 7.5pt;
-        margin-top: 15px;
-        line-height: 1.2;
-    }
+        /* Specific column widths */
+        .price-table th:nth-child(1),
+        .price-table td:nth-child(1) {
+            width: 12%; /* Option column */
+            text-align: left;
+            padding-left: 5px;
+        }
+
+        .price-table th:nth-child(2),
+        .price-table td:nth-child(2) {
+            width: 10%; /* Qty column */
+        }
+
+        /* Price columns - dynamically calculated width */
+        .price-table th:nth-child(n+3),
+        .price-table td:nth-child(n+3) {
+            width: calc(78% / {{ count($dayOptions) }}); /* Distribute remaining space */
+            min-width: 50px; /* Minimum width for price columns */
+        }
+
+        .price-table .total-row {
+            font-weight: bold;
+            background-color: #f0f0f0;
+            font-size: 7.2pt; /* Slightly smaller for totals */
+        }
+
+        .price-table .total-label {
+            text-align: right;
+            padding-right: 8px;
+        }
+        /* Specific column widths */
+        .price-table th:nth-child(1),
+        .price-table td:nth-child(1) {
+            width: 12%; /* Option column */
+            text-align: left;
+            padding-left: 5px;
+        }
+
+        .price-table th:nth-child(2),
+        .price-table td:nth-child(2) {
+            width: 10%; /* Qty column */
+        }
+
+        /* Price columns - dynamically calculated width */
+        .price-table th:nth-child(n+3),
+        .price-table td:nth-child(n+3) {
+            width: calc(78% / {{ count($dayOptions) }}); /* Distribute remaining space */
+            min-width: 50px; /* Minimum width for price columns */
+        }
+
+        .price-table .total-row {
+            font-weight: bold;
+            background-color: #f0f0f0;
+            font-size: 7.2pt; /* Slightly smaller for totals */
+        }
+
+        .price-table .total-label {
+            text-align: right;
+            padding-right: 8px;
+        }
+
+        /* Make the text more compact */
+        .compact-text {
+            font-size: 7.2pt;
+            line-height: 1;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Make the text more compact */
+        .compact-text {
+            font-size: 7.2pt;
+            line-height: 1;
+            margin: 0;
+            padding: 0;
+        }
+            /* FOOTER */
+            .footer {
+                font-size: 7.5pt;
+                margin-top: 15px;
+                line-height: 1.2;
+            }
+            .price-table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 8px;
+                border: 3px double #000;
+                font-size: 8pt; /* Smaller font for more columns */
+            }
+
+            .price-table th, 
+            .price-table td {
+                border: 1px solid #000;
+                padding: 3px;
+                text-align: center;
+            }
+
+            .price-table .option-header {
+                text-align: left;
+                font-weight: bold;
+            }
+
+            .price-table .total-row {
+                font-weight: bold;
+                background-color: #f0f0f0;
+            }
     </style>
 </head>
 
@@ -157,8 +262,8 @@
             <td><strong>IPC Class:</strong> {{ $quote->ipc_class }}</td>
         </tr>
         <tr>
-            <td><strong>Array Info:</strong> {{ $quote->array ? 'Yes' : 'No' }}</td>
-            <td colspan="2"><strong>Bd size:</strong> {{ $quote->board_size1 }} X {{ $quote->board_size2 }}</td>
+            <td><strong>Array Info:</strong> {{ $quote->array }}</td>
+            <td colspan="2"><strong>Bd size:</strong> {{ $quote->board_size1 }} @if(!empty($quote->board_size2) && !empty($quote->board_size1) ) X @endif {{ $quote->board_size2 }}</td>
             <td><strong>Imp:</strong>
                 @if($quote->con_impe_sing) Single @endif
                 @if($quote->con_impe_diff) Differential @endif
@@ -205,31 +310,66 @@
             </td>
         </tr>
     </table>
-
-    <!-- PRICE TABLE WITH DOUBLE BORDER -->
-    <table class="price-table">
-        <tr>
-            <th></th>
-            <th>1 Days</th>
-            <th>2 Days</th>
-            <th>3 Days</th>
-        </tr>
-        @foreach($prices as $index => $price)
-        <tr>
-            <td><strong>Option {{ $index+1 }}</strong> {{ $price['qty'] }} Pcs</td>
-            <td>${{ number_format($price['day1'], 2) }} ea</td>
-            <td>${{ number_format($price['day2'], 2) }} ea</td>
-            <td>${{ number_format($price['day3'], 2) }} ea</td>
-        </tr>
-        <tr>
-            <td><strong>Shipping to FOB Included</strong></td>
-            <td>${{ number_format($price['day1'] * $price['qty'], 2) }}</td>
-            <td>${{ number_format($price['day2'] * $price['qty'], 2) }}</td>
-            <td>${{ number_format($price['day3'] * $price['qty'], 2) }}</td>
-        </tr>
+<!-- PRICE TABLE -->
+@if(count($prices) > 0 && count($dayOptions) > 0)
+<table class="price-table">
+    <tr>
+        <th>Option</th>
+        <th>Qty</th>
+        @foreach($dayOptions as $dayOpt)
+        <th>{{ $dayOpt['value'] }} Days</th>
         @endforeach
-    </table>
-
+    </tr>
+    
+    @foreach($prices as $index => $price)
+    <!-- Price row -->
+    <tr>
+        <td><span class="compact-text">Option {{ $index + 1 }}</span></td>
+        <td><span class="compact-text">{{ $price['qty'] }} Pcs</span></td>
+        
+        @foreach($dayOptions as $dayOpt)
+        <td>
+            @if($price['day'.$dayOpt['day']] > 0)
+            <span class="compact-text">${{ number_format($price['day'.$dayOpt['day']], 2) }} ea</span>
+            @else
+            &nbsp;
+            @endif
+        </td>
+        @endforeach
+    </tr>
+    
+    <!-- Total row -->
+    <tr class="total-row">
+        <td colspan="2" class="total-label">
+            <span class="compact-text">
+                <strong>{{ $quote->new_or_rep == 'New Part' ? 'NRE/' : '' }}FOB Included</strong>
+            </span>
+        </td>
+        
+        @foreach($dayOptions as $dayOpt)
+        <td>
+            @if($price['day'.$dayOpt['day']] > 0)
+            <?php
+            $unitPrice = (float) str_replace(',', '', $price['day'.$dayOpt['day']]);
+            $total = ($price['qty'] * $unitPrice) + $totalMisc;
+            ?>
+            <span class="compact-text"><strong>${{ number_format($total, 2) }}</strong></span>
+            @else
+            &nbsp;
+            @endif
+        </td>
+        @endforeach
+    </tr>
+    
+    <!-- Small spacer between options -->
+    <tr style="height: 2px;">
+        <td colspan="{{ count($dayOptions) + 2 }}" style="border: none; background: transparent;"></td>
+    </tr>
+    @endforeach
+</table>
+@else
+<p>No pricing options available.</p>
+@endif
     <p>
         When placing your purchase order, please refer to the Quote Number listed at the top of this page.
         Please feel free to call us should any requirements change.<br>

@@ -504,7 +504,7 @@ public function updateCustomerId($selectedName)
         }
     public function saveproccess()
     {
-       // dd($this->desdesc2);
+        //dd($this->array);
         // Validate the form data
         // Prepare price data from manual inputs
         $priceData = [];
@@ -543,17 +543,17 @@ public function updateCustomerId($selectedName)
             'inner_copper' => $this->inner_copper,
             'start_cu' => $this->start_cu,
             'plated_cu' => $this->plated_cu,
-            'fingers_gold' => $this->fingers_gold ? 'yes' : 'no',
+            'fingers_gold' => $this->fingers_gold,
             'trace_min' => $this->trace_min,
             'space_min' => $this->space_min,
-            'con_impe_sing' => $this->con_impe_sing ? 'Yes' : 'No',
-            'con_impe_diff' => $this->con_impe_diff ? 'Differential' : '',
+            'con_impe_sing' => $this->con_impe_sing,
+            'con_impe_diff' => $this->con_impe_diff,
             'tore_impe' => $this->tore_impe,
             'hole_size' => $this->hole_size,
             'pad' => $this->pad,
-            'blind' => $this->blind ? 'yes' : 'no',
-            'buried' => $this->buried ? 'yes' : 'no',
-            'hdi_design' => $this->hdi_design ? 'Yes' : 'No',
+            'blind' => $this->blind,
+            'buried' => $this->buried,
+            'hdi_design' => $this->hdi_design,
             'finish' => $this->finish,
             'mask_size' => $this->mask_size,
             'mask_type' => $this->mask_type,
@@ -562,33 +562,33 @@ public function updateCustomerId($selectedName)
             'ss_color' => $this->ss_color,
             'board_size1' => $this->board_size1,
             'board_size2' => $this->board_size2,
-            'array' => $this->array ? 'YES' : 'NO',
+            'array' => $this->array,
             'b_per_array' => $this->b_per_array,
             'array_size1' => $this->array_size1,
             'array_size2' => $this->array_size2,
             'route_tole' => $this->route_tole,
-            'array_design' => $this->array_design ? 'Yes' : 'No',
-            'design_array' => $this->design_array ? 'yes' : 'no',
-            'array_type1' => $this->array_type1 ? 'Tab Route' : '',
-            'array_type2' => $this->array_type2 ? 'V Score' : '',
-            'array_require1' => $this->array_require1 ? 'Tooling Holes' : '',
-            'array_require2' => $this->array_require2 ? 'Fiducials' : '',
-            'array_require3' => $this->array_require3 ? 'Mousebites' : '',
-            'bevel' => $this->bevel ? 'yes' : 'no',
-            'counter_sink' => $this->counter_sink ? 'yes' : 'no',
-            'cut_outs' => $this->cut_outs ? 'Yes' : 'No',
-            'slots' => $this->slots ? 'Yes' : 'No',
+            'array_design' => $this->array_design,
+            'design_array' => $this->design_array,
+            'array_type1' => $this->array_type1,
+            'array_type2' => $this->array_type2,
+            'array_require1' => $this->array_require1,
+            'array_require2' => $this->array_require2,
+            'array_require3' => $this->array_require3,
+            'bevel' => $this->bevel,
+            'counter_sink' => $this->counter_sink,
+            'cut_outs' => $this->cut_outs,
+            'slots' => $this->slots,
             'logo' => $this->logo,
-            'mark' => $this->mark ? 'Yes' : 'No',
+            'mark' => $this->mark,
             'date_code' => $this->date_code,
             'other_marking' => $this->other_marking,
-            'micro_section' => $this->micro_section ? 'YES' : 'NO',
-            'test_stamp' => $this->test_stamp ? 'Yes' : 'No',
-            'in_board' => $this->in_board ? 'In Board' : '',
-            'array_rail' => $this->array_rail ? 'In Array Rail' : '',
-            'xouts' => $this->xouts ? 'yes' : 'no',
+            'micro_section' => $this->micro_section,
+            'test_stamp' => $this->test_stamp,
+            'in_board' => $this->in_board,
+            'array_rail' => $this->array_rail,
+            'xouts' => $this->xouts,
             'xouts1' => $this->xoutsnum,
-            'rosh_cert' => $this->rosh_cert ? 'Yes' : 'No',
+            'rosh_cert' => $this->rosh_cert,
             'ord_date' => now()->format('m/d/Y'),
             'cancharge' => $this->cancharge,
             'ccharge' => $this->ccharge,
@@ -598,11 +598,11 @@ public function updateCustomerId($selectedName)
             'price3' => $this->price3,
             'price4' => $this->price4,
             'new_or_rep' => $this->new_or_rep,
-            'cond_vias' => $this->cond_vias ? 'Yes' : 'No',
-            'resin_filled' => $this->resin_filled ? 'Yes' : 'No',
+            'cond_vias' => $this->cond_vias,
+            'resin_filled' => $this->resin_filled,
             'sp_reqs' => $this->sp_reqs,
             'comments' => $this->comments,
-            'simplequote' => $this->simplequote ? '1' : '0',
+            'simplequote' => $this->simplequote,
             'fob_oth' => $this->fob_oth,
             'vid' => $this->vid,
             'vid_oth' => $this->vid_oth,
@@ -716,8 +716,13 @@ public function updateCustomerId($selectedName)
         $m = $this->matches[$i];
         $this->selectLookup($m['part'], $m['rev'], $m['cust']);
     }
+    public function changecustomer(){
+        //dd($this->cust_name);
+        $customer = Customer::where('c_name', $this->cust_name)->first();
+        $this->customers_main = customermain::where('coustid',$customer->data_id)->get(); 
+        $this->customers_eng  = customereng::where('coustid',$customer->data_id)->get(); 
+    }
     public function requestby(){
-       //bbbbbbbbbbbbbbbb  , dd($this->request_by);
        // $this->customers_main = customermain::where('coustid',$customer->data_id)->get(); 
         $main = customermain::where('name',$this->request_by)->first();
         $eng = customereng::where('name',$this->request_by)->first();

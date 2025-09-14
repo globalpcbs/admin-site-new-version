@@ -1,4 +1,18 @@
 <div>
+      <style>
+        .table td, 
+.table th {
+    white-space: nowrap;   /* keep text on one line */
+    vertical-align: middle;
+}
+
+.table {
+    width: auto;           /* shrink to fit content */
+    table-layout: auto;    /* let columns auto-size */
+}
+
+      </style>
+      @include('includes.flash')
       <div class="card mb-4">
         <div class="card-header fw-bold">Search By</div>
         <div class="card-body">
@@ -71,7 +85,7 @@
 
             <!-- Invoice Table -->
             <div class="table-responsive">
-                <table class="table table-bordered table-hover table-striped align-middle table-sm font-xs">
+                <table class="table table-bordered table-hover table-striped align-middle table-sm table-responsive">
                     <thead class="table-light">
                         <tr>
                             <th><i class="fa fa-key"></i> ID</th>
@@ -80,9 +94,9 @@
                             <th><i class="fa fa-cube"></i> Part No</th>
                             <th><i class="fa fa-retweet"></i> Rev</th>
                             <th><i class="fa fa-calendar"></i> Inv Date</th>
-                            <th><i class="fa fa-exclamation-circle"></i> Past Due</th>
+                            <th><i class="fa fa-exclamation-circle"></i> Past <br /> Due</th>
                             <th><i class="fa fa-check-square-o"></i> Paid</th>
-                            <th><i class="fa fa-envelope-o"></i> Stop Mails</th>
+                            <th><i class="fa fa-envelope-o"></i> Stop <br /> Mails</th>
                             <th>Act</th>
                         </tr>
                     </thead>
@@ -155,21 +169,19 @@
 
                             <td>
                                 <a href="{{ route('invoice.pdf',$invoice->invoice_id) }}"
-                                    class="btn btn-sm btn-outline-info btn-xs"><i class="fa fa-eye"></i></a>
+                                    class="btn btn-sm btn-outline-info btn-xs"><i class="fa fa-eye"></i> View PDF</a>
                                 <a href="{{ route('invoice.pdf.download',$invoice->invoice_id) }}"
-                                    class="btn btn-sm btn-outline-danger btn-xs"><i class="fa fa-download"></i></a>
-                                <a href="{{ route('invoice.docs.download',$invoice->invoice_id) }}"
-                                    class="btn btn-sm btn-outline-primary btn-xs"><i class="fa fa-file"></i></a>
+                                    class="btn btn-sm btn-outline-danger btn-xs"><i class="fa fa-download"></i> Download PDF</a>
                                 <button class="btn btn-sm btn-outline-warning btn-xs"
                                     wire:click="duplicate({{ $invoice->invoice_id }})" wire:key="duplocate-{{ $invoice->invoice_id }}">
-                                    <i class="fa fa-copy"></i>
+                                    <i class="fa fa-copy"> Duplicate </i>
                                 </button>
                                 <a href="{{ route('invoice.edit',$invoice->invoice_id) }}">
-                                    <button class="btn btn-outline-success btn-xs"><i class="fa fa-edit"></i></button>
+                                    <button class="btn btn-outline-success btn-xs"><i class="fa fa-edit"></i> Edit </button>
                                 </a>
                                 <button class="btn btn-sm btn-outline-danger btn-xs"
-                                    onclick="if(confirm('Are you sure you want to delete this invoice?')) @this.delete({{ $invoice->invoice_id }})" wire:key="delete-{{ $invoice->invoice_id }}">
-                                    <i class="fa fa-trash"></i>
+                                    wire:click="delete({{ $invoice->invoice_id }})" wire:confirm wire:key="delete-{{ $invoice->invoice_id }}">
+                                    <i class="fa fa-trash"></i> Delete
                                 </button>
                             </td>
                         </tr>
