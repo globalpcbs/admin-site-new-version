@@ -1,4 +1,5 @@
 <div class="container py-4">
+        @include('includes.flash')
         <div class="card mb-4">
         <div class="card-header fw-bold">Search By</div>
         <div class="card-body">

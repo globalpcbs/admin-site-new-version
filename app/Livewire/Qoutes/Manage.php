@@ -78,8 +78,9 @@ class Manage extends Component
     public function duplicateQuote($id)
     {
         $original = Order::findOrFail($id);
-        $newQuote = $original->replicate();
-        $newQuote->save();
+       $newQuote = $original->replicate();
+$newQuote->ord_date = today(); // sets only the date, no time
+$newQuote->save();
 
         session()->flash('success', 'Quote duplicated successfully.');
     }

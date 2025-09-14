@@ -42,8 +42,9 @@ class Manage extends Component
     }
     public function delete($id)
     {
-        porder_tb::where('poid', $id)->delete();
-        session()->flash('warning', 'Purchase Order Deleted Succesfully.');
+        porder_tb::destroy($id);
+        $this->dispatch('alert', type: 'warning', message: 'Record deleted successfully!');
+        
     }
 
     public function duplicate($id)
@@ -67,7 +68,7 @@ class Manage extends Component
             }
 
             DB::commit();
-            session()->flash('success', 'Purchase Order Duplicated Succesfully.');
+            $this->dispatch('alert', type: 'success', message: 'Purchase Order duplicated successfully!');
 
         } catch (\Exception $e) {
             DB::rollBack();

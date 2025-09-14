@@ -120,7 +120,7 @@
                             </button>
                             <button type="button" class="btn btn-sm btn-xs btn-secondary"
                                 wire:click="duplicate({{ $slip->invoice_id }})" wire:key="duplicate-{{ $slip->invoice_id }}">
-                                <i class="fa fa-copy"></i> Clone
+                                <i class="fa fa-copy"></i> Duplicate
                             </button>
                         </td>
                         <td class="text-center">

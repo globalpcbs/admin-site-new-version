@@ -31,9 +31,9 @@
                 </tr>
 
                 <tr>
-                    <td width="312" class="p-2" height="25"><strong>Customer : {{ $cust_name }} </strong>
+                    <td width="312" class="p-2" height="25"><strong>Customer : </strong>
                         <!-- <input type="text" wire:model="cust_name" wire:key="cust_name-{{ $inputKey }}" /> -->
-                        <select wire:model="cust_name" id="cust_name" wire:key="cust_name-{{ $inputKey }}">
+                        <select wire:model="cust_name" id="cust_name" wire:change="changecustomer" wire:key="cust_name-{{ $inputKey }}">
                             <option value="">Select Customer</option>
                             @foreach($customers as $customer)
                             <option value="{{ $customer->c_name }}" @selected($cust_name==$customer->c_name)>

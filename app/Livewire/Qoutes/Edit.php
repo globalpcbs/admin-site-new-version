@@ -198,8 +198,10 @@ class Edit extends Component
     // Basic Information
     $this->cust_name = $this->order->cust_name;
     $customer = Customer::where('c_name', $this->order->cust_name)->first();
-    $this->customers_main = customermain::where('coustid',$customer->data_id)->get(); 
-    $this->customers_eng  = customereng::where('coustid',$customer->data_id)->get(); 
+    if(!empty($customer)) {
+        $this->customers_main = customermain::where('coustid',$customer->data_id)->get(); 
+        $this->customers_eng  = customereng::where('coustid',$customer->data_id)->get(); 
+    }
     $this->part_no = $this->order->part_no;
     $this->rev = $this->order->rev;
     $this->new_or_rep = $this->order->new_or_rep;
@@ -804,6 +806,12 @@ class Edit extends Component
         if (!isset($this->matches[$i])) return;
         $m = $this->matches[$i];
         $this->selectLookup($m['part'], $m['rev'], $m['cust']);
+    }
+        public function changecustomer(){
+        //dd($this->cust_name);
+        $customer = Customer::where('c_name', $this->cust_name)->first();
+        $this->customers_main = customermain::where('coustid',$customer->data_id)->get(); 
+        $this->customers_eng  = customereng::where('coustid',$customer->data_id)->get(); 
     }
 
     public function render()

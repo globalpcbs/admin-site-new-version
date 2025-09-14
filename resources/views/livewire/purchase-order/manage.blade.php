@@ -100,7 +100,7 @@
         </div>
 
         <div>
-            <table class="table table-bordered table-sm table-striped font-xs">
+            <table class="table table-bordered table-sm table-striped">
                 <thead class="table-light">
                     <tr>
                         <th><i class="fa fa-id-badge"></i> ID</th>
