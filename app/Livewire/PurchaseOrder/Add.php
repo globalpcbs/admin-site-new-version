@@ -300,7 +300,7 @@ class Add extends Component
             $this->reset(['newAlert','alertTypes']);
         }
     public function saveproccess(){
-                $po = porder_tb::create([
+            $po = porder_tb::create([
             'vid' => $this->vid,
             'sid' => $this->sid,
             'namereq' => $this->namereq,
