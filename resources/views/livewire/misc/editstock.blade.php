@@ -132,9 +132,9 @@
                                     <i class="fa fa-hourglass-half"></i> Shelf Life
                                 </label>
                                 <select class="form-select" wire:model.defer="shelf_life">
-                                    <option value="12 Months">12 Months</option>
-                                    <option value="24 Months">24 Months</option>
-                                    <option value="36 Months">36 Months</option>
+                                    @for ($i = 1; $i <= 12; $i++)
+                                        <option value="{{ $i }} Month{{ $i > 1 ? 's' : '' }}">{{ $i }} Month{{ $i > 1 ? 's' : '' }}</option>
+                                    @endfor
                                 </select>
                                 @error('shelf_life') <span class="text-danger small">{{ $message }}</span> @enderror
                             </div>
