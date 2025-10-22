@@ -36,10 +36,10 @@
                     <tbody>
                         @forelse ($contacts as $contact)
                             <tr>
-                                <td>{{ $contact->enggcont_id }}</td>
-                                <td>{{ $contact->customer->c_name }}</td>
-                                <td>{{ $contact->name }}</td>
-                                <td>{{ $contact->lastname }}</td>
+                              <td>{{ $contact->enggcont_id ?? 'N/A' }}</td>
+                                <td>{{ $contact->customer->c_name ?? 'N/A' }}</td>
+                                <td>{{ $contact->name ?? 'N/A' }}</td>
+                                <td>{{ $contact->lastname ?? 'N/A' }}</td>
                                 <td>
                                     <a href="{{ route('customers.main.edit',$contact->enggcont_id) }}">
                                         <button class="btn btn-sm btn-success">
