@@ -2,8 +2,8 @@
 
 namespace App\Livewire\Vendors\Profile;
 
-use App\Models\Profile_vendor_tb as ProfileVendor;
-use App\Models\Profile_vendor_tb2 as ProfileVendor2;
+use App\Models\profile_vendor_tb as ProfileVendor;
+use App\Models\profile_vendor_tb2 as ProfileVendor2;
 use App\Models\vendor_tb as Vendor;
 use Livewire\Component;
 
