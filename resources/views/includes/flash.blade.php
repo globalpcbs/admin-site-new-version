@@ -1,9 +1,9 @@
 <div class="mt-1 mb-1">
-      @if (session()->has('success'))
+      {{-- @if (session()->has('success'))
         <div class="alert alert-success auto-hide">
           <i class="fa fa-check-circle"></i> {{ session('success') }}
         </div>
-      @endif
+      @endif --}}
 
       @if (session()->has('warning'))
         <div class="alert alert-danger auto-hide">
