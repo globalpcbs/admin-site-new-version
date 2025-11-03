@@ -1,4 +1,5 @@
 <div>
+    @include('includes.flash')
     <div class="container mt-4">
         <div class="card mb-4">
             <div class="card-header fw-bold">Search By</div>
