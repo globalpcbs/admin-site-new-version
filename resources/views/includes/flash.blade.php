@@ -1,37 +1,15 @@
 <div class="mt-1 mb-1">
-  <div
-    x-data="{ show: false, message: '', type: 'success' }"
-    x-on:alert.window="
-        type = $event.detail.type;
-        message = $event.detail.message;
-        show = true;
-        setTimeout(() => show = false, 3000);
-    "
-    class="mt-1 mb-1"
->
-    <template x-if="show">
-        <div
-            class="alert"
-            :class="type === 'success' ? 'alert-success' : 'alert-danger'"
-            x-transition
-        >
-            <i :class="type === 'success' ? 'fa fa-check-circle' : 'fa fa-times-circle'"></i>
-            <span x-text="message"></span>
+      @if (session()->has('success'))
+        <div class="alert alert-success auto-hide">
+          <i class="fa fa-check-circle"></i> {{ session('success') }}
         </div>
-    </template>
-</div>
+      @endif
 
-  @if (session()->has('success'))
-    <div class="alert alert-success auto-hide">
-      <i class="fa fa-check-circle"></i> {{ session('success') }}
-    </div>
-  @endif
-
-  @if (session()->has('warning'))
-    <div class="alert alert-danger auto-hide">
-      <i class="fa fa-times-circle"></i> {{ session('warning') }}
-    </div>
-  @endif
+      @if (session()->has('warning'))
+        <div class="alert alert-danger auto-hide">
+          <i class="fa fa-times-circle"></i> {{ session('warning') }}
+        </div>
+      @endif
 </div>
 
 <style>
