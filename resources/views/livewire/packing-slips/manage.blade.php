@@ -104,7 +104,7 @@
                                     <i class="fa fa-download"></i>  pdf
                                 </button>
                             </a>
-                            <a href="{{ route('view.packingpdf',$slip->invoice_id) }}">
+                            <a href="{{ route('view.packingpdf',$slip->invoice_id) }}" target="_blank">
                                 <button type="button" class="btn btn-sm btn-xs btn-info">
                                     <i class="fa fa-eye"></i> Pdf
                                 </button>

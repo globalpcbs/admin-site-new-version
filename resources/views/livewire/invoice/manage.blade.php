@@ -169,7 +169,7 @@
 
                             <td>
                                 <a href="{{ route('invoice.pdf',$invoice->invoice_id) }}"
-                                    class="btn btn-sm btn-outline-info btn-xs"><i class="fa fa-eye"></i> View PDF</a>
+                                    class="btn btn-sm btn-outline-info btn-xs" target="_blank"><i class="fa fa-eye"></i> View PDF</a>
                                 <a href="{{ route('invoice.pdf.download',$invoice->invoice_id) }}"
                                     class="btn btn-sm btn-outline-danger btn-xs"><i class="fa fa-download"></i> Download PDF</a>
                                 <button class="btn btn-sm btn-outline-warning btn-xs"
