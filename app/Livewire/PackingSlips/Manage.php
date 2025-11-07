@@ -95,8 +95,9 @@ class Manage extends Component
         $this->confirmingDelete = true;
     }
 
-    public function deletePackingSlip()
+    public function deletePackingSlip($id)
     {
+        $this->deleteId = $id;
         packing_tb::findOrFail($this->deleteId)->delete();
 
         $this->confirmingDelete = false;
