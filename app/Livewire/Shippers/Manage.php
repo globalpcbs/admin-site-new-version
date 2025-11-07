@@ -11,6 +11,17 @@ class Manage extends Component
 
     public $search = '';
 
+     // SIMPLE alert properties
+    public $alertMessage = '';
+    public $alertType = '';
+    protected $listeners = ['alert-hidden' => 'clearAlert'];
+
+    public function clearAlert()
+    {
+        $this->alertMessage = '';
+        $this->alertType = '';
+    }
+
     // Reset to page 1 when search changes
     public function updatingSearch()
     {
@@ -47,11 +58,16 @@ class Manage extends Component
         $this->confirmingDelete = true;
     }
 
-    public function deleteShipper()
+    public function deleteShipper($id)
     {
+        $this->deleteShipperId = $id;
         Shipper::where('data_id',$this->deleteShipperId)->delete();
-        session()->flash('warning', 'Shipper deleted successfully.');
-        $this->confirmingDelete = false;
+        // SIMPLE: Just set the alert
+        $this->alertMessage = 'Shipper deleted successfully.';
+        $this->alertType = 'danger';
+        
+        // Clear alert after a short delay by forcing a re-render
+        $this->dispatch('refresh-component');
     }
 
 }

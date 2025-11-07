@@ -1,6 +1,29 @@
 <div>
     <div class="mt-4">
-    @include('includes.flash')
+        @if(session('success'))
+            <div class="alert alert-success alert-dismissible fade show" id="successAlert">
+                <i class="fa fa-check-square"></i>  {{ session('success') }}
+            </div>
+            
+            <script>
+                setTimeout(() => {
+                    const alert = document.getElementById('successAlert');
+                    alert.classList.remove('show');
+                    setTimeout(() => alert.style.display = 'none', 150);
+                }, 3000);
+            </script>
+    @endif
+    @if($alertMessage)
+        <div class="container mt-2">
+            <div class="alert alert-{{ $alertType }}" 
+                x-data="{ show: true }" 
+                x-show="show"
+                x-init="setTimeout(() => { show = false; $wire.dispatch('alert-hidden') }, 3000)">
+                <i class="fa fa-{{ $alertType == 'success' ? 'check' : 'times' }}-circle"></i> 
+                {{ $alertMessage }}
+            </div>
+        </div>
+    @endif
 
   <div class="card mb-2">
     <div class="card-header bg-primary text-white">
@@ -32,7 +55,7 @@
                         </a>
                     </td>
                     <td>
-                        <button class="btn btn-sm btn-danger" wire:click="confirmDelete({{ $vendor->profid }})" wire:key="delete-{{ $vendor->profid }}">
+                        <button class="btn btn-sm btn-danger" wire:confirm="Are you sure? You want to delete profile" wire:click="deleteVendorProfile({{ $vendor->profid }})" wire:key="delete-{{ $vendor->profid }}">
                             <i class="fa fa-trash"></i> Delete
                         </button>
                     </td>

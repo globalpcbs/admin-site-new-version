@@ -35,6 +35,16 @@ class Manage extends Component
     public $searchCustomerInput = '';
 
     // Reset pagination when filters change
+        // SIMPLE alert properties
+    public $alertMessage = '';
+    public $alertType = '';
+    protected $listeners = ['alert-hidden' => 'clearAlert'];
+
+    public function clearAlert()
+    {
+        $this->alertMessage = '';
+        $this->alertType = '';
+    }
     public function updatingSearchPartNo()
     {
         $this->resetPage();
@@ -92,7 +102,12 @@ class Manage extends Component
         $this->confirmingDelete = false;
         $this->deleteId = null;
 
-        session()->flash('warning', 'Packing Slip deleted successfully.');
+         // SIMPLE: Just set the alert
+        $this->alertMessage = 'Packing Slip Deleted successfully.';
+        $this->alertType = 'danger';
+        
+        // Clear alert after a short delay by forcing a re-render
+        $this->dispatch('refresh-component');
     }
     // for replica ..
     public function duplicate($id)
@@ -137,7 +152,12 @@ class Manage extends Component
 
             DB::commit();
 
-            session()->flash('success', 'Packing Slip duplicated successfully.');
+             // SIMPLE: Just set the alert
+            $this->alertMessage = 'Packing Slip duplicated successfully.';
+            $this->alertType = 'success';
+            
+            // Clear alert after a short delay by forcing a re-render
+            $this->dispatch('refresh-component');
 
         } catch (\Exception $e) {
             DB::rollBack();
@@ -154,7 +174,12 @@ class Manage extends Component
         $packing->pending = ($packing->pending === 'Yes') ? 'No' : 'Yes';
         $packing->save();
 
-        session()->flash('success', 'Pending status updated.');
+         // SIMPLE: Just set the alert
+        $this->alertMessage = 'Pending status updated successfully.';
+        $this->alertType = 'success';
+        
+        // Clear alert after a short delay by forcing a re-render
+        $this->dispatch('refresh-component');
     }
     public function isLogged($id){
         return redirect(route('packing.loggedin',$id));

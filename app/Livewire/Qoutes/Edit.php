@@ -749,12 +749,12 @@ class Edit extends Component
                     ]);
                 }
             }
-            // Show success message
+               // Dispatch Alpine.js success event instead of session flash
+             // Store alert in session before redirect
             session()->flash('success', 'Quote Updated successfully!');
-            
-            // Optionally reset the form
-            // $this->reset();
-            return redirect(route('qoutes.manage'));
+            return redirect()->route('qoutes.manage')->with('success', 'Quote Updated successfully!');
+            // Redirect after a short delay to show the alert
+           // $this->js('setTimeout(() => { window.location.href = "'.route('qoutes.manage').'"; }, 2000)');
         } catch (\Exception $e) {
             session()->flash('warning', 'Error submitting quote: ' . $e->getMessage());
         }

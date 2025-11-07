@@ -28,10 +28,10 @@ class Manage extends Component
         $this->deleteId = $id;
     }
 
-    public function deleteVendor()
+    public function deleteVendor($id)
     {
-        Vendor::where('data_id', $this->deleteId)->delete();
-        session()->flash('message', 'Vendor deleted successfully!');
+        Vendor::where('data_id', $id)->delete();
+        session()->flash('warning', 'Vendor deleted successfully!');
     }
 
     public function render()

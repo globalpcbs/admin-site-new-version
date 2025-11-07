@@ -1,4 +1,6 @@
 <div>
+    @include('includes.flash')
+
     <!-- 🔍 Search bar ----------------------------------------------------------->
     <div class="card shadow-sm mb-3">
         <div class="card-body">

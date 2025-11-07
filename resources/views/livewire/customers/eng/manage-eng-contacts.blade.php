@@ -1,5 +1,28 @@
 <div>
-    @include('includes.flash')
+            @if(session('success'))
+                <div class="alert alert-success alert-dismissible fade show" id="successAlert">
+                    <i class="fa fa-check-square"></i>  {{ session('success') }}
+                </div>
+                
+                <script>
+                    setTimeout(() => {
+                        const alert = document.getElementById('successAlert');
+                        alert.classList.remove('show');
+                        setTimeout(() => alert.style.display = 'none', 150);
+                    }, 3000);
+                </script>
+        @endif
+        @if($alertMessage)
+            <div class="container mt-2">
+                <div class="alert alert-{{ $alertType }}" 
+                    x-data="{ show: true }" 
+                    x-show="show"
+                    x-init="setTimeout(() => { show = false; $wire.dispatch('alert-hidden') }, 3000)">
+                    <i class="fa fa-{{ $alertType == 'success' ? 'check' : 'times' }}-circle"></i> 
+                    {{ $alertMessage }}
+                </div>
+            </div>
+        @endif
     <div class="card shadow-sm">
         <div class="card-header bg-primary text-white">
             <i class="fas fa-address-book me-2"></i> Manage Engineering Contacts
@@ -40,13 +63,13 @@
                                         <td>{{ $contact->name }}</td>
                                         <td>{{ $contact->lastname }}</td>
                                         <td>
-                                            <a href="{{ route('customers.eng.edit',$contact->enggcont_id) }}" class="btn btn-sm btn-primary">
+                                            <a href="{{ route('customers.eng.edit',$contact->enggcont_id) }}" class="btn btn-sm btn-success">
                                                 <i class="fas fa-edit"></i> Edit
                                             </a>
                                         </td>
                                         <td>
-                                            <button wire:click="confirmDelete({{ $contact->enggcont_id }})"
-                                                class="btn btn-sm btn-danger" wire:key="delete-{{ $contact->enggcont_id }}">
+                                            <button wire:click="deleteCustomer({{ $contact->enggcont_id }})"
+                                                class="btn btn-sm btn-danger" wire:confirm="Are you sure? You want to delete." wire:key="delete-{{ $contact->enggcont_id }}">
                                                 <i class="fas fa-trash-alt"></i> Delete
                                             </button>
                                         </td>

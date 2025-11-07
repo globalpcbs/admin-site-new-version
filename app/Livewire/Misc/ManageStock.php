@@ -17,6 +17,17 @@ class ManageStock extends Component
     public $confirmingDelete = null;
     protected $paginationTheme = 'bootstrap';
 
+     // SIMPLE alert properties
+    public $alertMessage = '';
+    public $alertType = '';
+    protected $listeners = ['alert-hidden' => 'clearAlert'];
+
+    public function clearAlert()
+    {
+        $this->alertMessage = '';
+        $this->alertType = '';
+    }
+
     public function updatingSearch() { $this->resetPage(); }
     public function updatingSearchCustomer() { $this->resetPage(); }
 
@@ -38,15 +49,24 @@ class ManageStock extends Component
     {
         stock_tb::where('stkid', $id)->delete();
         DB::table('stock_ret')->where('stkid', $id)->delete(); // If you still have this table
-        session()->flash('warning', 'Stock item deleted.');
-        $this->confirmingDelete = null;
+        // SIMPLE: Just set the alert
+        $this->alertMessage = 'Stock deleted successfully.';
+        $this->alertType = 'danger';
+        
+        // Clear alert after a short delay by forcing a re-render
+        $this->dispatch('refresh-component');
     }
 
     public function duplicate($id)
     {
         $stock = stock_tb::findOrFail($id)->replicate();
         $stock->save();
-        session()->flash('message', 'Stock item duplicated.');
+         // SIMPLE: Just set the alert
+        $this->alertMessage = 'Stock duplicated successfully.';
+        $this->alertType = 'success';
+        
+        // Clear alert after a short delay by forcing a re-render
+        $this->dispatch('refresh-component');
     }
 
     public function render()

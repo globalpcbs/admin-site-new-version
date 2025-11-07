@@ -33,6 +33,17 @@ class Manage extends Component
     public $matches    = [];          // array of suggestions ⬅️  NEW
     public $matches_partno = []; // array of part no ..
     public $searchCustomerInput = '';
+     // SIMPLE alert properties
+    public $alertMessage = '';
+    public $alertType = '';
+    protected $listeners = ['alert-hidden' => 'clearAlert'];
+
+    public function clearAlert()
+    {
+        $this->alertMessage = '';
+        $this->alertType = '';
+    }
+
     
     public function updatingSearchPart() { $this->resetPage(); }
     public function updatingSearchCustomer() { $this->resetPage(); }
@@ -64,7 +75,12 @@ class Manage extends Component
             'showPaymentModal', 'selectedInvoiceId', 'paytype',
             'paydetail', 'paydate', 'paynote'
         ]);
-        session()->flash('success', 'Payment Details Updated Successfully!');
+         // SIMPLE: Just set the alert
+        $this->alertMessage = 'Payment Details Updated Successfully!';
+        $this->alertType = 'success';
+        
+        // Clear alert after a short delay by forcing a re-render
+        $this->dispatch('refresh-component');
     }
 
     public function togglePaid($id)
@@ -75,22 +91,41 @@ class Manage extends Component
         
     }
     public function togglePending($id){
+      //  dd($id);
         $invoice = Invoice::findOrFail($id);
         $invoice->pending = $invoice->pending == 1 ? 0 : 1;
         $invoice->save();
-        session()->flash('success', 'Past Due Updated Successfully!');
+       // session()->flash('success', 'Past Due Updated Successfully!');
+         // SIMPLE: Just set the alert
+        $this->alertMessage = 'Past Due Updated Successfully!';
+        $this->alertType = 'success';
+        
+        // Clear alert after a short delay by forcing a re-render
+        $this->dispatch('refresh-component');
     }
     public function toggleMailStop($id){
         $invoice = Invoice::findOrFail($id);
         $invoice->mailstop = $invoice->mailstop == 1 ? 0 : 1;
         $invoice->save();
-        session()->flash('success', 'Mail Stop Updated Successfully!');
+        //session()->flash('success', 'Mail Stop Updated Successfully!');
+         // SIMPLE: Just set the alert
+        $this->alertMessage = 'Mail Stop Updated Successfully!';
+        $this->alertType = 'success';
+        
+        // Clear alert after a short delay by forcing a re-render
+        $this->dispatch('refresh-component');
 
     }
     public function delete($id)
     {
         Invoice::findOrFail($id)->delete();
-        session()->flash('warning', 'Invoice Deleted Successfully!');
+        //session()->flash('warning', 'Invoice Deleted Successfully!');
+         // SIMPLE: Just set the alert
+        $this->alertMessage = 'Invoice Deleted Successfully!';
+        $this->alertType = 'danger';
+        
+        // Clear alert after a short delay by forcing a re-render
+        $this->dispatch('refresh-component');
 
     }
 
@@ -117,7 +152,12 @@ class Manage extends Component
                 'pid' => $newId
             ]);
         }
-        session()->flash('success', 'Invoice Duplicated Successfully!');
+         // SIMPLE: Just set the alert
+        $this->alertMessage = 'Quote duplicated successfully.';
+        $this->alertType = 'success';
+        
+        // Clear alert after a short delay by forcing a re-render
+        $this->dispatch('refresh-component');
     }
 
     public function render()

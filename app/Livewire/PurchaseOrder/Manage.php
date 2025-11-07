@@ -29,6 +29,16 @@ class Manage extends Component
     public $matches_partno = []; // array of part no ..
     public $matches_vendor = []; // array of vendor ..
     protected $paginationTheme = 'bootstrap';
+     // SIMPLE alert properties
+    public $alertMessage = '';
+    public $alertType = '';
+    protected $listeners = ['alert-hidden' => 'clearAlert'];
+
+    public function clearAlert()
+    {
+        $this->alertMessage = '';
+        $this->alertType = '';
+    }
 
     public function updating($field)
     {
@@ -43,7 +53,13 @@ class Manage extends Component
     public function delete($id)
     {
         porder_tb::destroy($id);
-        $this->dispatch('alert', type: 'warning', message: 'Record deleted successfully!');
+         // SIMPLE: Just set the alert
+        $this->alertMessage = 'Quote deleted successfully.';
+        $this->alertType = 'warning';
+        
+        // Clear alert after a short delay by forcing a re-render
+        $this->dispatch('refresh-component');
+
         
     }
 
@@ -68,7 +84,13 @@ class Manage extends Component
             }
 
             DB::commit();
-            $this->dispatch('alert', type: 'success', message: 'Purchase Order duplicated successfully!');
+              // SIMPLE: Just set the alert
+        $this->alertMessage = 'Quote duplicated successfully.';
+        $this->alertType = 'success';
+        
+        // Clear alert after a short delay by forcing a re-render
+        $this->dispatch('refresh-component');
+
 
         } catch (\Exception $e) {
             DB::rollBack();

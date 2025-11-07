@@ -12,6 +12,16 @@ class ManageMainContact extends Component
     use WithPagination;
 
     public $searchCustomer = '';
+     // SIMPLE alert properties
+    public $alertMessage = '';
+    public $alertType = '';
+    protected $listeners = ['alert-hidden' => 'clearAlert'];
+
+    public function clearAlert()
+    {
+        $this->alertMessage = '';
+        $this->alertType = '';
+    }
 
     public function filterCustomers($customerId)
     {
@@ -50,15 +60,21 @@ class ManageMainContact extends Component
         $this->confirmingDelete = true;
     }
 
-    public function deleteCustomer()
+    public function deleteCustomer($id)
     {
+        $this->contactToDeleteId = $id;
         if ($this->contactToDeleteId) {
            // dd($this->contactToDeleteId);
             MainContact::find($this->contactToDeleteId)?->delete();
             session()->flash('warning','Customer Main Contact Deleted Succesfully');
            // $this->dispatch('notify', 'Contact deleted successfully!');
         }
-
+         // SIMPLE: Just set the alert
+        $this->alertMessage = 'Main Contact deleted successfully.';
+        $this->alertType = 'danger';
+        
+        // Clear alert after a short delay by forcing a re-render
+        $this->dispatch('refresh-component');
         $this->confirmingDelete = false;
         $this->contactToDeleteId = null;
     }

@@ -1,4 +1,6 @@
 <div class="mt-4">
+    @include('includes.flash')
+
     <div class="card">
         <div class="card-header bg-primary text-white">
             <label class="mb-0"> <i class="fa fa-list"></i> Manage Vendor Main Contacts <i class="fa fa-spinner fa-spin" wire:loading></i> </label>
@@ -35,7 +37,7 @@
                             <td>{{ $contact->lastname }}</td>
                             <td><a href="{{ route('vendors.main.edit',$contact->enggcont_id) }}" class="btn btn-success btn-sm text-white"> <i class="fa fa-edit"></i> Edit</a></td>
                             <td>
-                                <a href="#" wire:click.prevent="confirmDelete({{ $contact->enggcont_id }})" wire:key="delete-{{ $contact->enggcont_id }}" class="btn btn-danger btn-sm text-white">
+                                <a href="#" wire:click.prevent="deleteContact({{ $contact->enggcont_id }})" wire:confirm="Are you sure? you want to delete" wire:key="delete-{{ $contact->enggcont_id }}" class="btn btn-danger btn-sm text-white">
                                    <i class="fa fa-trash"></i> Delete
                                 </a>
                             </td>

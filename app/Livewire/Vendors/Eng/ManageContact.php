@@ -26,8 +26,9 @@ class ManageContact extends Component
         $this->deleteId = $id;
     }
 
-    public function deleteContact()
+    public function deleteContact($id)
     {
+        $this->deleteId = $id;
         if ($this->deleteId) {
             DB::table('vendor_enggcont_tb')->where('enggcont_id', $this->deleteId)->delete();
             session()->flash('warning', 'Contact deleted successfully.');

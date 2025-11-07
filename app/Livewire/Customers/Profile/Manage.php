@@ -14,6 +14,17 @@ class Manage extends Component
 
     public $confirmingDelete = false;
     public $deleteId;
+     // SIMPLE alert properties
+    public $alertMessage = '';
+    public $alertType = '';
+    protected $listeners = ['alert-hidden' => 'clearAlert'];
+
+    public function clearAlert()
+    {
+        $this->alertMessage = '';
+        $this->alertType = '';
+    }
+
 
     public function confirmDelete($id)
     {
@@ -21,15 +32,20 @@ class Manage extends Component
         $this->deleteId = $id;
     }
 
-    public function deleteProfile()
+    public function deleteProfile($id)
     {
+        $this->deleteId = $id;
         $profile = Profile::find($this->deleteId);
         if ($profile) {
             ProfileDetail::where('profid', $profile->profid)->delete();
             $profile->delete();
         }
-        $this->confirmingDelete = false;
-        session()->flash('warning', 'Profile deleted successfully.');
+         // SIMPLE: Just set the alert
+        $this->alertMessage = 'Profile deleted successfully.';
+        $this->alertType = 'warning';
+        
+        // Clear alert after a short delay by forcing a re-render
+        $this->dispatch('refresh-component');
     }
 
     public function render()

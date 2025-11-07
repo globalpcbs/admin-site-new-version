@@ -19,6 +19,30 @@ td:hover .ttip_overlay {
 
 
     </style>
+        @if(session('success'))
+            <div class="alert alert-success alert-dismissible fade show" id="successAlert">
+                <i class="fa fa-check-square"></i>  {{ session('success') }}
+            </div>
+            
+            <script>
+                setTimeout(() => {
+                    const alert = document.getElementById('successAlert');
+                    alert.classList.remove('show');
+                    setTimeout(() => alert.style.display = 'none', 150);
+                }, 3000);
+            </script>
+    @endif
+    @if($alertMessage)
+        <div class="container mt-2">
+            <div class="alert alert-{{ $alertType }}" 
+                x-data="{ show: true }" 
+                x-show="show"
+                x-init="setTimeout(() => { show = false; $wire.dispatch('alert-hidden') }, 3000)">
+                <i class="fa fa-{{ $alertType == 'success' ? 'check' : 'times' }}-circle"></i> 
+                {{ $alertMessage }}
+            </div>
+        </div>
+    @endif
     <div class="card">
         <div class="card-header">
             <i class="fa fa-search"></i> Search Here
@@ -153,7 +177,7 @@ td:hover .ttip_overlay {
                             <a href="{{ route('misc.edit.stock',$s->stkid) }}" class="btn btn-sm btn-xs btn-info">
                                 <i class="fa fa-pencil"></i>
                             </a>
-                            <button class="btn btn-sm btn-xs btn-danger" wire:click="delete({{ $s->stkid }})" wire:key="delete-{{ $s->stkid }}">
+                            <button class="btn btn-sm btn-xs btn-danger" wire:click="delete({{ $s->stkid }})" wire:confirm="Are you sure?" wire:key="delete-{{ $s->stkid }}">
                                 <i class="fa fa-trash"></i>
                             </button>
                             <button class="btn btn-sm btn-xs btn-secondary" wire:click="duplicate({{ $s->stkid }})" wire:key="duplicate-{{ $s->stkid }}">

@@ -1,8 +1,11 @@
 <div>
+    @include('includes.flash')
+
     <div class="mt-4">
     <div class="card shadow-sm">
         <div class="card-header bg-primary text-white">
             <i class="fa fa-list"></i> Manage Vendors
+            <i wire:loading class="fa fa-spinner fa-spin float-end"></i>
         </div>
 
         <div class="card-body">
@@ -43,7 +46,7 @@
                                     </a>
                                 </td>
                                 <td>
-                                    <button wire:click="setDeleteId({{ $vendor->data_id }})" class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deleteVendorModal">
+                                    <button wire:click="deleteVendor({{ $vendor->data_id }})" wire:confirm="Are you sure? You want delete vendor." class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deleteVendorModal">
                                         <i class="fa fa-trash"></i> Delete
                                     </button>
                                 </td>

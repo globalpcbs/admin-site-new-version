@@ -26,8 +26,8 @@ class Manage extends Component
         $this->confirmingDelete = true;
     }
 
-    public function deleteContact()
-    {
+    public function deleteContact($id)
+    {   $this->deleteId = $id;
         VendorMainContact::findOrFail($this->deleteId)->delete();
         session()->flash('warning', 'Vendor contact deleted successfully!');
         $this->confirmingDelete = false;

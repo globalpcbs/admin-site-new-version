@@ -278,7 +278,6 @@
         <div class="content-wrapper">
             {{-- Menu --}}
             <div class="container-fluid ">
-                @include('includes.flash')
                 {{$slot}}
             </div>
         </div>
