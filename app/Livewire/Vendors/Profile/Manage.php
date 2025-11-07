@@ -16,21 +16,37 @@ class Manage extends Component
     public $confirmingDelete = false;
     public $deleteId;
 
+     // SIMPLE alert properties
+    public $alertMessage = '';
+    public $alertType = '';
+    protected $listeners = ['alert-hidden' => 'clearAlert'];
+
+    public function clearAlert()
+    {
+        $this->alertMessage = '';
+        $this->alertType = '';
+    }
+
     public function confirmDelete($id)
     {
         $this->deleteId = $id;
         $this->confirmingDelete = true;
     }
 
-    public function deleteVendorProfile()
-    {
+    public function deleteVendorProfile($id)
+    {  // dd($id);
+        $this->deleteId = $id;
         DB::transaction(function () {
             ProfileVendor::where('profid', $this->deleteId)->delete();
             ProfileVendor2::where('profid', $this->deleteId)->delete();
         });
 
-        session()->flash('warning', 'Vendor profile deleted successfully.');
-        $this->confirmingDelete = false;
+         // SIMPLE: Just set the alert
+        $this->alertMessage = 'Profile deleted successfully.';
+        $this->alertType = 'danger';
+        
+        // Clear alert after a short delay by forcing a re-render
+        $this->dispatch('refresh-component');
     }
 
     public function render()

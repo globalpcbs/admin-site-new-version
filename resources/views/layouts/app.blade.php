@@ -133,7 +133,6 @@
     @if(Auth::check())
         @include('layouts.includes.sidebar') {{-- Load sidebar from separate Blade file --}}
     @else
-        @include('includes.flash')
         {{ $slot }}
     @endif
     @livewireScripts

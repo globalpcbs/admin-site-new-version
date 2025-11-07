@@ -33,6 +33,17 @@ class Manage extends Component
     public $matches    = [];          // array of suggestions ⬅️  NEW
     public $matches_partno = []; // array of part no ..
     public $searchCustomerInput = '';
+    // SIMPLE alert properties
+    public $alertMessage = '';
+    public $alertType = '';
+    protected $listeners = ['alert-hidden' => 'clearAlert'];
+
+    public function clearAlert()
+    {
+        $this->alertMessage = '';
+        $this->alertType = '';
+    }
+
 
     public function mount()
     {
@@ -97,8 +108,12 @@ class Manage extends Component
         Credit::where('credit_id', $this->deleteId)->delete();
 
         $this->confirmingDelete = false;
-        session()->flash('warning', 'Credit Record deleted.');
-        $this->resetPage();            // stay on current list after delete
+        // SIMPLE: Just set the alert
+        $this->alertMessage = 'Credit deleted successfully.';
+        $this->alertType = 'danger';
+        
+        // Clear alert after a short delay by forcing a re-render
+        $this->dispatch('refresh-component');
     }
 
     public function duplicateRecord($id)
@@ -118,8 +133,13 @@ class Manage extends Component
             $newItem->save();
         }
 
-        session()->flash('success', 'Credit record duplicated successfully.');
-        $this->resetPage();
+        // session()->flash('success', 'Credit record duplicated successfully.');
+        // $this->resetPage();
+        $this->alertMessage = 'Credit record duplicated successfully.';
+        $this->alertType = 'success';
+        
+        // Clear alert after a short delay by forcing a re-render
+        $this->dispatch('refresh-component');
     }
 
     /* ───── Render ──────────────────────────── */

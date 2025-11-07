@@ -17,6 +17,17 @@ class ManageEngContacts extends Component
 
     protected $paginationTheme = 'bootstrap';
 
+     // SIMPLE alert properties
+    public $alertMessage = '';
+    public $alertType = '';
+    protected $listeners = ['alert-hidden' => 'clearAlert'];
+
+    public function clearAlert()
+    {
+        $this->alertMessage = '';
+        $this->alertType = '';
+    }
+
     public function filterCustomers($id)
     {
         $this->customer_id = $id;
@@ -30,11 +41,17 @@ class ManageEngContacts extends Component
         $this->contactToDelete = $id;
     }
 
-    public function deleteCustomer()
+    public function deleteCustomer($id)
     {
+        $this->contactToDelete = $id;
         if ($this->contactToDelete) {
             EnggContact::where('enggcont_id', $this->contactToDelete)->delete();
-            session()->flash('warning', 'Contact deleted successfully.');
+             // SIMPLE: Just set the alert
+            $this->alertMessage = 'Customer deleted successfully.';
+            $this->alertType = 'danger';
+            
+            // Clear alert after a short delay by forcing a re-render
+            $this->dispatch('refresh-component');
         }
 
         $this->confirmingDelete = false;

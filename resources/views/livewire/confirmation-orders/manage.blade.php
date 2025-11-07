@@ -1,5 +1,28 @@
 <div>
-       @include('includes.flash')
+        @if(session('success'))
+                <div class="alert alert-success alert-dismissible fade show" id="successAlert">
+                    <i class="fa fa-check-square"></i>  {{ session('success') }}
+                </div>
+                
+                <script>
+                    setTimeout(() => {
+                        const alert = document.getElementById('successAlert');
+                        alert.classList.remove('show');
+                        setTimeout(() => alert.style.display = 'none', 150);
+                    }, 3000);
+                </script>
+        @endif
+        @if($alertMessage)
+            <div class="container mt-2">
+                <div class="alert alert-{{ $alertType }}" 
+                    x-data="{ show: true }" 
+                    x-show="show"
+                    x-init="setTimeout(() => { show = false; $wire.dispatch('alert-hidden') }, 3000)">
+                    <i class="fa fa-{{ $alertType == 'success' ? 'check' : 'times' }}-circle"></i> 
+                    {{ $alertMessage }}
+                </div>
+            </div>
+        @endif
        <div class="card mb-3">
         <div class="card-body">
             <div class="row g-3 align-items-end">

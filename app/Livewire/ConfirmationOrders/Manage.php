@@ -26,6 +26,16 @@ class Manage extends Component
     public $matches    = [];          // array of suggestions ⬅️  NEW
     public $matches_partno = []; // array of part no ..
     public $searchCustomerInput = '';
+     // SIMPLE alert properties
+    public $alertMessage = '';
+    public $alertType = '';
+    protected $listeners = ['alert-hidden' => 'clearAlert'];
+
+    public function clearAlert()
+    {
+        $this->alertMessage = '';
+        $this->alertType = '';
+    }
 
     public function updatingPartSearchInput()
     {
@@ -45,7 +55,11 @@ class Manage extends Component
             corder_tb::where('poid', $poid)->delete();
         });
 
-        session()->flash('warning', 'Order deleted successfully.');
+        $this->alertMessage = 'Confirmation Order Deleted successfully.';
+        $this->alertType = 'danger';
+        
+        // Clear alert after a short delay by forcing a re-render
+        $this->dispatch('refresh-component');
     }
 
         public function duplicate($poid)
@@ -78,7 +92,12 @@ class Manage extends Component
                 }
             });
 
-            session()->flash('success', 'Order duplicated successfully.');
+              // SIMPLE: Just set the alert
+            $this->alertMessage = 'Confirmation Order duplicated successfully.';
+            $this->alertType = 'success';
+            
+            // Clear alert after a short delay by forcing a re-render
+            $this->dispatch('refresh-component');
         }
 
     public function searchByPartNo()

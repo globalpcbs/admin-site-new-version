@@ -1,5 +1,6 @@
-<!-- resources/views/livewire/customers/sales/manag-sales-rep.blade.php -->
-
+<div>
+    <!-- resources/views/livewire/customers/sales/manag-sales-rep.blade.php -->
+@include('includes.flash')
 <div class="card mb-3">
     <div class="card-header bg-primary text-white">
         <i class="fa fa-list"></i> Manage Sales Rep
@@ -53,4 +54,5 @@
     <div class="p-2">
         {{ $reps->links() }} {{-- pagination --}}
     </div>
+</div>
 </div>

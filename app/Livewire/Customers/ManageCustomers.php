@@ -13,6 +13,16 @@ class ManageCustomers extends Component
     public $search = '';
     public $confirmingDelete = false;
     public $deleteCustomerId = null;
+     // SIMPLE alert properties
+    public $alertMessage = '';
+    public $alertType = '';
+    protected $listeners = ['alert-hidden' => 'clearAlert'];
+
+    public function clearAlert()
+    {
+        $this->alertMessage = '';
+        $this->alertType = '';
+    }
 
     public function updatingSearch()
     {
@@ -31,11 +41,16 @@ class ManageCustomers extends Component
         $this->confirmingDelete = true;
     }
 
-    public function deleteCustomer()
+    public function deleteCustomer($id)
     {
+        $this->deleteCustomerId = $id;
         Customer::where('data_id', $this->deleteCustomerId)->delete();
-        session()->flash('warning', 'Customer deleted successfully.');
-        $this->confirmingDelete = false;
+       // SIMPLE: Just set the alert
+        $this->alertMessage = 'Customer deleted successfully.';
+        $this->alertType = 'danger';
+        
+        // Clear alert after a short delay by forcing a re-render
+        $this->dispatch(event: 'refresh-component');
     }
 
     public function render()
