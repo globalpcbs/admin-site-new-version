@@ -146,7 +146,7 @@
                                             <i class="fa fa-edit"></i> Edit
                                         </a>
                                         <button class="btn btn-sm btn-xs btn-danger"
-                                            wire:click="confirmDelete({{ $credit->credit_id }})" wire:key="delete-{{ $credit->credit_id }}">
+                                            wire:click="deleteGroup({{ $credit->credit_id }})" wire:confirm="Are you sure?" wire:key="delete-{{ $credit->credit_id }}">
                                             <i class="fa fa-trash"></i> Delete
                                         </button>
                                     </td>

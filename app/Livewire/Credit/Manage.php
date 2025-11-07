@@ -103,8 +103,9 @@ class Manage extends Component
     }
 
     /** user clicked “Confirm Delete” */
-    public function deleteGroup(): void
+    public function deleteGroup($id): void
     {
+        $this->deleteId = $id;
         Credit::where('credit_id', $this->deleteId)->delete();
 
         $this->confirmingDelete = false;
