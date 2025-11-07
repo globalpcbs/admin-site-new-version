@@ -1,5 +1,5 @@
 <div>
-        @if(session('success'))
+            @if(session('success'))
             <div class="alert alert-success alert-dismissible fade show" id="successAlert">
                 <i class="fa fa-check-square"></i>  {{ session('success') }}
             </div>
@@ -139,7 +139,7 @@
                                 </button>
                             </a>
                             <button type="button" class="btn btn-sm btn-xs btn-danger"
-                                wire:click="confirmDelete({{ $slip->invoice_id }})" wire:key="delete-{{ $slip->invoice_id }}">
+                                wire:click="deletePackingSlip({{ $slip->invoice_id }})" wire:confirm="Are you sure? you want to delete it." wire:key="delete-{{ $slip->invoice_id }}">
                                 <i class="fa fa-trash"></i> Del
                             </button>
                             <button type="button" class="btn btn-sm btn-xs btn-secondary"
