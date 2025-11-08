@@ -76,10 +76,10 @@ class ManagePartNumberAlerts extends Component
             ->when($this->searchPart,
                 fn ($q) => $q->where('part_no', 'like', "%{$this->searchPart}%"))
             ->groupBy('customer', 'part_no', 'rev')
-            ->orderBy('customer', 'asc')  // Primary: Customer A-Z
-            ->orderBy('part_no', 'desc')  // Secondary: Part number Z-A
-            ->orderBy('rev', 'desc')      // Tertiary: Revision Z-A
-            ->orderByDesc('first_id');    // Final: Most recent first
+            ->orderByRaw('LOWER(customer) ASC')  // Fixed: Case-insensitive alphabetical sorting
+            ->orderBy('part_no', 'desc')
+            ->orderBy('rev', 'desc')
+            ->orderByDesc('first_id');
     }
 
     /* ────── Delete helpers ────── */
@@ -103,6 +103,21 @@ class ManagePartNumberAlerts extends Component
         $this->reset(['confirmingDelete', 'delCustomer', 'delPart', 'delRev']);
 
         session()->flash('warning', 'Alert group deleted successfully.');
+    }
+
+    /* ────── Debug method ────── */
+    public function debugCustomerSorting()
+    {
+        $customers = alerts_tb::select('customer')
+            ->distinct()
+            ->where('atype', 'p')
+            ->where('part_no', '!=', '')
+            ->orderByRaw('LOWER(customer) ASC')
+            ->pluck('customer');
+
+        logger('Customer sorting order:', $customers->toArray());
+        
+        return "Check your laravel.log file for customer sorting order";
     }
 
     /* ────── Render ────── */
