@@ -175,7 +175,7 @@
 
                         <td>{{ $order->rev }}</td>
                         <td>{{ $order->podate }}</td>
-                        <td>{{ $order->vendor->c_shortname }}</td>
+                        <td>{{ $order->vendor->c_shortname ?? 'N/A' }}</td>
                         <td>
                             <a href="{{ route('purchase.orders.edit',$order->poid) }}"
                                 class="btn btn-sm btn-xs btn-primary">

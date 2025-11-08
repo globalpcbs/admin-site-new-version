@@ -14,6 +14,7 @@ class Edit extends Component
     public $customers = [];
     public $requirements = [];
     public $customer_id;
+    public $profile;
 
     public function mount($id)
     {
@@ -21,6 +22,7 @@ class Edit extends Component
         $this->customers = Customer::orderBy('c_name')->get(); // FIXED: lowercase 'customers'
 
         $profile = Profile::with(['details', 'customer'])->findOrFail($id);
+        $this->profile = $profile;
         $this->cid = $profile->custid; // FIXED: bind current customer ID to cid
 
         $this->requirements = $profile->details->map(function ($detail) {

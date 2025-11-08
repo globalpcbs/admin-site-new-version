@@ -18,7 +18,6 @@ class Manage extends Component
     public $searchCustomer = '';
     
     // search match
-    public $search = '';
     public $matches = [];
     public $matches_partno = [];
 
@@ -47,14 +46,14 @@ class Manage extends Component
     {
         $this->searchPartNo = $this->searchPartNoInput;
         $this->resetPage();
-        $this->reset(['searchPartNoInput']);
+        $this->matches_partno = []; // Clear dropdown
     }
 
     public function searchbyCustomer()
     {
         $this->searchCustomer = $this->searchCustomerInput;
         $this->resetPage();
-        $this->reset(['searchCustomerInput']);
+        $this->matches = []; // Clear dropdown
     }
 
     public function filterclose()
@@ -63,7 +62,9 @@ class Manage extends Component
             'searchPartNoInput',
             'searchCustomerInput',
             'searchPartNo',
-            'searchCustomer'
+            'searchCustomer',
+            'matches',
+            'matches_partno'
         ]);
         $this->resetPage();
     }
@@ -75,11 +76,9 @@ class Manage extends Component
 
         Reminder::where('quoteid', $id)->delete();
 
-        // SIMPLE: Just set the alert
         $this->alertMessage = 'Quote deleted successfully.';
         $this->alertType = 'warning';
         
-        // Clear alert after a short delay by forcing a re-render
         $this->dispatch('refresh-component');
     }
 
@@ -90,15 +89,11 @@ class Manage extends Component
         $newQuote->ord_date = today();
         $newQuote->save();
 
-        // SIMPLE: Just set the alert
         $this->alertMessage = 'Quote duplicated successfully.';
         $this->alertType = 'success';
         
-        // Clear alert after a short delay by forcing a re-render
         $this->dispatch('refresh-component');
     }
-
-    // Listen for refresh event
 
     public function render()
     {
@@ -119,17 +114,22 @@ class Manage extends Component
             $this->matches = [];
             return;
         }
-        $this->matches = customer::query()
-            ->select('c_name')
-            ->where('c_name', 'like', "%{$value}%")
+        
+        // FIXED: Get unique customer names from order_tb table
+        $this->matches = Order::query()
+            ->select('cust_name')
+            ->where('cust_name', 'like', "%{$value}%")
+            ->distinct() // Get unique values only
+            ->orderBy('cust_name', 'asc')
             ->get()
             ->toArray();
     }
 
     public function useMatch($i)
     {
-        $this->searchCustomerInput = $this->matches[$i]['c_name'];
-        $this->matches = [];
+        $this->searchCustomerInput = $this->matches[$i]['cust_name'];
+        $this->matches = []; // Clear dropdown immediately
+        $this->searchbyCustomer(); // Auto-search after selection
     }
 
     public function usekeyupno(string $value)
@@ -138,9 +138,13 @@ class Manage extends Component
             $this->matches_partno = [];
             return;
         }
+        
+        // FIXED: Get unique part numbers from order_tb table
         $this->matches_partno = Order::query()
             ->select('part_no')
             ->where('part_no', 'like', "%{$value}%")
+            ->distinct() // Get unique values only
+            ->orderBy('part_no', 'asc')
             ->get()
             ->toArray();
     }
@@ -148,6 +152,7 @@ class Manage extends Component
     public function useMatchpn($i)
     {
         $this->searchPartNoInput = $this->matches_partno[$i]['part_no'];
-        $this->matches_partno = [];
+        $this->matches_partno = []; // Clear dropdown immediately
+        $this->searchq(); // Auto-search after selection
     }
 }

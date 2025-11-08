@@ -16,7 +16,7 @@
                                 <select wire:model="cid" class="form-select form-select-sm" disabled>
                                     <option value="">-- Select Customer --</option>
                                     @foreach ($customers as $cust)
-                                        <option value="{{ $cust->data_id }}">{{ $cust->c_name }}</option>
+                                        <option value="{{ $cust->data_id }}" @if($cust->data_id == $profile->custid) selected @endif>{{ $cust->c_name }}</option>
                                     @endforeach
                                 </select>
                                 @error('cid') <div class="text-danger small">{{ $message }}</div> @enderror
