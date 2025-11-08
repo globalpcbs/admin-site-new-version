@@ -10,7 +10,7 @@
                     <table class="table table-bordered table-hover">
                         <tr>
                             <td class="fw-bold" style="width: 180px;">
-                                <i class="fa fa-users"></i> Select Customer
+                                <i class="fa fa-users"></i> Select Customer {{ $profile }}
                             </td>
                             <td>
                                 <select wire:model="cid" class="form-select form-select-sm" disabled>
