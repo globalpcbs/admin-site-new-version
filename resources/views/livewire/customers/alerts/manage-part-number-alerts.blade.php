@@ -1,5 +1,4 @@
 <div>
-    @include('includes.flash')
 
     <!-- 🔍 Search bar ----------------------------------------------------------->
     <div class="card shadow-sm mb-3">
@@ -39,8 +38,6 @@
         </div>
     </div>
 
-
-
     <!-- 📋 Results table ----------------------------------------------------->
     <div class="card shadow-sm">
         <div class="card-header bg-primary text-white fw-bold">
@@ -70,11 +67,11 @@
                         <td>{{ $row->part_no }} / {{ $row->rev }}</td>
 
                         <td>
-                                @foreach(explode("\n", $row->alerts) as $index => $alert)
-                                    @if(trim($alert) !== '')
-                                        {{ $index + 1 }}. {{ $alert }} <br />
-                                    @endif
-                                @endforeach
+                            @foreach(explode("\n", $row->alerts) as $alertIndex => $alert)
+                                @if(trim($alert) !== '')
+                                    <strong>{{ $alertIndex + 1 }}.</strong> {{ $alert }}<br />
+                                @endif
+                            @endforeach
                         </td>
 
                         <td class="text-center">
@@ -86,9 +83,8 @@
                                 <i class="fa fa-pencil"></i>
                             </a>
 
-                            <button class="btn btn-sm btn-outline-danger" wire:click="confirmDelete('{{ $row->customer }}',
-                                                            '{{ $row->part_no }}',
-                                                            '{{ $row->rev }}')">
+                            <button class="btn btn-sm btn-outline-danger" 
+                                wire:click="confirmDelete('{{ $row->customer }}', '{{ $row->part_no }}', '{{ $row->rev }}')">
                                 <i class="fa fa-trash"></i>
                             </button>
                         </td>
@@ -102,9 +98,10 @@
             </table>
         </div>
         <div class="card-footer d-flex justify-content-center">
-            {{ $alerts->links('pagination::bootstrap-5') }} {{-- « Prev / Next » only --}}
+            {{ $alerts->links('pagination::bootstrap-5') }}
         </div>
     </div>
+
     {{-- Delete Confirmation Modal (Bootstrap 5) --}}
     @if ($confirmingDelete)
     <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">

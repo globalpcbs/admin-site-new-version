@@ -76,13 +76,13 @@ class ManagePartNumberAlerts extends Component
             ->when($this->searchPart,
                 fn ($q) => $q->where('part_no', 'like', "%{$this->searchPart}%"))
             ->groupBy('customer', 'part_no', 'rev')
-            ->orderBy('customer', 'asc')
-            ->orderBy('part_no', 'desc')
-            ->orderBy('rev', 'desc')
-            ->orderByDesc('first_id');
+            ->orderBy('customer', 'asc')  // Primary: Customer A-Z
+            ->orderBy('part_no', 'desc')  // Secondary: Part number Z-A
+            ->orderBy('rev', 'desc')      // Tertiary: Revision Z-A
+            ->orderByDesc('first_id');    // Final: Most recent first
     }
 
-    /* ────── Delete helpers (unchanged) ────── */
+    /* ────── Delete helpers ────── */
     public function confirmDelete(string $customer, string $part, string $rev): void
     {
         $this->delCustomer = $customer;
@@ -98,14 +98,9 @@ class ManagePartNumberAlerts extends Component
             ->where('rev',     $this->delRev)
             ->delete();
 
-        // $this->resetPage();
-        // $this->confirmingDelete = false;
-        // $this->delCustomer = $this->delPart = $this->delRev = null;
-           // reset pagination
-            $this->resetPage();
-
-            // reset all modal-related state
-            $this->reset(['confirmingDelete', 'delCustomer', 'delPart', 'delRev']);
+        // Reset pagination and modal state
+        $this->resetPage();
+        $this->reset(['confirmingDelete', 'delCustomer', 'delPart', 'delRev']);
 
         session()->flash('warning', 'Alert group deleted successfully.');
     }
