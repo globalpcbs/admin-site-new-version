@@ -25,7 +25,6 @@
     @endif
 
     <div class="container mt-4">
-        <!-- YOUR EXISTING CONTENT - KEEP EVERYTHING EXACTLY AS IT WAS -->
         <div class="card mb-4">
             <div class="card-header fw-bold">Search By</div>
             <div class="card-body">
@@ -36,7 +35,8 @@
                         <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-barcode"></i></span>
                             <input type="text" class="form-control" wire:model="searchPartNoInput"
-                                placeholder="Enter part number" wire:keydown.enter="searchq" 
+                                placeholder="Enter part number" 
+                                wire:keydown.enter="searchq"
                                 wire:keyup="usekeyupno($event.target.value)" 
                                 wire:key="searchPartNoInput-{{ now()->timestamp }}" />
                             <button class="btn btn-primary" type="button" wire:click="searchq">
@@ -44,11 +44,11 @@
                             </button>
                         </div>
                         <div wire:ignore.self>
-                            @if($matches_partno)
+                            @if($matches_partno && count($matches_partno) > 0)
                                 <ul class="list-group position-absolute w-100 shadow-sm"
                                     style="z-index:1050; max-height:220px; overflow-y:auto;">
                                     @foreach($matches_partno as $i => $m)
-                                        <li wire:key="match-{{ $i }}" class="list-group-item list-group-item-action"
+                                        <li wire:key="match-partno-{{ $i }}" class="list-group-item list-group-item-action"
                                             wire:click="useMatchpn({{ $i }})">
                                             {{ $m['part_no'] }}
                                         </li>
@@ -64,7 +64,8 @@
                         <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-user"></i></span>
                             <input type="text" class="form-control" wire:model="searchCustomerInput"
-                                placeholder="Enter customer name" wire:keydown.enter="searchbyCustomer" 
+                                placeholder="Enter customer name" 
+                                wire:keydown.enter="searchbyCustomer"
                                 wire:keyup="onKeyUp($event.target.value)" 
                                 wire:key="searchCustomerInput-{{ now()->timestamp }}">
                             <button class="btn btn-primary" type="button" wire:click="searchbyCustomer">
@@ -72,13 +73,13 @@
                             </button>
                         </div>
                         <div wire:ignore.self>
-                            @if($matches)
+                            @if($matches && count($matches) > 0)
                                 <ul class="list-group position-absolute w-100 shadow-sm"
                                     style="z-index:1050; max-height:220px; overflow-y:auto;">
                                     @foreach($matches as $i => $m)
-                                        <li wire:key="match-{{ $i }}" class="list-group-item list-group-item-action"
+                                        <li wire:key="match-customer-{{ $i }}" class="list-group-item list-group-item-action"
                                             wire:click="useMatch({{ $i }})">
-                                            {{ $m['c_name'] }}
+                                            {{ $m['cust_name'] }}
                                         </li>
                                     @endforeach
                                 </ul>

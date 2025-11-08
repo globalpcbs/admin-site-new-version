@@ -55,7 +55,7 @@ class ManageCustomers extends Component
 
     public function render()
     {
-        $allCustomers = Customer::select('c_name')->orderby('c_name')->distinct()->orderby('c_name','asc')->get();
+        $allCustomers = Customer::select('c_name')->distinct()->orderby('c_name')->get();
 
         $customers = Customer::when($this->search, function ($query) {
             $query->where('c_name', $this->search);

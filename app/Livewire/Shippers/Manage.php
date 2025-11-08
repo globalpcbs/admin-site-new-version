@@ -35,7 +35,7 @@ class Manage extends Component
 
     public function render()
     {
-        $allShippers = Shipper::select('c_name')->distinct()->get();
+       $allShippers = Shipper::select('c_name')->distinct()->orderBy('c_name')->get();
 
         $shippers = Shipper::when($this->search, function ($query) {
             $query->where('c_name', $this->search);
