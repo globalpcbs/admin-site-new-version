@@ -58,7 +58,7 @@
             </div>
             <div>
                 <div class="table-responsive">
-                    <table class="table table-bordered table-responsive table-sm font-xs3 table-striped table-hover">
+                    <table class="table table-bordered table-responsive table-sm table-striped table-hover">
                         <thead class="table-primary text-white">
                             <tr>
                                 <th>Ord#</th>
