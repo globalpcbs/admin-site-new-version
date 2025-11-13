@@ -13,8 +13,7 @@ use App\Models\data_tb;
 use App\Models\shipper_tb;
 use App\Models\maincont_tb;
 use Illuminate\Support\Facades\DB;
-use App\Models\order_tb     as Order;
-
+use App\Models\order_tb as Order;
 
 class Manage extends Component
 {
@@ -77,7 +76,7 @@ class Manage extends Component
                 $query->where('part_no', 'like', '%' . $this->searchPartNo . '%');
             })
             ->when($this->searchCustomer, function ($query) {
-                $query->where('customer', 'like', '%' . $this->searchCustomer . '%');
+                $query->where('customer', $this->searchCustomer);
             })
             ->orderBy('invoice_id', 'desc')
             ->paginate(100);
@@ -162,7 +161,9 @@ class Manage extends Component
 
         } catch (\Exception $e) {
             DB::rollBack();
-            session()->flash('warning', 'Duplication failed: ' . $e->getMessage());
+            // SIMPLE: Just set the alert
+            $this->alertMessage = 'Duplication failed: ' . $e->getMessage();
+            $this->alertType = 'danger';
         }
 
     }
@@ -197,17 +198,33 @@ class Manage extends Component
         // clear the input fields (but keep actual filters intact)
        $this->reset(['searchPartNoInput']);  
     }
-    public function searchbyCustomer() {
-        $customer = data_tb::where('c_name',$this->searchCustomerInput)->first();
-       // dd($customer->data_id);
-        $this->searchCustomer = $customer->data_id;
-       // reset pagination
-       $this->resetPage();
+    
+    public function searchbyCustomer() 
+    {
+        // Check if input is empty
+        if (empty(trim($this->searchCustomerInput))) {
+            $this->searchCustomer = '';
+            $this->resetPage();
+            return;
+        }
 
-        // clear the input fields (but keep actual filters intact)
-       $this->reset(['searchCustomerInput']);    
+        $customer = data_tb::where('c_name', $this->searchCustomerInput)->first();
+        
+        // If customer not found, show alert and return
+        if (!$customer) {
+            $this->alertMessage = 'Customer not found. Please select from suggestions.';
+            $this->alertType = 'warning';
+            $this->searchCustomer = '';
+            $this->resetPage();
+            return;
+        }
+
+        $this->searchCustomer = $customer->data_id;
+        $this->resetPage();
+        $this->reset(['searchCustomerInput']);    
     }
-        // search ...
+    
+    // search ...
     public function onKeyUp(string $value){
        // dd($value);
          if (mb_strlen(trim($value)) < 2) {
@@ -240,7 +257,8 @@ class Manage extends Component
         $this->searchPartNoInput = $this->matches_partno[$i]['part_no'];
         $this->matches_partno = [];
     }
-        public function resetFilters()
+    
+    public function resetFilters()
     {
         $this->reset(['searchPartNo', 'searchCustomer']);
     }

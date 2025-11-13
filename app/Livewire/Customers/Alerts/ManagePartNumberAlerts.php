@@ -11,13 +11,15 @@ class ManagePartNumberAlerts extends Component
 {
     use WithPagination;
 
-    /* ────── Active filters used in the query ────── */
-    public string $searchPart     = '';
+    /* ────── Search inputs ────── */
+    public string $searchPartNoInput = '';
+    public string $searchCustomerInput = '';
+    public string $searchPartNo = '';
     public string $searchCustomer = '';
-
-    /* ────── Text the user types before hitting Search ────── */
-    public string $partInput      = '';
-    public string $customerInput  = '';
+    
+    /* ────── Dropdown suggestions ────── */
+    public array $matches_partno = [];
+    public array $matches_customer = [];
 
     public int $perPage = 50;
     public int $page    = 1;
@@ -30,31 +32,100 @@ class ManagePartNumberAlerts extends Component
 
     /* Keep filters in URL */
     protected $queryString = [
-        'searchPart'     => ['except' => ''],
+        'searchPartNo'     => ['except' => ''],
         'searchCustomer' => ['except' => ''],
         'page'           => ['except' => 1],
     ];
 
-    /* ────── Validation rules for the input boxes ────── */
-    protected array $rules = [
-        'partInput'     => 'nullable|string|max:100',
-        'customerInput' => 'nullable|string|max:100',
-    ];
-
-    /* ────── Search buttons ────── */
-    public function search_by_part_number(): void
+    /* ────── Search methods ────── */
+    public function searchq(): void
     {
-        $this->validateOnly('partInput');
-
-        $this->searchPart = trim($this->partInput);
+        $this->searchPartNo = $this->searchPartNoInput;
         $this->resetPage();
+        $this->matches_partno = []; // Clear dropdown
     }
 
-    public function search_by_customer_name(): void
+    public function searchbyCustomer(): void
     {
-        $this->validateOnly('customerInput');
+        $this->searchCustomer = $this->searchCustomerInput;
+        $this->resetPage();
+        $this->matches_customer = []; // Clear dropdown
+    }
 
-        $this->searchCustomer = trim($this->customerInput);
+    /* ────── Enter key handlers ────── */
+    public function onPartInputEnter(): void
+    {
+        $this->searchq();
+    }
+
+    public function onCustomerInputEnter(): void
+    {
+        $this->searchbyCustomer();
+    }
+
+    /* ────── Auto-complete methods ────── */
+    public function usekeyupno(string $value): void
+    {
+        if (mb_strlen(trim($value)) < 2) {
+            $this->matches_partno = [];
+            return;
+        }
+        
+        $this->matches_partno = alerts_tb::query()
+            ->select('part_no')
+            ->where('part_no', '!=', '')
+            ->where('part_no', 'like', "%{$value}%")
+            ->where('atype', 'p')
+            ->distinct()
+            ->orderBy('part_no', 'asc')
+            ->get()
+            ->toArray();
+    }
+
+    public function onKeyUp(string $value): void
+    {
+        if (mb_strlen(trim($value)) < 2) {
+            $this->matches_customer = [];
+            return;
+        }
+        
+        $this->matches_customer = alerts_tb::query()
+            ->select('customer')
+            ->where('customer', '!=', '')
+            ->where('customer', 'like', "%{$value}%")
+            ->where('atype', 'p')
+            ->distinct()
+            ->orderBy('customer', 'asc')
+            ->get()
+            ->toArray();
+    }
+
+    /* ────── Select from dropdown ────── */
+    public function useMatchpn($index): void
+    {
+        $this->searchPartNoInput = $this->matches_partno[$index]['part_no'];
+        $this->matches_partno = []; // Clear dropdown immediately
+        $this->searchq(); // Auto-search after selection
+    }
+
+    public function useMatch($index): void
+    {
+        $this->searchCustomerInput = $this->matches_customer[$index]['customer'];
+        $this->matches_customer = []; // Clear dropdown immediately
+        $this->searchbyCustomer(); // Auto-search after selection
+    }
+
+    /* ────── Clear filters ────── */
+    public function filterclose(): void
+    {
+        $this->reset([
+            'searchPartNoInput',
+            'searchCustomerInput',
+            'searchPartNo',
+            'searchCustomer',
+            'matches_partno',
+            'matches_customer'
+        ]);
         $this->resetPage();
     }
 
@@ -73,10 +144,10 @@ class ManagePartNumberAlerts extends Component
             ->where('atype', 'p')
             ->when($this->searchCustomer,
                 fn ($q) => $q->where('customer', 'like', "%{$this->searchCustomer}%"))
-            ->when($this->searchPart,
-                fn ($q) => $q->where('part_no', 'like', "%{$this->searchPart}%"))
+            ->when($this->searchPartNo,
+                fn ($q) => $q->where('part_no', 'like', "%{$this->searchPartNo}%"))
             ->groupBy('customer', 'part_no', 'rev')
-            ->orderByRaw('LOWER(customer) ASC')  // Fixed: Case-insensitive alphabetical sorting
+            ->orderByRaw('LOWER(customer) ASC')
             ->orderBy('part_no', 'desc')
             ->orderBy('rev', 'desc')
             ->orderByDesc('first_id');
@@ -98,26 +169,10 @@ class ManagePartNumberAlerts extends Component
             ->where('rev',     $this->delRev)
             ->delete();
 
-        // Reset pagination and modal state
         $this->resetPage();
         $this->reset(['confirmingDelete', 'delCustomer', 'delPart', 'delRev']);
 
         session()->flash('warning', 'Alert group deleted successfully.');
-    }
-
-    /* ────── Debug method ────── */
-    public function debugCustomerSorting()
-    {
-        $customers = alerts_tb::select('customer')
-            ->distinct()
-            ->where('atype', 'p')
-            ->where('part_no', '!=', '')
-            ->orderByRaw('LOWER(customer) ASC')
-            ->pluck('customer');
-
-        logger('Customer sorting order:', $customers->toArray());
-        
-        return "Check your laravel.log file for customer sorting order";
     }
 
     /* ────── Render ────── */

@@ -1,17 +1,18 @@
 <div>
-            @if(session('success'))
-            <div class="alert alert-success alert-dismissible fade show" id="successAlert">
-                <i class="fa fa-check-square"></i>  {{ session('success') }}
-            </div>
-            
-            <script>
-                setTimeout(() => {
-                    const alert = document.getElementById('successAlert');
-                    alert.classList.remove('show');
-                    setTimeout(() => alert.style.display = 'none', 150);
-                }, 3000);
-            </script>
+    @if(session('success'))
+    <div class="alert alert-success alert-dismissible fade show" id="successAlert">
+        <i class="fa fa-check-square"></i>  {{ session('success') }}
+    </div>
+    
+    <script>
+        setTimeout(() => {
+            const alert = document.getElementById('successAlert');
+            alert.classList.remove('show');
+            setTimeout(() => alert.style.display = 'none', 150);
+        }, 3000);
+    </script>
     @endif
+    
     @if($alertMessage)
         <div class="container mt-2">
             <div class="alert alert-{{ $alertType }}" 
@@ -23,13 +24,14 @@
             </div>
         </div>
     @endif
+    
     <div class="card mb-4">
         <div class="card-header fw-bold">Search By</div>
         <div class="card-body">
             <div class="row g-3">
                 <!-- Search by Part Number -->
                 <div class="col-lg-5">
-                    <label><i class="fa fa-cogs"></i> Search by Part Number:</label>
+                    <label><i class="fa fa-cogs"></i> Search by Part Number</label>
                     <div class="input-group">
                         <span class="input-group-text"><i class="fa fa-barcode"></i></span>
                         <input type="text" class="form-control" wire:model="searchPartNoInput"
@@ -39,7 +41,7 @@
                         </button>
                     </div>
                     <div wire:ignore.self>
-                        @if($matches_partno)
+                        @if(!empty($matches_partno))
                             <ul class="list-group position-absolute w-100 shadow-sm"
                                 style="z-index:1050; max-height:220px; overflow-y:auto;">
                                 @foreach($matches_partno as $i => $m)
@@ -55,7 +57,7 @@
 
                 <!-- Search by Customer Name -->
                 <div class="col-lg-5">
-                    <label><i class="fa fa-user"></i> Search by Customer Name:</label>
+                    <label><i class="fa fa-user"></i> Search by Customer Name</label>
                     <div class="input-group">
                         <span class="input-group-text"><i class="fa fa-user"></i></span>
                         <input type="text" class="form-control" wire:model="searchCustomerInput"
@@ -65,7 +67,7 @@
                         </button>
                     </div>
                     <div wire:ignore.self>
-                        @if($matches)
+                        @if(!empty($matches))
                             <ul class="list-group position-absolute w-100 shadow-sm"
                                 style="z-index:1050; max-height:220px; overflow-y:auto;">
                                 @foreach($matches as $i => $m)
@@ -111,7 +113,7 @@
                     <tr>
                         <td>{{ $slip->invoice_id ?? 'N/A' }}</td>
                         <td>{{ $slip->invoice_id+9987 ?? 'N/A' }}</td>
-                        <td>{{ $slip->custo->c_name ?? 'N/A' }}</td>
+                        <td>{{ $slip->custo->c_name ?? 'Customer Not Found' }}</td>
                         <td>{{ $slip->part_no ?? 'N/A' }}</td>
                         <td>{{ $slip->rev ?? 'N/A' }}</td>
                         <td>
@@ -139,7 +141,7 @@
                                 </button>
                             </a>
                             <button type="button" class="btn btn-sm btn-xs btn-danger"
-                                wire:click="deletePackingSlip({{ $slip->invoice_id }})" wire:confirm="Are you sure? you want to delete it." wire:key="delete-{{ $slip->invoice_id }}">
+                                wire:click="confirmDelete({{ $slip->invoice_id }})" wire:key="delete-{{ $slip->invoice_id }}">
                                 <i class="fa fa-trash"></i> Del
                             </button>
                             <button type="button" class="btn btn-sm btn-xs btn-secondary"
@@ -173,6 +175,7 @@
             {{ $packingSlips->links('pagination::bootstrap-5') }}
         </div>
     </div>
+    
     @if ($confirmingDelete)
     <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
         <div class="modal-dialog modal-dialog-centered">
@@ -186,7 +189,7 @@
                 </div>
                 <div class="modal-footer">
                     <button class="btn btn-secondary" wire:click="$set('confirmingDelete', false)">Cancel</button>
-                    <button class="btn btn-danger" wire:click="deletePackingSlip">
+                    <button class="btn btn-danger" wire:click="deletePackingSlip({{ $deleteId }})">
                         <i class="fa fa-trash"></i> Confirm Delete
                     </button>
                 </div>
