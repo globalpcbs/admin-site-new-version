@@ -95,10 +95,8 @@
 
                         <strong>Quote Needed by: </strong>
                         <input name="txtquote" wire:model="quote_by" size="10" />
-                        @if($new_or_rep == "Repeat Order")
                         <strong> NRE Charge:</strong>
-                        <input size="3" type="text" name="necharge" wire:model="necharge">
-                        @endif
+                        <input size="3" type="text" name="necharge" wire:model="necharge" @if($new_or_rep == "Repeat Order") disabled @endif>
                         Select Misc :
                         <select name="txtmisc" wire:model="selectedMisc" onchange="getmisc();"
                             wire:change="showMiscField">
