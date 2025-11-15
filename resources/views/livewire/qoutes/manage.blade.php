@@ -167,7 +167,7 @@
                         <td>{{ $quote->rev }}</td>
                         <td>{{ \Carbon\Carbon::parse($quote->ord_date)->format('m/d/Y') }}</td>
                         <td>
-                            <a href="https://globalpcbs.com/admin/download-pdf.php?id={{ $quote->ord_id }}&oper=download"
+                            <a href="{{ asset('legacy-pdf/download-pdf.php') }}?id={{ $quote->ord_id }}&oper=download"
                                 class="btn btn-primary btn-xs btn-sm">Download PDF</a>
                            <a href="{{ asset('legacy-pdf/download-pdf.php') }}?id={{ $quote->ord_id }}&oper=view"
                                 class="btn btn-info btn-xs btn-sm" target="_blank">VIEW PDF</a>
