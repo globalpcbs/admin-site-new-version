@@ -169,7 +169,7 @@
                         <td>
                             <a href="{{ asset('legacy-pdf/download-pdf.php') }}?id={{ $quote->ord_id }}&oper=download"
                                 class="btn btn-primary btn-xs btn-sm">Download PDF</a>
-                           <a href="{{ asset('legacy-pdf/download-pdf.php') }}?id={{ $quote->ord_id }}&oper=view"
+                           <a href="https://files.pcbsglobal.website/legacy-pdf/download-pdf.php?id={{ $quote->ord_id }}&oper=view"
                                 class="btn btn-info btn-xs btn-sm" target="_blank">VIEW PDF</a>
                             <a href="{{ route('downloaddoc.viewdocqoute',$quote->ord_id)}}"
                                 class="btn btn-warning btn-xs btn-sm">Download DOC</a>
