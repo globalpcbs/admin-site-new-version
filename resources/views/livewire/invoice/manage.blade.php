@@ -192,9 +192,9 @@
                             </td>
 
                             <td>
-                                <a href="{{ route('invoice.pdf',$invoice->invoice_id) }}"
+                                <a href="https://files.pcbsglobal.website/download-pdf2.php?id={{ $invoice->invoice_id }}&oper=view"
                                     class="btn btn-sm btn-outline-info btn-xs" target="_blank"><i class="fa fa-eye"></i> View PDF</a>
-                                <a href="{{ route('invoice.pdf.download',$invoice->invoice_id) }}"
+                                <a href="https://files.pcbsglobal.website/download-pdf2.php?id={{ $invoice->invoice_id }}&oper=download"
                                     class="btn btn-sm btn-outline-danger btn-xs"><i class="fa fa-download"></i> Download PDF</a>
                                 <button class="btn btn-sm btn-outline-warning btn-xs"
                                     wire:click="duplicate({{ $invoice->invoice_id }})" wire:key="duplocate-{{ $invoice->invoice_id }}">
