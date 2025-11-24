@@ -130,11 +130,11 @@
                                     <td>{{ $credit->part_no }}</td>
                                     <td>{{ $credit->rev }}</td>
                                     <td>
-                                        <a href="https://files.pcbsglobal.website/downloadc-pdf2.php?id={{ $invoice->invoice_id }}&oper=download" target="_blank"
+                                        <a href="https://files.pcbsglobal.website/downloadc-pdf2.php?id={{ $credit->credit_id }}&oper=download" target="_blank"
                                             class="btn btn-sm btn-danger btn-xs">
                                             <i class="fa fa-download"></i> Download Pdf
                                         </a>
-                                        <a href="https://files.pcbsglobal.website/downloadc-pdf2.php?id={{ $invoice->invoice_id }}&oper=view" target="_blank"
+                                        <a href="https://files.pcbsglobal.website/downloadc-pdf2.php?id={{ $credit->credit_id }}&oper=view" target="_blank"
                                             class="btn btn-sm btn-warning btn-xs">
                                             <i class="fa fa-eye"></i> View Pdf
                                         </a>
