@@ -98,7 +98,7 @@
 
         <div class="card">
             <div class="card-header">
-                <i class="fa fa-list"></i> Manage Quotes work
+                <i class="fa fa-list"></i> Manage Quotes
                 <i class="fa fa-spin fa-spinner float-end" wire:loading></i>
             </div>
         </div>
@@ -168,7 +168,7 @@
                         <td>{{ \Carbon\Carbon::parse($quote->ord_date)->format('m/d/Y') }}</td>
                         <td>
                             <a href="https://files.pcbsglobal.website/download-pdf.php?id={{ $quote->ord_id }}&oper=download&name={{ Auth::user()->name }}"
-                                class="btn btn-primary btn-xs btn-sm">Download PDF {{ Auth::user()->name }}</a>
+                                class="btn btn-primary btn-xs btn-sm">Download PDF {{ Auth::user() }}</a>
                            <a href="https://files.pcbsglobal.website/download-pdf.php?id={{ $quote->ord_id }}&oper=view&name={{ Auth::user()->name }}"
                                 class="btn btn-info btn-xs btn-sm" target="_blank">VIEW PDF</a>
                             <a href="https://files.pcbsglobal.website/download-doc.php?id={{ $quote->ord_id }}"
