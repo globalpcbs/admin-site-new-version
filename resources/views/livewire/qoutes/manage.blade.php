@@ -168,7 +168,7 @@
                         <td>{{ \Carbon\Carbon::parse($quote->ord_date)->format('m/d/Y') }}</td>
                         <td>
                             <a href="https://files.pcbsglobal.website/download-pdf.php?id={{ $quote->ord_id }}&oper=download&name={{ Auth::user()->name }}"
-                                class="btn btn-primary btn-xs btn-sm">Download PDF</a>
+                                class="btn btn-primary btn-xs btn-sm">Download PDF {{ Auth::user()->name }}</a>
                            <a href="https://files.pcbsglobal.website/download-pdf.php?id={{ $quote->ord_id }}&oper=view&name={{ Auth::user()->name }}"
                                 class="btn btn-info btn-xs btn-sm" target="_blank">VIEW PDF</a>
                             <a href="https://files.pcbsglobal.website/download-doc.php?id={{ $quote->ord_id }}"
