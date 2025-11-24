@@ -120,15 +120,15 @@
                             <td>{{ $order->rev }}</td>
                             <td>{{ $order->podate }}</td>
                             <td>
-                                <a href="{{ route('download.confirmationorder',$order->poid) }}">
+                                <a href="https://files.pcbsglobal.website/download-pdf4.php?id={{ $order->poid }}&oper=download">
                                     <button class="btn btn-sm btn-xs btn-secondary">
                                         <i class="fa fa-download"></i> Download pdf
                                     </button>
                                 </a>
-                                <a href="{{ route('view.confirmationorder',$order->poid) }}" target="_blank">
+                                <a href="https://files.pcbsglobal.website/download-pdf4.php?id={{ $order->poid }}&oper=view" target="_blank">
                                     <button class="btn btn-sm btn-xs btn-success"><i class="fa fa-eye"></i> View Pdf</button>
                                 </a>
-                                 <a href="{{ route('download.confirmationorderdoc',$order->poid) }}">
+                                 <a href="https://files.pcbsglobal.website/download-doc4.php?id={{ $order->poid }}">
                                     <button class="btn btn-sm btn-xs btn-danger"><i
                                             class="fa fa-file-word"></i> Download Doc</button>
                                 </a>
