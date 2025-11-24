@@ -125,17 +125,17 @@
                                     <i class="fa fa-edit"></i> Edit
                                 </button>
                             </a>
-                            <a href="{{ route('download.packingpdf',$slip->invoice_id) }}">
+                            <a href="https://files.pcbsglobal.website/download-pdf3.php?id={{ $slip->invoice_id }}&oper=download">
                                 <button type="button" class="btn btn-sm btn-xs btn-success">
                                     <i class="fa fa-download"></i>  pdf
                                 </button>
                             </a>
-                            <a href="{{ route('view.packingpdf',$slip->invoice_id) }}" target="_blank">
+                            <a href="https://files.pcbsglobal.website/download-pdf3.php?id={{ $slip->invoice_id }}&oper=view" target="_blank">
                                 <button type="button" class="btn btn-sm btn-xs btn-info">
                                     <i class="fa fa-eye"></i> Pdf
                                 </button>
                             </a>
-                            <a href="{{ route('download.packingdocs',$slip->invoice_id) }}">
+                            <a href="https://files.pcbsglobal.website/download-doc3.php?id={{ $slip->invoice_id }}">
                                 <button type="button" class="btn btn-sm btn-xs btn-warning">
                                     <i class="fa fa-download"></i> Doc
                                 </button>
