@@ -130,13 +130,13 @@
                                     <td>{{ $credit->part_no }}</td>
                                     <td>{{ $credit->rev }}</td>
                                     <td>
-                                        <a href="{{ route('credit.pdf.download', $credit->credit_id) }}" target="_blank"
+                                        <a href="https://files.pcbsglobal.website/downloadc-pdf2.php?id={{ $invoice->invoice_id }}&oper=download" target="_blank"
                                             class="btn btn-sm btn-danger btn-xs">
-                                            <i class="fa fa-download"></i> Download
+                                            <i class="fa fa-download"></i> Download Pdf
                                         </a>
-                                        <a href="{{ route('credit.pdf', $credit->credit_id) }}" target="_blank"
+                                        <a href="https://files.pcbsglobal.website/downloadc-pdf2.php?id={{ $invoice->invoice_id }}&oper=view" target="_blank"
                                             class="btn btn-sm btn-warning btn-xs">
-                                            <i class="fa fa-eye"></i> View
+                                            <i class="fa fa-eye"></i> View Pdf
                                         </a>
                                         <button class="btn btn-sm btn-info btn-xs"
                                             wire:click="duplicateRecord({{ $credit->credit_id }})" wire:key="duplicate-{{ $credit->credit_id }}">
