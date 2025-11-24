@@ -182,17 +182,17 @@
                                 <i class="fa fa-pencil"></i> Edit
                             </a>
 
-                            <a href="{{ route('download.purchaseorder',$order->poid) }}"
+                            <a href="https://files.pcbsglobal.website/download-pdf1.php?id={{ $order->poid }}&oper=download"
                                 class="btn btn-xs btn-sm btn-success">
                                 <i class="fa fa-download"></i> PDF
                             </a>
 
-                            <a href="{{ route('view.purchaseorder',$order->poid) }}" target="_blank"
+                            <a href="https://files.pcbsglobal.website/download-pdf1.php?id={{ $order->poid }}&oper=view" target="_blank"
                                 class="btn btn-sm btn-xs btn-info">
                                 <i class="fa fa-eye"></i> View PDF
                             </a>
 
-                            <a href="{{ route('downloaddoc.purchaseorder',$order->poid) }}"
+                            <a href="https://files.pcbsglobal.website/download-doc1.php?id={{ $order->poid }}"
                                 class="btn btn-sm btn-xs btn-secondary">
                                 <i class="fa fa-file-text"></i> DOC
                             </a>

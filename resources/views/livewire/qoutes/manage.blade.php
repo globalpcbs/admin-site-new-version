@@ -167,11 +167,11 @@
                         <td>{{ $quote->rev }}</td>
                         <td>{{ \Carbon\Carbon::parse($quote->ord_date)->format('m/d/Y') }}</td>
                         <td>
-                            <a href="{{ asset('legacy-pdf/download-pdf.php') }}?id={{ $quote->ord_id }}&oper=download"
+                            <a href="https://files.pcbsglobal.website/download-pdf.php?id={{ $quote->ord_id }}&oper=download&name={{ Auth::user()->name }}"
                                 class="btn btn-primary btn-xs btn-sm">Download PDF</a>
-                           <a href="https://files.pcbsglobal.website/legacy-pdf/download-pdf.php?id={{ $quote->ord_id }}&oper=view"
+                           <a href="https://files.pcbsglobal.website/download-pdf.php?id={{ $quote->ord_id }}&oper=view&name={{ Auth::user()->name }}"
                                 class="btn btn-info btn-xs btn-sm" target="_blank">VIEW PDF</a>
-                            <a href="{{ route('downloaddoc.viewdocqoute',$quote->ord_id)}}"
+                            <a href="https://files.pcbsglobal.website/download-doc.php?id={{ $quote->ord_id }}"
                                 class="btn btn-warning btn-xs btn-sm">Download DOC</a>
                             <a href="{{ route('qoutes.edit',$quote->ord_id) }}" class="btn btn-success btn-xs btn-sm">
                                 <i class="fa fa-edit"></i> Edit 
