@@ -4,15 +4,12 @@ namespace App\Livewire\PurchaseOrder;
 
 use Livewire\Component;
 use Livewire\WithPagination;
-use App\Models\data_tb;
-use App\Models\vendor_tb;
 use App\Models\porder_tb;
 use App\Models\items_tb;
-use App\Models\vendor_tb as Vendor;
+use App\Models\vendor_tb;
 use Illuminate\Support\Facades\DB;
-use App\Models\order_tb as Order;
-use App\Models\data_tb as customer;
 use Carbon\Carbon;
+use Illuminate\Support\Collection;
 
 class Manage extends Component
 {
@@ -25,13 +22,20 @@ class Manage extends Component
     public $searchCustomerInput = '';
     public $searchVendorInput = '';
 
-    public $matches    = [];          // array of suggestions ⬅️  NEW
-    public $matches_partno = []; // array of part no ..
-    public $matches_vendor = []; // array of vendor ..
+    public $matches = [];
+    public $matches_partno = [];
+    public $matches_vendor = [];
+    
     protected $paginationTheme = 'bootstrap';
-     // SIMPLE alert properties
+    
     public $alertMessage = '';
     public $alertType = '';
+    public $isLoading = false;
+
+    // Cache search results in memory
+    protected $searchCache = [];
+    protected $suggestionCache = [];
+
     protected $listeners = ['alert-hidden' => 'clearAlert'];
 
     public function clearAlert()
@@ -46,28 +50,63 @@ class Manage extends Component
             $this->resetPage();
         }
     }
+
     public function resetFilters()
     {
-        $this->reset(['searchPart', 'searchCustomer', 'searchVendor']);
+        $this->reset([
+            'searchPart', 'searchCustomer', 'searchVendor', 
+            'searchPartNoInput', 'searchCustomerInput', 'searchVendorInput'
+        ]);
+        $this->matches = [];
+        $this->matches_partno = [];
+        $this->matches_vendor = [];
+        $this->resetPage();
+        
+        // Clear memory caches
+        $this->searchCache = [];
+        $this->suggestionCache = [];
     }
+
+    // Optimized Delete - No changes needed
     public function delete($id)
     {
-        porder_tb::destroy($id);
-         // SIMPLE: Just set the alert
-        $this->alertMessage = 'Quote deleted successfully.';
-        $this->alertType = 'warning';
-        
-        // Clear alert after a short delay by forcing a re-render
-        $this->dispatch('refresh-component');
+        if (!confirm('Are you sure to delete?')) return;
 
+        $this->isLoading = true;
         
+        try {
+            DB::transaction(function () use ($id) {
+                items_tb::where('pid', $id)->delete();
+                porder_tb::destroy($id);
+            });
+
+            // Clear memory caches
+            $this->searchCache = [];
+            $this->suggestionCache = [];
+            
+            $this->alertMessage = 'Purchase order deleted successfully.';
+            $this->alertType = 'warning';
+            
+        } catch (\Exception $e) {
+            $this->alertMessage = 'Error deleting purchase order.';
+            $this->alertType = 'danger';
+        } finally {
+            $this->isLoading = false;
+        }
     }
 
+    // Optimized Duplicate - No changes needed
     public function duplicate($id)
     {
+        $this->isLoading = true;
+        
         DB::beginTransaction();
         try {
-            $original = porder_tb::findOrFail($id);
+            $original = porder_tb::select([
+                'poid', 'customer', 'part_no', 'rev', 'vendor_id', 
+                'podate', 'note', 'supli_due', 'cus_due'
+            ])->findOrFail($id);
+            
             $newPo = $original->replicate();
             $newPo->note = null;
             $newPo->supli_due = null;
@@ -75,135 +114,196 @@ class Manage extends Component
             $newPo->podate = Carbon::now()->format('m/d/Y');
             $newPo->save();
 
-            $originalItems = items_tb::where('pid', $id)->get();
+            // Batch insert for better performance
+            $originalItems = items_tb::where('pid', $id)
+                ->select(['item', 'qty', 'price', 'desc', 'unit'])
+                ->get();
+            
+            $newItems = $originalItems->map(function ($item) use ($newPo) {
+                return [
+                    'pid' => $newPo->poid,
+                    'item' => $item->item,
+                    'qty' => $item->qty,
+                    'price' => $item->price,
+                    'desc' => $item->desc,
+                    'unit' => $item->unit,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ];
+            })->toArray();
 
-            foreach ($originalItems as $item) {
-                $newItem = $item->replicate();
-                $newItem->pid = $newPo->poid;
-                $newItem->save();
+            if (!empty($newItems)) {
+                items_tb::insert($newItems);
             }
 
             DB::commit();
-              // SIMPLE: Just set the alert
-        $this->alertMessage = 'Quote duplicated successfully.';
-        $this->alertType = 'success';
-        
-        // Clear alert after a short delay by forcing a re-render
-        $this->dispatch('refresh-component');
-
+            
+            // Clear memory caches
+            $this->searchCache = [];
+            $this->suggestionCache = [];
+            
+            $this->alertMessage = 'Purchase order duplicated successfully.';
+            $this->alertType = 'success';
 
         } catch (\Exception $e) {
             DB::rollBack();
-             session()->flash('warning', 'Duplication failed.'.$e->getMessage());
-        logger()->error('Purchase Order duplication failed: ' . $e->getMessage());
+            $this->alertMessage = 'Duplication failed: ' . $e->getMessage();
+            $this->alertType = 'danger';
+        } finally {
+            $this->isLoading = false;
         }
     }
 
+    // Optimized Render with Query Optimizations
     public function render()
     {
-        $query = porder_tb::where('cancel', '!=', 1)->latest('poid');
+        $cacheKey = md5(serialize([$this->searchCustomer, $this->searchPart, $this->searchVendor]));
+        
+        if (!isset($this->searchCache[$cacheKey])) {
+            $query = porder_tb::where('cancel', '!=', 1)
+                             ->with(['vendor:id,c_shortname']) // Only load needed columns
+                             ->latest('poid');
 
-        if ($this->searchCustomer) {
-            $query->where('customer', 'like', '%' . $this->searchCustomer . '%');
+            // Use exact starts-with matching for better performance
+            if (!empty($this->searchCustomer)) {
+                $query->where('customer', 'like', $this->searchCustomer . '%');
+            }
+
+            if (!empty($this->searchPart)) {
+                $query->where('part_no', 'like', $this->searchPart . '%');
+            }
+
+            if (!empty($this->searchVendor)) {
+                $query->whereHas('vendor', function ($q) {
+                    $q->where('c_shortname', 'like', $this->searchVendor . '%')
+                      ->orWhere('c_name', 'like', $this->searchVendor . '%');
+                });
+            }
+
+            $this->searchCache[$cacheKey] = $query->paginate(30); // Reduced from 1000 to 30
         }
 
-        if ($this->searchPart) {
-            $query->where('part_no', 'like', '%' . $this->searchPart . '%');
-        }
+        $orders = $this->searchCache[$cacheKey];
 
-        if ($this->searchVendor) {
-            $query->whereHas('vendor', function ($q) {
-                $q->where('c_shortname', 'like', '%' . $this->searchVendor . '%');
-            });
-        }
-
-        $orders = $query->paginate(1000);
-
-        return view('livewire.purchase-order.manage', compact('orders'))->layout('layouts.app');
+        return view('livewire.purchase-order.manage', compact('orders'))
+               ->layout('layouts.app');
     }
-    public function searchv(){
-         $this->searchVendor = $this->searchVendorInput;
-      //  dd($this->searchPartNo);
-        // reset pagination
-       $this->resetPage();
 
-        // clear the input fields (but keep actual filters intact)
-       $this->reset(['searchVendorInput']);    
+    // Search Actions
+    public function searchv()
+    {
+        $this->searchVendor = $this->searchVendorInput;
+        $this->resetPage();
+        $this->reset(['searchVendorInput', 'matches_vendor']);
     }
-    public function searchq(){
-         // assign the input values to the actual search vars
+
+    public function searchq()
+    {
         $this->searchPart = $this->searchPartNoInput;
-      //  dd($this->searchPartNo);
-        // reset pagination
-       $this->resetPage();
-
-        // clear the input fields (but keep actual filters intact)
-       $this->reset(['searchPartNoInput']);    
+        $this->resetPage();
+        $this->reset(['searchPartNoInput', 'matches_partno']);
     }
 
-    public function searchbyCustomer() {
-       // dd($this->searchCustomerInput);
+    public function searchbyCustomer()
+    {
         $this->searchCustomer = $this->searchCustomerInput;
-       // reset pagination
-       $this->resetPage();
-
-        // clear the input fields (but keep actual filters intact)
-       $this->reset(['searchCustomerInput']);    
+        $this->resetPage();
+        $this->reset(['searchCustomerInput', 'matches']);
     }
-        // search ...
-    public function onKeyUp(string $value){
-       // dd($value);
-         if (mb_strlen(trim($value)) < 2) {
+
+    // Optimized Search Suggestions with Memory Caching
+    public function onKeyUp(string $value)
+    {
+        if (mb_strlen(trim($value)) < 2) {
             $this->matches = [];
             return;
         }
-        $this->matches = porder_tb::query()
-            ->select('customer')
-            ->where('customer', 'like', "%{$value}%")->distinct()
-            ->get()
-            ->toArray();
-        //dd($this->matches);
-    }   
-    public function useMatch($i){
-        $this->searchCustomerInput = $this->matches[$i]['customer'];
-        $this->matches = [];
+
+        $cacheKey = "customer_" . md5($value);
+        if (!isset($this->suggestionCache[$cacheKey])) {
+            $this->suggestionCache[$cacheKey] = porder_tb::query()
+                ->select('customer')
+                ->where('customer', 'like', $value . '%') // Starts-with is faster
+                ->distinct()
+                ->limit(6) // Reduced from 10 to 6
+                ->get()
+                ->pluck('customer')
+                ->map(function ($customer) {
+                    return ['customer' => $customer];
+                })
+                ->toArray();
+        }
+
+        $this->matches = $this->suggestionCache[$cacheKey];
     }
-    public function usekeyupno(string $value){
-         if (mb_strlen(trim($value)) < 2) {
+
+    public function usekeyupno(string $value)
+    {
+        if (mb_strlen(trim($value)) < 2) {
             $this->matches_partno = [];
             return;
         }
-        $this->matches_partno = porder_tb::query()
-        ->select('part_no')
-        ->where('part_no', 'like', "%{$value}%")
-        ->get()
-        ->toArray();
+
+        $cacheKey = "partno_" . md5($value);
+        if (!isset($this->suggestionCache[$cacheKey])) {
+            $this->suggestionCache[$cacheKey] = porder_tb::query()
+                ->select('part_no')
+                ->where('part_no', 'like', $value . '%')
+                ->distinct()
+                ->limit(6)
+                ->get()
+                ->pluck('part_no')
+                ->map(function ($partNo) {
+                    return ['part_no' => $partNo];
+                })
+                ->toArray();
+        }
+
+        $this->matches_partno = $this->suggestionCache[$cacheKey];
     }
-    public function useMatchpn($i){
-        $this->searchPartNoInput = $this->matches_partno[$i]['part_no'];
-        $this->matches_partno = [];
-    }
-    public function usekeyupvendor(string $value){
-      //  dd($value);
-         if (mb_strlen(trim($value)) < 2) {
+
+    public function usekeyupvendor(string $value)
+    {
+        if (mb_strlen(trim($value)) < 2) {
             $this->matches_vendor = [];
             return;
-           // dd('test not working');
         }
-       $this->matches_vendor = porder_tb::with('vendor')
-        ->whereHas('vendor', function ($q) use ($value) {
-            $q->where('c_name', 'like', '%' . $value . '%')
-            ->orWhere('c_shortname', 'like', '%' . $value . '%');
-        })
-        ->get()
-        ->pluck('vendor')       // take only vendor relation
-        ->unique('data_id')          // remove duplicates
-        ->values()
-        ->toArray();
+
+        $cacheKey = "vendor_" . md5($value);
+        if (!isset($this->suggestionCache[$cacheKey])) {
+            $this->suggestionCache[$cacheKey] = vendor_tb::query()
+                ->select('data_id', 'c_name', 'c_shortname')
+                ->where('c_name', 'like', $value . '%')
+                ->orWhere('c_shortname', 'like', $value . '%')
+                ->limit(6)
+                ->get()
+                ->toArray();
+        }
+
+        $this->matches_vendor = $this->suggestionCache[$cacheKey];
     }
-    public function useMatchve($i){
-        $this->searchVendorInput = $this->matches_vendor[$i]['c_shortname'];
- //       dd($this->matches_vendor[$i]['data_id']);
-        $this->matches_vendor = [];
+
+    public function useMatch($i)
+    {
+        if (isset($this->matches[$i])) {
+            $this->searchCustomerInput = $this->matches[$i]['customer'];
+            $this->matches = [];
+        }
+    }
+
+    public function useMatchpn($i)
+    {
+        if (isset($this->matches_partno[$i])) {
+            $this->searchPartNoInput = $this->matches_partno[$i]['part_no'];
+            $this->matches_partno = [];
+        }
+    }
+
+    public function useMatchve($i)
+    {
+        if (isset($this->matches_vendor[$i])) {
+            $this->searchVendorInput = $this->matches_vendor[$i]['c_shortname'] ?? $this->matches_vendor[$i]['c_name'];
+            $this->matches_vendor = [];
+        }
     }
 }

@@ -22,44 +22,44 @@
                 </select>
             </div>
         </div>
-                    {{-- Vendor Table --}}
-            <div class="table-responsive">
-                <table class="table table-bordered table-hover mb-0">
-                    <thead class="table-light">
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th><i class="fa fa-id-card"></i> ID</th>
+                        <th><i class="fa fa-user"></i> Customer Name</th>
+                        <th><i class="fa fa-user-circle"></i> Engineer Contact</th>
+                        <th><i class="fa fa-pencil"></i> Edit</th>
+                        <th><i class="fa fa-trash"></i> Delete</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($vendors as $vendor)
                         <tr>
-                            <th><i class="fa fa-id-card"></i> ID</th>
-                            <th><i class="fa fa-user"></i> Customer Name</th>
-                            <th><i class="fa fa-user-circle"></i> Engineer Contact</th>
-                            <th><i class="fa fa-pencil"></i> Edit</th>
-                            <th><i class="fa fa-trash"></i> Delete</th>
+                            <td>{{ $vendor->data_id }}</td>
+                            <td>{{ $vendor->c_name }}</td>
+                            <td>{{ $vendor->e_name }}</td>
+                            <td>
+                                <a href="{{ route('vendor.edit',$vendor->data_id) }}" class="btn btn-success btn-sm btn-primary">
+                                    <i class="fa fa-pencil"></i> Edit
+                                </a>
+                            </td>
+                            <td>
+                                <button wire:click="deleteVendor({{ $vendor->data_id }})" wire:confirm="Are you sure? You want delete vendor." class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deleteVendorModal">
+                                    <i class="fa fa-trash"></i> Delete
+                                </button>
+                            </td>
                         </tr>
-                    </thead>
-                    <tbody>
-                        @forelse($vendors as $vendor)
-                            <tr>
-                                <td>{{ $vendor->data_id }}</td>
-                                <td>{{ $vendor->c_name }}</td>
-                                <td>{{ $vendor->e_name }}</td>
-                                <td>
-                                    <a href="{{ route('vendor.edit',$vendor->data_id) }}" class="btn btn-success btn-sm btn-primary">
-                                        <i class="fa fa-pencil"></i> Edit
-                                    </a>
-                                </td>
-                                <td>
-                                    <button wire:click="deleteVendor({{ $vendor->data_id }})" wire:confirm="Are you sure? You want delete vendor." class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deleteVendorModal">
-                                        <i class="fa fa-trash"></i> Delete
-                                    </button>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="5" class="text-center text-muted">No vendors found.</td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-
-                {{-- Pagination --}}
+                    @empty
+                        <tr>
+                            <td colspan="5" class="text-center text-muted">No vendors found.</td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+        <div class="card-body">
+              {{-- Pagination --}}
                 <div class="d-flex justify-content-between align-items-center mt-3">
                     <button wire:click="previousPage" class="btn btn-primary" {{ $vendors->onFirstPage() ? 'disabled' : '' }}>
                         <i class="fa fa-angle-left"></i> Previous
@@ -73,7 +73,7 @@
                         Next <i class="fa fa-angle-right"></i>
                     </button>
                 </div>
-            </div>
+        </div>
     </div>
 </div>
 <!-- Delete Confirmation Modal -->
