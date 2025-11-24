@@ -42,8 +42,9 @@ class porder_tb extends Model
     public function items(){
         return $this->hasMany(items_tb::class,'pid');
     }
-    public function vendor(){
-        return $this->belongsTo(vendor_tb::class,'vid');
+    public function vendor()
+    {
+        return $this->belongsTo(vendor_tb::class, 'vid', 'data_id');
     }
 
 }

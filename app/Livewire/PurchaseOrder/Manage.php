@@ -67,7 +67,6 @@ class Manage extends Component
         $this->suggestionCache = [];
     }
 
-    // Optimized Delete - No changes needed
     public function delete($id)
     {
         if (!confirm('Are you sure to delete?')) return;
@@ -95,7 +94,6 @@ class Manage extends Component
         }
     }
 
-    // Optimized Duplicate - No changes needed
     public function duplicate($id)
     {
         $this->isLoading = true;
@@ -154,14 +152,14 @@ class Manage extends Component
         }
     }
 
-    // Optimized Render with Query Optimizations
+    // FIXED: Updated vendor relationship query
     public function render()
     {
         $cacheKey = md5(serialize([$this->searchCustomer, $this->searchPart, $this->searchVendor]));
         
         if (!isset($this->searchCache[$cacheKey])) {
             $query = porder_tb::where('cancel', '!=', 1)
-                             ->with(['vendor:id,c_shortname']) // Only load needed columns
+                             ->with(['vendor:data_id,c_shortname']) // FIXED: Use data_id instead of id
                              ->latest('poid');
 
             // Use exact starts-with matching for better performance
@@ -180,7 +178,7 @@ class Manage extends Component
                 });
             }
 
-            $this->searchCache[$cacheKey] = $query->paginate(30); // Reduced from 1000 to 30
+            $this->searchCache[$cacheKey] = $query->paginate(30);
         }
 
         $orders = $this->searchCache[$cacheKey];
@@ -223,9 +221,9 @@ class Manage extends Component
         if (!isset($this->suggestionCache[$cacheKey])) {
             $this->suggestionCache[$cacheKey] = porder_tb::query()
                 ->select('customer')
-                ->where('customer', 'like', $value . '%') // Starts-with is faster
+                ->where('customer', 'like', $value . '%')
                 ->distinct()
-                ->limit(6) // Reduced from 10 to 6
+                ->limit(6)
                 ->get()
                 ->pluck('customer')
                 ->map(function ($customer) {
