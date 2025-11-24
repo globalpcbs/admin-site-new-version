@@ -98,7 +98,7 @@
 
         <div class="card">
             <div class="card-header">
-                <i class="fa fa-list"></i> Manage Quotes
+                <i class="fa fa-list"></i> Manage Quotes work
                 <i class="fa fa-spin fa-spinner float-end" wire:loading></i>
             </div>
         </div>
