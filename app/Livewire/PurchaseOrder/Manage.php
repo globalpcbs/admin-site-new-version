@@ -4,13 +4,15 @@ namespace App\Livewire\PurchaseOrder;
 
 use Livewire\Component;
 use Livewire\WithPagination;
+use App\Models\data_tb;
+use App\Models\vendor_tb;
 use App\Models\porder_tb;
 use App\Models\items_tb;
-use App\Models\vendor_tb;
-use App\Models\alerts_tb;
+use App\Models\vendor_tb as Vendor;
 use Illuminate\Support\Facades\DB;
+use App\Models\order_tb as Order;
+use App\Models\data_tb as customer;
 use Carbon\Carbon;
-use Illuminate\Support\Collection;
 
 class Manage extends Component
 {
@@ -23,16 +25,13 @@ class Manage extends Component
     public $searchCustomerInput = '';
     public $searchVendorInput = '';
 
-    public $matches = [];
-    public $matches_partno = [];
-    public $matches_vendor = [];
-    
+    public $matches    = [];          // array of suggestions ⬅️  NEW
+    public $matches_partno = []; // array of part no ..
+    public $matches_vendor = []; // array of vendor ..
     protected $paginationTheme = 'bootstrap';
-    
+     // SIMPLE alert properties
     public $alertMessage = '';
     public $alertType = '';
-    public $isLoading = false;
-
     protected $listeners = ['alert-hidden' => 'clearAlert'];
 
     public function clearAlert()
@@ -47,53 +46,28 @@ class Manage extends Component
             $this->resetPage();
         }
     }
-
     public function resetFilters()
     {
-        $this->reset([
-            'searchPart', 'searchCustomer', 'searchVendor', 
-            'searchPartNoInput', 'searchCustomerInput', 'searchVendorInput'
-        ]);
-        $this->matches = [];
-        $this->matches_partno = [];
-        $this->matches_vendor = [];
-        $this->resetPage();
+        $this->reset(['searchPart', 'searchCustomer', 'searchVendor']);
     }
-
     public function delete($id)
     {
-        if (!confirm('Are you sure to delete?')) return;
-
-        $this->isLoading = true;
+        porder_tb::destroy($id);
+         // SIMPLE: Just set the alert
+        $this->alertMessage = 'Quote deleted successfully.';
+        $this->alertType = 'warning';
         
-        try {
-            DB::transaction(function () use ($id) {
-                items_tb::where('pid', $id)->delete();
-                porder_tb::destroy($id);
-            });
-            
-            $this->alertMessage = 'Purchase order deleted successfully.';
-            $this->alertType = 'warning';
-            
-        } catch (\Exception $e) {
-            $this->alertMessage = 'Error deleting purchase order.';
-            $this->alertType = 'danger';
-        } finally {
-            $this->isLoading = false;
-        }
+        // Clear alert after a short delay by forcing a re-render
+        $this->dispatch('refresh-component');
+
+        
     }
 
     public function duplicate($id)
     {
-        $this->isLoading = true;
-        
         DB::beginTransaction();
         try {
-            $original = porder_tb::select([
-                'poid', 'customer', 'part_no', 'rev', 'vendor_id', 
-                'podate', 'note', 'supli_due', 'cus_due'
-            ])->findOrFail($id);
-            
+            $original = porder_tb::findOrFail($id);
             $newPo = $original->replicate();
             $newPo->note = null;
             $newPo->supli_due = null;
@@ -101,166 +75,135 @@ class Manage extends Component
             $newPo->podate = Carbon::now()->format('m/d/Y');
             $newPo->save();
 
-            $originalItems = items_tb::where('pid', $id)
-                ->select(['item', 'qty', 'price', 'desc', 'unit'])
-                ->get();
-            
-            $newItems = $originalItems->map(function ($item) use ($newPo) {
-                return [
-                    'pid' => $newPo->poid,
-                    'item' => $item->item,
-                    'qty' => $item->qty,
-                    'price' => $item->price,
-                    'desc' => $item->desc,
-                    'unit' => $item->unit,
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ];
-            })->toArray();
+            $originalItems = items_tb::where('pid', $id)->get();
 
-            if (!empty($newItems)) {
-                items_tb::insert($newItems);
+            foreach ($originalItems as $item) {
+                $newItem = $item->replicate();
+                $newItem->pid = $newPo->poid;
+                $newItem->save();
             }
 
             DB::commit();
-            
-            $this->alertMessage = 'Purchase order duplicated successfully.';
-            $this->alertType = 'success';
+              // SIMPLE: Just set the alert
+        $this->alertMessage = 'Quote duplicated successfully.';
+        $this->alertType = 'success';
+        
+        // Clear alert after a short delay by forcing a re-render
+        $this->dispatch('refresh-component');
+
 
         } catch (\Exception $e) {
             DB::rollBack();
-            $this->alertMessage = 'Duplication failed: ' . $e->getMessage();
-            $this->alertType = 'danger';
-        } finally {
-            $this->isLoading = false;
+             session()->flash('warning', 'Duplication failed.'.$e->getMessage());
+        logger()->error('Purchase Order duplication failed: ' . $e->getMessage());
         }
     }
 
     public function render()
     {
-        $query = porder_tb::where('cancel', '!=', 1)
-                         ->with(['vendor:data_id,c_shortname'])
-                         ->latest('poid');
+        $query = porder_tb::where('cancel', '!=', 1)->latest('poid');
 
-        if (!empty($this->searchCustomer)) {
-            $query->where('customer', 'like', $this->searchCustomer . '%');
+        if ($this->searchCustomer) {
+            $query->where('customer', 'like', '%' . $this->searchCustomer . '%');
         }
 
-        if (!empty($this->searchPart)) {
-            $query->where('part_no', 'like', $this->searchPart . '%');
+        if ($this->searchPart) {
+            $query->where('part_no', 'like', '%' . $this->searchPart . '%');
         }
 
-        if (!empty($this->searchVendor)) {
+        if ($this->searchVendor) {
             $query->whereHas('vendor', function ($q) {
-                $q->where('c_shortname', 'like', $this->searchVendor . '%')
-                  ->orWhere('c_name', 'like', $this->searchVendor . '%');
+                $q->where('c_shortname', 'like', '%' . $this->searchVendor . '%');
             });
         }
 
-        $orders = $query->paginate(30);
+        $orders = $query->paginate(1000);
 
-        return view('livewire.purchase-order.manage', compact('orders'))
-               ->layout('layouts.app');
+        return view('livewire.purchase-order.manage', compact('orders'))->layout('layouts.app');
     }
+    public function searchv(){
+         $this->searchVendor = $this->searchVendorInput;
+      //  dd($this->searchPartNo);
+        // reset pagination
+       $this->resetPage();
 
-    public function searchv()
-    {
-        $this->searchVendor = $this->searchVendorInput;
-        $this->resetPage();
-        $this->reset(['searchVendorInput', 'matches_vendor']);
+        // clear the input fields (but keep actual filters intact)
+       $this->reset(['searchVendorInput']);    
     }
-
-    public function searchq()
-    {
+    public function searchq(){
+         // assign the input values to the actual search vars
         $this->searchPart = $this->searchPartNoInput;
-        $this->resetPage();
-        $this->reset(['searchPartNoInput', 'matches_partno']);
+      //  dd($this->searchPartNo);
+        // reset pagination
+       $this->resetPage();
+
+        // clear the input fields (but keep actual filters intact)
+       $this->reset(['searchPartNoInput']);    
     }
 
-    public function searchbyCustomer()
-    {
+    public function searchbyCustomer() {
+       // dd($this->searchCustomerInput);
         $this->searchCustomer = $this->searchCustomerInput;
-        $this->resetPage();
-        $this->reset(['searchCustomerInput', 'matches']);
-    }
+       // reset pagination
+       $this->resetPage();
 
-    public function onKeyUp(string $value)
-    {
-        if (mb_strlen(trim($value)) < 2) {
+        // clear the input fields (but keep actual filters intact)
+       $this->reset(['searchCustomerInput']);    
+    }
+        // search ...
+    public function onKeyUp(string $value){
+       // dd($value);
+         if (mb_strlen(trim($value)) < 2) {
             $this->matches = [];
             return;
         }
-
         $this->matches = porder_tb::query()
             ->select('customer')
-            ->where('customer', 'like', $value . '%')
-            ->distinct()
-            ->limit(6)
+            ->where('customer', 'like', "%{$value}%")->distinct()
             ->get()
-            ->pluck('customer')
-            ->map(function ($customer) {
-                return ['customer' => $customer];
-            })
             ->toArray();
+        //dd($this->matches);
+    }   
+    public function useMatch($i){
+        $this->searchCustomerInput = $this->matches[$i]['customer'];
+        $this->matches = [];
     }
-
-    public function usekeyupno(string $value)
-    {
-        if (mb_strlen(trim($value)) < 2) {
+    public function usekeyupno(string $value){
+         if (mb_strlen(trim($value)) < 2) {
             $this->matches_partno = [];
             return;
         }
-
         $this->matches_partno = porder_tb::query()
-            ->select('part_no')
-            ->where('part_no', 'like', $value . '%')
-            ->distinct()
-            ->limit(6)
-            ->get()
-            ->pluck('part_no')
-            ->map(function ($partNo) {
-                return ['part_no' => $partNo];
-            })
-            ->toArray();
+        ->select('part_no')
+        ->where('part_no', 'like', "%{$value}%")
+        ->get()
+        ->toArray();
     }
-
-    public function usekeyupvendor(string $value)
-    {
-        if (mb_strlen(trim($value)) < 2) {
+    public function useMatchpn($i){
+        $this->searchPartNoInput = $this->matches_partno[$i]['part_no'];
+        $this->matches_partno = [];
+    }
+    public function usekeyupvendor(string $value){
+      //  dd($value);
+         if (mb_strlen(trim($value)) < 2) {
             $this->matches_vendor = [];
             return;
+           // dd('test not working');
         }
-
-        $this->matches_vendor = vendor_tb::query()
-            ->select('data_id', 'c_name', 'c_shortname')
-            ->where('c_name', 'like', $value . '%')
-            ->orWhere('c_shortname', 'like', $value . '%')
-            ->limit(6)
-            ->get()
-            ->toArray();
+       $this->matches_vendor = porder_tb::with('vendor')
+        ->whereHas('vendor', function ($q) use ($value) {
+            $q->where('c_name', 'like', '%' . $value . '%')
+            ->orWhere('c_shortname', 'like', '%' . $value . '%');
+        })
+        ->get()
+        ->pluck('vendor')       // take only vendor relation
+        ->unique('data_id')          // remove duplicates
+        ->values()
+        ->toArray();
     }
-
-    public function useMatch($i)
-    {
-        if (isset($this->matches[$i])) {
-            $this->searchCustomerInput = $this->matches[$i]['customer'];
-            $this->matches = [];
-        }
-    }
-
-    public function useMatchpn($i)
-    {
-        if (isset($this->matches_partno[$i])) {
-            $this->searchPartNoInput = $this->matches_partno[$i]['part_no'];
-            $this->matches_partno = [];
-        }
-    }
-
-    public function useMatchve($i)
-    {
-        if (isset($this->matches_vendor[$i])) {
-            $this->searchVendorInput = $this->matches_vendor[$i]['c_shortname'] ?? $this->matches_vendor[$i]['c_name'];
-            $this->matches_vendor = [];
-        }
+    public function useMatchve($i){
+        $this->searchVendorInput = $this->matches_vendor[$i]['c_shortname'];
+ //       dd($this->matches_vendor[$i]['data_id']);
+        $this->matches_vendor = [];
     }
 }

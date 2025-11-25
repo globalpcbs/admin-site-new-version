@@ -1,5 +1,4 @@
 <div>
-    <!-- Alert System -->
     @if(session('success'))
         <div class="alert alert-success alert-dismissible fade show" id="successAlert">
             <i class="fa fa-check-square"></i>  {{ session('success') }}
@@ -13,7 +12,6 @@
             }, 3000);
         </script>
     @endif
-    
     @if($alertMessage)
         <div class="container mt-2">
             <div class="alert alert-{{ $alertType }}" 
@@ -25,95 +23,92 @@
             </div>
         </div>
     @endif
-
-    <!-- Search Card -->
     <div class="card mb-3">
         <div class="card-body">
-            <div class="row g-3 align-items-end" wire:loading.class="opacity-50">
+            <div class="row g-3 align-items-end">
 
-                <!-- Search by Part Number -->
-                <div class="col-lg-4">
-                    <label><i class="fa fa-cogs"></i> Search by Part Number:</label>
-                    <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-barcode"></i></span>
-                        <input type="text" class="form-control" 
-                            wire:model="searchPartNoInput"
-                            wire:keydown.enter="searchq" 
-                            placeholder="Enter part number">
-                        <button class="btn btn-primary" type="button" wire:click="searchq" wire:loading.attr="disabled">
-                            <i class="fa fa-search"></i>
-                        </button>
+                 <div class="col-lg-4">
+                        <label><i class="fa fa-cogs"></i> Search by Part Number:</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fa fa-barcode"></i></span>
+                            <input type="text" class="form-control" wire:model="searchPartNoInput"
+                                placeholder="Enter part number" wire:keydown.enter="searchq" wire:keyup="usekeyupno($event.target.value)" wire:key="searchPartNoInput-{{ now()->timestamp }}" />
+                            <button class="btn btn-primary" type="button" wire:click="searchq">
+                                <i class="fa fa-search"></i>
+                            </button>
+                        </div>
+                        <div wire:ignore.self>
+                            @if($matches_partno)
+                                <ul class="list-group position-absolute w-100 shadow-sm"
+                                    style="z-index:1050; max-height:220px; overflow-y:auto;">
+                                    @foreach($matches_partno as $i => $m)
+                                        <li wire:key="match-{{ $i }}" class="list-group-item list-group-item-action"
+                                            wire:click="useMatchpn({{ $i }})">
+                                            {{ $m['part_no'] }}
+                                        </li>
+                                    @endforeach
+                                </ul>
+                            @endif
+                        </div>
                     </div>
-                    @if($matches_partno)
-                        <ul class="list-group position-absolute w-100 shadow-sm"
-                            style="z-index:1050; max-height:220px; overflow-y:auto;">
-                            @foreach($matches_partno as $i => $m)
-                                <li wire:key="match-partno-{{ $i }}" class="list-group-item list-group-item-action"
-                                    wire:click="useMatchpn({{ $i }})">
-                                    {{ $m['part_no'] }}
-                                </li>
-                            @endforeach
-                        </ul>
-                    @endif
-                </div>
 
-                <!-- Search by Customer Name -->
-                <div class="col-lg-4">
-                    <label><i class="fa fa-user"></i> Search by Customer Name:</label>
-                    <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-user"></i></span>
-                        <input type="text" class="form-control" 
-                            wire:model="searchCustomerInput"
-                            wire:keydown.enter="searchbyCustomer" 
-                            placeholder="Enter customer name">
-                        <button class="btn btn-primary" type="button" wire:click="searchbyCustomer" wire:loading.attr="disabled">
-                            <i class="fa fa-search"></i>
-                        </button>
+                    <!-- Search by Customer Name -->
+                    <div class="col-lg-4">
+                        <label><i class="fa fa-user"></i> Search by Customer Name:</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fa fa-user"></i></span>
+                            <input type="text" class="form-control" wire:model="searchCustomerInput"
+                                placeholder="Enter customer name" wire:keydown.enter="searchbyCustomer" wire:keyup="onKeyUp($event.target.value)" wire:key="searchCustomerInput-{{ now()->timestamp }}">
+                            <button class="btn btn-primary" type="button" wire:click="searchbyCustomer">
+                                <i class="fa fa-search"></i>
+                            </button>
+                        </div>
+                        <div wire:ignore.self>
+                            @if($matches)
+                                <ul class="list-group position-absolute w-100 shadow-sm"
+                                    style="z-index:1050; max-height:220px; overflow-y:auto;">
+                                    @foreach($matches as $i => $m)
+                                        <li wire:key="match-{{ $i }}" class="list-group-item list-group-item-action"
+                                            wire:click="useMatch({{ $i }})">
+                                            {{ $m['customer'] }}
+                                        </li>
+                                    @endforeach
+                                </ul>
+                            @endif
+                        </div>
                     </div>
-                    @if($matches)
-                        <ul class="list-group position-absolute w-100 shadow-sm"
-                            style="z-index:1050; max-height:220px; overflow-y:auto;">
-                            @foreach($matches as $i => $m)
-                                <li wire:key="match-customer-{{ $i }}" class="list-group-item list-group-item-action"
-                                    wire:click="useMatch({{ $i }})">
-                                    {{ $m['customer'] }}
-                                </li>
-                            @endforeach
-                        </ul>
-                    @endif
-                </div>
 
-                <!-- Search by Vendor -->
+                {{-- Search by Vendor --}}
                 <div class="col-md-4">
                     <label class="form-label fw-bold">
                         <i class="fa fa-search"></i> Search By Vendor Name
                     </label>
                     <div class="input-group">
-                        <input type="text" wire:model="searchVendorInput" 
-                            wire:keydown.enter="searchv" 
-                            placeholder="Enter Vendor Name"
-                            class="form-control">
-                        <button class="btn btn-primary" wire:click="searchv" wire:loading.attr="disabled">
+                        <input type="text" wire:model="searchVendorInput" wire:keydown.enter="searchv" wire:keyup="usekeyupvendor($event.target.value)" wire:key="searchVendorInput-{{ now()->timestamp }}" class="form-control"
+                            placeholder="Enter Vendor Name">
+                        <button class="btn btn-primary" wire:click="searchv">
                             <i class="fa fa-search"></i> Search
                         </button>
                     </div>
-                    @if($matches_vendor)
-                        <ul class="list-group position-absolute w-100 shadow-sm"
-                            style="z-index:1050; max-height:220px; overflow-y:auto;">
-                            @foreach($matches_vendor as $i => $vendor)
-                                <li wire:key="match-vendor-{{ $vendor['data_id'] ?? $i }}" 
-                                    class="list-group-item list-group-item-action"
-                                    wire:click="useMatchve({{ $i }})">
-                                    {{ $vendor['c_shortname'] ?? $vendor['c_name'] }}
-                                </li>
-                            @endforeach
-                        </ul>
-                    @endif
+                     <div wire:ignore.self>
+                            @if($matches_vendor)
+                                <ul class="list-group position-absolute w-100 shadow-sm"
+                                    style="z-index:1050; max-height:220px; overflow-y:auto;">
+                                    @foreach($matches_vendor as $i => $vendor)
+                                        <li wire:key="match-{{ $vendor['data_id'] }}" 
+                                            class="list-group-item list-group-item-action"
+                                            wire:click="useMatchve({{ $i }})">
+                                            {{ $vendor['c_shortname'] ?? $vendor['c_name'] }}
+                                        </li>
+                                    @endforeach
+                                </ul>
+                            @endif
+                        </div>
                 </div>
 
-                <!-- Reset Button -->
+                {{-- Reset Button --}}
                 <div class="col-md-12 mt-2 text-end">
-                    <button class="btn btn-secondary" wire:click="resetFilters" wire:loading.attr="disabled">
+                    <button class="btn btn-secondary" wire:click="resetFilters">
                         <i class="fa fa-times-circle"></i> Reset Filters
                     </button>
                 </div>
@@ -122,16 +117,7 @@
         </div>
     </div>
 
-    <!-- Loading Indicator -->
-    <div wire:loading.flex class="justify-content-center my-3">
-        <div class="spinner-border text-primary" role="status">
-            <span class="visually-hidden">Loading...</span>
-        </div>
-        <span class="ms-2">Processing...</span>
-    </div>
-
-    <!-- Orders Table -->
-    <div class="card" wire:loading.remove>
+    <div class="card">
         <div class="card-header">
             <i class="fa fa-list"></i> Manage Purchase Orders
             <i class="fa fa-spinner fa-spin float-end" wire:loading></i>
@@ -159,7 +145,6 @@
                         <td>{{ $order->customer }}</td>
                         <td style="position: relative;">
                             @php
-                                // FIXED: Use the correct columns for alerts lookup
                                 $alerts = \App\Models\alerts_tb::where('part_no', $order->part_no)
                                     ->where('rev', $order->rev)
                                     ->where('customer', $order->customer)
@@ -169,7 +154,6 @@
                             @if($alerts->count() > 0)
                                 <a href="javascript:void(0);" class="ttip_trigger text-danger">
                                     {{ $order->part_no }}
-                                    <span class="badge bg-danger ms-1">{{ $alerts->count() }}</span>
                                 </a>
 
                                 <div class="ttip_overlay bg-light p-3 border shadow"
@@ -191,47 +175,37 @@
 
                         <td>{{ $order->rev }}</td>
                         <td>{{ $order->podate }}</td>
+                        <td>{{ $order->vendor->c_shortname ?? 'N/A' }}</td>
                         <td>
-                            @if($order->vendor)
-                                {{ $order->vendor->c_shortname }}
-                            @else
-                                N/A
-                            @endif
-                        </td>
-                        <td>
-                            <div class="btn-group btn-group-sm" role="group">
-                                <a href="{{ route('purchase.orders.edit',$order->poid) }}"
-                                    class="btn btn-xs btn-primary">
-                                    <i class="fa fa-pencil"></i> Edit
-                                </a>
+                            <a href="{{ route('purchase.orders.edit',$order->poid) }}"
+                                class="btn btn-sm btn-xs btn-primary">
+                                <i class="fa fa-pencil"></i> Edit
+                            </a>
 
-                                <a href="https://files.pcbsglobal.website/download-pdf1.php?id={{ $order->poid }}&oper=download"
-                                    class="btn btn-xs btn-success">
-                                    <i class="fa fa-download"></i> PDF
-                                </a>
+                            <a href="https://files.pcbsglobal.website/download-pdf1.php?id={{ $order->poid }}&oper=download"
+                                class="btn btn-xs btn-sm btn-success">
+                                <i class="fa fa-download"></i> PDF
+                            </a>
 
-                                <a href="https://files.pcbsglobal.website/download-pdf1.php?id={{ $order->poid }}&oper=view" target="_blank"
-                                    class="btn btn-xs btn-info">
-                                    <i class="fa fa-eye"></i> View
-                                </a>
+                            <a href="https://files.pcbsglobal.website/download-pdf1.php?id={{ $order->poid }}&oper=view" target="_blank"
+                                class="btn btn-sm btn-xs btn-info">
+                                <i class="fa fa-eye"></i> View PDF
+                            </a>
 
-                                <a href="https://files.pcbsglobal.website/download-doc1.php?id={{ $order->poid }}"
-                                    class="btn btn-xs btn-secondary">
-                                    <i class="fa fa-file-text"></i> DOC
-                                </a>
+                            <a href="https://files.pcbsglobal.website/download-doc1.php?id={{ $order->poid }}"
+                                class="btn btn-sm btn-xs btn-secondary">
+                                <i class="fa fa-file-text"></i> DOC
+                            </a>
 
-                                <button wire:click="duplicate({{ $order->poid }})" 
-                                    class="btn btn-xs btn-warning"
-                                    wire:loading.attr="disabled">
-                                    <i class="fa fa-copy"></i> Dup
-                                </button>
+                            <button wire:click="delete({{ $order->poid }})" wire:key="delete-{{ $order->poid }}" class="btn btn-xs btn-sm btn-danger"
+                                onclick="return confirm('Are you sure to delete?')">
+                                <i class="fa fa-trash"></i> Delete
+                            </button>
 
-                                <button wire:click="delete({{ $order->poid }})" 
-                                    class="btn btn-xs btn-danger"
-                                    wire:loading.attr="disabled">
-                                    <i class="fa fa-trash"></i> Del
-                                </button>
-                            </div>
+                            <button wire:click="duplicate({{ $order->poid }})" wire:key="duplicate-{{ $order->poid }}" class="btn btn-xs btn-sm btn-warning">
+                                <i class="fa fa-copy"></i> Duplicate
+                            </button>
+
                         </td>
                     </tr>
                     @empty
@@ -247,33 +221,32 @@
             </div>
         </div>
     </div>
-
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            document.querySelectorAll('.ttip_trigger').forEach(function (trigger) {
-                const tooltip = trigger.nextElementSibling;
-                const closeBtn = tooltip.querySelector('.ttip_close');
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.ttip_trigger').forEach(function (trigger) {
+        const tooltip = trigger.nextElementSibling;
+        const closeBtn = tooltip.querySelector('.ttip_close');
 
-                trigger.addEventListener('click', function (e) {
-                    e.stopPropagation();
-                    document.querySelectorAll('.ttip_overlay').forEach(t => t.style.display = 'none');
-                    tooltip.style.display = 'block';
-                });
-
-                closeBtn.addEventListener('click', function () {
-                    tooltip.style.display = 'none';
-                });
-
-                document.addEventListener('click', function (e) {
-                    if (!tooltip.contains(e.target) && e.target !== trigger) {
-                        tooltip.style.display = 'none';
-                    }
-                });
-            });
+        // Show on click
+        trigger.addEventListener('click', function (e) {
+            e.stopPropagation(); // prevent closing immediately
+            document.querySelectorAll('.ttip_overlay').forEach(t => t.style.display = 'none');
+            tooltip.style.display = 'block';
         });
 
-        function confirm(message) {
-            return window.confirm(message);
-        }
-    </script>
+        // Close tooltip on clicking close button
+        closeBtn.addEventListener('click', function () {
+            tooltip.style.display = 'none';
+        });
+
+        // Hide tooltip on clicking outside
+        document.addEventListener('click', function (e) {
+            if (!tooltip.contains(e.target) && e.target !== trigger) {
+                tooltip.style.display = 'none';
+            }
+        });
+    });
+});
+</script>
+
 </div>
