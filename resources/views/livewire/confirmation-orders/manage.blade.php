@@ -41,7 +41,7 @@
                                 <i class="fa fa-search"></i>
                             </button>
                         </div>
-                        <div wire:ignore.self>
+                        <div>
                             @if($matches_partno)
                                 <ul class="list-group position-absolute w-100 shadow-sm"
                                     style="z-index:1050; max-height:220px; overflow-y:auto;">
