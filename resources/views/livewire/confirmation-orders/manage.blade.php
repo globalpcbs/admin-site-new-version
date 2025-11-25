@@ -32,8 +32,11 @@
                         <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-barcode"></i></span>
                             <input type="text" class="form-control"
-                                placeholder="Enter part number" wire:model="searchPartNoInput"
-                                placeholder="Enter part number" wire:keydown.enter="searchq" wire:keyup="usekeyupno($event.target.value)" wire:key="searchPartNoInput-{{ now()->timestamp }}"   />
+                                    placeholder="Enter part number" 
+                                    wire:model="searchPartNoInput"
+                                    wire:keydown.enter="searchq" 
+                                    wire:keyup="usekeyupno($event.target.value)" 
+                                    wire:key="searchPartNoInput-{{ now()->timestamp }}" />
                             <button class="btn btn-primary" type="button" wire:click="searchq">
                                 <i class="fa fa-search"></i>
                             </button>
@@ -58,8 +61,12 @@
                     <label><i class="fa fa-user"></i> Search by Customer Name:</label>
                     <div class="input-group">
                         <span class="input-group-text"><i class="fa fa-user"></i></span>
-                        <input type="text" class="form-control" wire:model="searchCustomerInput"
-                            placeholder="Enter customer name" wire:keydown.enter="searchbyCustomer" wire:keyup="onKeyUp($event.target.value)" wire:key="searchCustomerInput-{{ now()->timestamp }}">
+                        <input type="text" class="form-control" 
+                            wire:model="searchCustomerInput"
+                            placeholder="Enter customer name" 
+                            wire:keydown.enter="searchbyCustomer" 
+                            wire:keyup="onKeyUp($event.target.value)" 
+                            wire:key="searchCustomerInput-{{ now()->timestamp }}">
                         <button class="btn btn-primary" type="button" wire:click="searchbyCustomer">
                             <i class="fa fa-search"></i>
                         </button>
