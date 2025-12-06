@@ -15,7 +15,7 @@
                         <select wire:model="vid" class="form-control">
                             <option value="">Select Customer</option>
                             @foreach($customers as $cust)
-                                <option value="{{ $cust->data_id }}">{{ $cust->c_name }}</option>
+                                <option value="{{ $cust->data_id }}" @if($vid == $cust->data_id) selected @endif>{{ $cust->c_name }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -24,10 +24,10 @@
                         <select wire:model="sid" class="form-control">
                             <option value="">Select Shipper</option>
                             @foreach($customers as $cust)
-                                <option value="c{{ $cust->data_id }}">{{ $cust->c_name }}</option>
+                                <option value="c{{ $cust->data_id }}" @if($sid == 'c' . $cust->data_id) selected @endif>{{ $cust->c_name }}</option>
                             @endforeach
                             @foreach($shippers as $shipper)
-                                <option value="s{{ $shipper->data_id }}">{{ $shipper->c_name }}</option>
+                                <option value="s{{ $shipper->data_id }}" @if($sid == 's' . $shipper->data_id) selected @endif>{{ $shipper->c_name }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -37,20 +37,20 @@
                 <div class="row mb-3">
                     <div class="col-sm-3">
                         <label class="col-form-label"><i class="fa fa-user"></i> Sales Rep</label>
-                        <input type="text" wire:model="namereq" class="form-control" placeholder="Sales Rep">
+                        <input type="text" wire:model="namereq" class="form-control" placeholder="Sales Rep" value="{{ $namereq }}">
                     </div>
                     <div class="col-sm-5">
                         <label class="col-form-label"><i class="fa fa-users"></i> Outside Sales Rep</label>
                         <select wire:model="salesrep" class="form-control">
                             <option value="">Select Sales Rep</option>
                             @foreach($reps as $rep)
-                                <option value="{{ $rep->r_name }}">{{ $rep->r_name }}</option>
+                                <option value="{{ $rep->r_name }}" @if($salesrep == $rep->r_name) selected @endif>{{ $rep->r_name }}</option>
                             @endforeach
                         </select>
                     </div>
                     <div class="col-sm-4">
                         <label class="col-form-label"><i class="fa fa-percent"></i> Commission (%)</label>
-                        <input type="text" wire:model="commission" class="form-control" placeholder="Commission %">
+                        <input type="text" wire:model="commission" class="form-control" placeholder="Commission %" value="{{ $commission }}">
                     </div>
                 </div>
 
@@ -59,14 +59,14 @@
                     <label class="col-sm-2 col-form-label"><i class="fa fa-truck"></i> Ship Via</label>
                     <div class="col-sm-10">
                         <select wire:model="svia" class="form-control">
-                            <option value="Elecronic Data">Electronic Data</option>
-                            <option value="Fedex">Fedex</option>
-                            <option value="Personal Delivery">Personal Delivery</option>
-                            <option value="UPS">UPS</option>
-                            <option value="Other">Other</option>
+                            <option value="Elecronic Data" @if($svia == 'Elecronic Data') selected @endif>Electronic Data</option>
+                            <option value="Fedex" @if($svia == 'Fedex') selected @endif>Fedex</option>
+                            <option value="Personal Delivery" @if($svia == 'Personal Delivery') selected @endif>Personal Delivery</option>
+                            <option value="UPS" @if($svia == 'UPS') selected @endif>UPS</option>
+                            <option value="Other" @if($svia == 'Other') selected @endif>Other</option>
                         </select>
                         @if($svia == 'Other')
-                            <input type="text" wire:model="svia_oth" class="form-control mt-2" placeholder="Other Ship Via">
+                            <input type="text" wire:model="svia_oth" class="form-control mt-2" placeholder="Other Ship Via" value="{{ $svia_oth }}">
                         @endif
                     </div>
                 </div>
@@ -74,21 +74,21 @@
                 <div class="row mb-3">
                     <label class="col-sm-2 col-form-label"><i class="fa fa-money"></i> Freight Charge</label>
                     <div class="col-sm-10">
-                        <input type="text" wire:model="fcharge" class="form-control" placeholder="Freight Charge">
+                        <input type="text" wire:model="fcharge" class="form-control" placeholder="Freight Charge" value="{{ $fcharge }}">
                     </div>
                 </div>
 
                 <div class="row mb-3">
                     <label class="col-sm-2 col-form-label"><i class="fa fa-map-marker"></i> City</label>
                     <div class="col-sm-10">
-                        <input type="text" wire:model="city" class="form-control" placeholder="City">
+                        <input type="text" wire:model="city" class="form-control" placeholder="City" value="{{ $city }}">
                     </div>
                 </div>
 
                 <div class="row mb-3">
                     <label class="col-sm-2 col-form-label"><i class="fa fa-flag"></i> State</label>
                     <div class="col-sm-10">
-                        <input type="text" wire:model="state" class="form-control" placeholder="State">
+                        <input type="text" wire:model="state" class="form-control" placeholder="State" value="{{ $state }}">
                     </div>
                 </div>
 
@@ -96,8 +96,8 @@
                     <label class="col-sm-2 col-form-label"><i class="fa fa-cubes"></i> Shipping Terms</label>
                     <div class="col-sm-10">
                         <select wire:model="sterms" class="form-control">
-                            <option value="Prepaid">Prepaid</option>
-                            <option value="Collect">Collect</option>
+                            <option value="Prepaid" @if($sterms == 'Prepaid') selected @endif>Prepaid</option>
+                            <option value="Collect" @if($sterms == 'Collect') selected @endif>Collect</option>
                         </select>
                     </div>
                 </div>
@@ -114,7 +114,7 @@
                             <th class="text-center"><i class="fa fa-percent"></i> Commission</th>
                         </tr>
                     </thead>
-                    <!-- <pre>{{ var_export($items, true) }}</pre> -->
+
                     <tbody>
                         @foreach ($items as $index => $row)
                             <tr wire:key="row-{{ $index }}">
@@ -123,14 +123,16 @@
                                     <div class="input-group input-group-sm">
                                         <span class="input-group-text"><i class="fa fa-tag"></i></span>
                                         <input type="text" class="form-control"
-                                            wire:model.debounce.300ms="items.{{ $index }}.item" wire:input="$refresh">
+                                            wire:model.debounce.300ms="items.{{ $index }}.item" wire:input="$refresh"
+                                            value="{{ $row['item'] ?? '' }}">
                                     </div>
                                 </td>
 
                                 <!-- Description -->
                                 <td>
                                     <input type="text" class="form-control form-control-sm"
-                                        wire:model.debounce.300ms="items.{{ $index }}.description" wire:input="$refresh">
+                                        wire:model.debounce.300ms="items.{{ $index }}.description" wire:input="$refresh"
+                                        value="{{ $row['description'] ?? '' }}">
                                 </td>
 
                                 <!-- Qty -->
@@ -138,7 +140,8 @@
                                     <div class="input-group input-group-sm">
                                         <span class="input-group-text"><i class="fa fa-sort-numeric-asc"></i></span>
                                         <input type="text" class="form-control text-end"
-                                            wire:model.debounce.300ms="items.{{ $index }}.qty" wire:input="$refresh">
+                                            wire:model.debounce.300ms="items.{{ $index }}.qty" wire:input="$refresh"
+                                            value="{{ $row['qty'] ?? '' }}">
                                     </div>
                                 </td>
 
@@ -147,7 +150,8 @@
                                     <div class="input-group input-group-sm">
                                         <span class="input-group-text"><i class="fa fa-usd"></i></span>
                                         <input type="text" class="form-control text-end"
-                                            wire:model.debounce.300ms="items.{{ $index }}.unit_price" wire:input="$refresh">
+                                            wire:model.debounce.300ms="items.{{ $index }}.unit_price" wire:input="$refresh"
+                                            value="{{ $row['unit_price'] ?? '' }}">
                                     </div>
                                 </td>
 
@@ -164,7 +168,7 @@
                                 <!-- Commission Checkbox -->
                                 <td class="text-center">
                                     <input type="checkbox" wire:model="items.{{ $index }}.commission"
-                                        wire:change="$refresh">
+                                        wire:change="$refresh" @checked($row['commission'] ?? false)>
                                 </td>
                             </tr>
                         @endforeach
@@ -208,12 +212,12 @@
                                 autocomplete="off">
                         </div>
 
-                        @if($matches)
+                        @if(count($matches) > 0)
                             <ul class="list-group position-absolute w-100 shadow-sm"
                                 style="z-index:1050; max-height:220px; overflow-y:auto;">
                                 @foreach($matches as $i => $m)
                                     <li wire:key="match-{{ $i }}" class="list-group-item list-group-item-action"
-                                        wire:click="useMatch({{ $i }})">
+                                        wire:click="useMatch({{ $i }})" style="cursor: pointer;">
                                         {{ $m['label'] }}
                                     </li>
                                 @endforeach
@@ -228,7 +232,7 @@
                         </label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-user"></i></span>
-                            <input type="text" class="form-control" wire:model="customer">
+                            <input type="text" class="form-control" wire:model="customer" value="{{ $customer }}">
                         </div>
                         @error('customer') <div class="text-danger small">{{ $message }}</div> @enderror
                     </div>
@@ -240,7 +244,7 @@
                         </label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-cubes"></i></span>
-                            <input type="text" class="form-control" wire:model="part_no">
+                            <input type="text" class="form-control" wire:model="part_no" value="{{ $part_no }}">
                         </div>
                         @error('part_no') <div class="text-danger small">{{ $message }}</div> @enderror
                     </div>
@@ -252,7 +256,7 @@
                         </label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-repeat"></i></span>
-                            <input type="text" class="form-control" wire:model="rev">
+                            <input type="text" class="form-control" wire:model="rev" value="{{ $rev }}">
                         </div>
                         @error('rev') <div class="text-danger small">{{ $message }}</div> @enderror
                     </div>
@@ -264,7 +268,7 @@
                         </label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-hashtag"></i></span>
-                            <input type="text" class="form-control" wire:model="oo">
+                            <input type="text" class="form-control" wire:model="oo" value="{{ $oo }}">
                         </div>
                         @error('oo') <div class="text-danger small">{{ $message }}</div> @enderror
                     </div>
@@ -276,7 +280,7 @@
                         </label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-hashtag"></i></span>
-                            <input type="text" class="form-control" wire:model="po">
+                            <input type="text" class="form-control" wire:model="po" value="{{ $po }}">
                         </div>
                         @error('po') <div class="text-danger small">{{ $message }}</div> @enderror
                     </div>
@@ -288,7 +292,7 @@
                         </label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-user-o"></i></span>
-                            <input type="text" class="form-control" wire:model="ord_by">
+                            <input type="text" class="form-control" wire:model="ord_by" value="{{ $ord_by }}">
                         </div>
                         @error('ord_by') <div class="text-danger small">{{ $message }}</div> @enderror
                     </div>
@@ -300,7 +304,7 @@
                         </label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-clone"></i></span>
-                            <input type="text" class="form-control" wire:model="lyrcnt">
+                            <input type="text" class="form-control" wire:model="lyrcnt" value="{{ $lyrcnt }}">
                         </div>
                         @error('lyrcnt') <div class="text-danger small">{{ $message }}</div> @enderror
                     </div>
@@ -312,7 +316,7 @@
                         </label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-location-arrow"></i></span>
-                            <input type="text" class="form-control" wire:model="delto">
+                            <input type="text" class="form-control" wire:model="delto" value="{{ $delto }}">
                         </div>
                         @error('delto') <div class="text-danger small">{{ $message }}</div> @enderror
                     </div>
@@ -324,7 +328,7 @@
                         </label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-calendar"></i></span>
-                            <input type="date" class="form-control" wire:model="date1">
+                            <input type="date" class="form-control" wire:model="date1" value="{{ $date1 }}">
                         </div>
                         @error('date1') <div class="text-danger small">{{ $message }}</div> @enderror
                     </div>
@@ -336,7 +340,7 @@
                         </label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-percent"></i></span>
-                            <input type="text" class="form-control" wire:model="stax">
+                            <input type="text" class="form-control" wire:model="stax" value="{{ $stax }}">
                         </div>
                         @error('stax') <div class="text-danger small">{{ $message }}</div> @enderror
                     </div>
@@ -345,7 +349,7 @@
                 {{-- Comments --}}
                 <div class="mb-4">
                     <label class="form-label fw-semibold"><i class="fa fa-commenting"></i> Comments</label>
-                    <textarea rows="4" class="form-control" wire:model.defer="comments"></textarea>
+                    <textarea rows="4" class="form-control" wire:model.defer="comments">{{ $comments }}</textarea>
                 </div>
 
                 <div class="text-end">
@@ -356,10 +360,11 @@
             </form>
         </div>
     </div>
+
     <!-- Alert Modal -->
-    <!-- Alert Modal -->
-    <div class="modal fade @if($showAlertPopup) show d-block @endif" id="alertModal" tabindex="-1"
-        style="@if($showAlertPopup) display: block; @endif" role="dialog">
+    <div class="modal fade @if($showAlertPopup) show @endif" id="alertModal" tabindex="-1"
+        aria-hidden="@if(!$showAlertPopup) true @else false @endif"
+        style="@if($showAlertPopup) display: block; background-color: transparent; @endif">
         <div class="modal-dialog modal-dialog-centered draggable-modal" style="max-width: 500px;">
             <div class="modal-content" style="background: #ccffff; border: 1px solid #999; font-size: 13px;">
                 <div class="modal-header py-2 px-3 modal-drag-handle"
@@ -409,7 +414,7 @@
                         </label>
                         <div class="input-group mb-2">
                             <input type="text" class="form-control" value="{{ $newAlert }}" wire:model="newAlert"
-                                style="pointer-events: auto;"> <!-- Ensure input is always clickable -->
+                                style="pointer-events: auto;">
                             <br />
                             @error('newAlert')
                                 <font color="red">{{ $message }}</font>
@@ -442,8 +447,9 @@
     </div>
 
     <!-- Profile Modal -->
-    <div class="modal fade @if($showProfilePopup) show d-block @endif" id="profileModal" tabindex="-1"
-        style="@if($showProfilePopup) display: block; @endif" role="dialog">
+    <div class="modal fade @if($showProfilePopup) show @endif" id="profileModal" tabindex="-1"
+        aria-hidden="@if(!$showProfilePopup) true @else false @endif"
+        style="@if($showProfilePopup) display: block; background-color: transparent; @endif">
         <div class="modal-dialog modal-dialog-centered draggable-modal" style="max-width: 400px; width: 50%;">
             <div class="modal-content" style="background: #f0f8ff; border: 1px solid #999; font-size: 13px;">
                 <div class="modal-header py-2 px-3 modal-drag-handle"
@@ -478,139 +484,237 @@
                 </div>
             </div>
         </div>
-        </di v>
+    </div>
 
-        <style>
-            .modal {
-                z-index: 1040;
-                background-color: transparent;
-                pointer-events: none;
-                /* Allow clicks to pass through modal container */
-            }
+    <style>
+        .modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1040;
+        }
+        
+        .modal {
+            z-index: 1050;
+            background-color: transparent;
+            pointer-events: none;
+        }
 
-            .modal.show {
-                z-index: 1050;
-                display: block;
-            }
+        .modal.show {
+            z-index: 1050;
+            display: block;
+        }
 
-            .draggable-modal {
-                position: fixed;
-                margin: 0;
-                z-index: 1050;
-                pointer-events: auto;
-                /* Enable interactions within modal */
-            }
+        .draggable-modal {
+            position: fixed;
+            margin: 0;
+            z-index: 1050;
+            pointer-events: auto;
+        }
 
-            .mod al-drag-handle {
-                cursor: move;
-            }
+        .modal-drag-handle {
+            cursor: move;
+        }
 
-            /* Ensure all interactive elements are clickable */
-            .modal-content * {
-                pointer-events: auto;
-            }
-        </style>
+        .modal-content * {
+            pointer-events: auto;
+        }
+        
+        .list-group {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-top: 2px;
+        }
+        
+        .list-group-item {
+            padding: 8px 12px;
+            border: none;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .list-group-item:last-child {
+            border-bottom: none;
+        }
+        
+        .list-group-item:hover {
+            background-color: #f5f5f5;
+        }
+    </style>
 
-        <script src="https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js"></script>
-        <script>
-            document.addEventListener('DOMContentLoaded', function () {
-                let zIndexCounter = 1050;
+    <script src="https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            let zIndexCounter = 1050;
 
-                // Initializ  e interact.js for draggable modals
-                interact('.d raggable-modal').draggable({
-                    allo  wFrom: '.modal-drag-handle',
-                    ignoreFrom: 'button, input, a, .btn, [wire\\:click], [wire\\:model]',
-                    modifiers: [
-                        interact.modifiers.restrictRect({
-                            restriction: 'parent',
-                            endOnly: true
-                        })
-                    ],
-                    listener  s: {
-                        start(event) {
-                            bringToFront(event.target);
-                        },
-                        move(event) {
-                            const target = event.target;
-                            const x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx;
-                            const y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
+            // Initialize interact.js for draggable modals
+            interact('.draggable-modal').draggable({
+                allowFrom: '.modal-drag-handle',
+                ignoreFrom: 'button, input, a, .btn, [wire\\:click], [wire\\:model]',
+                modifiers: [
+                    interact.modifiers.restrictRect({
+                        restriction: 'parent',
+                        endOnly: true
+                    })
+                ],
+                listeners: {
+                    start(event) {
+                        bringToFront(event.target);
+                    },
+                    move(event) {
+                        const target = event.target;
+                        const x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx;
+                        const y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
 
-                            target.style.transform = `translate(${x}px, ${y}px)`;
-                            target.setAttribute('data-x', x);
-                            target.setAttribute('data-y', y);
-                        }
+                        target.style.transform = `translate(${x}px, ${y}px)`;
+                        target.setAttribute('data-x', x);
+                        target.setAttribute('data-y', y);
                     }
-                });
-
-                function bringToFront(modal) {
-                    zIndexCounter++;
-                    modal.style.zIndex = zIndexCounter;
                 }
+            });
 
-                // Cente    r modals when they appear
-                function centerModal(modalId) {
-                    const modal = document.querySelector(`#${modalId} .draggable-modal`);
-                    if (modal) {
+            function bringToFront(modal) {
+                zIndexCounter++;
+                modal.style.zIndex = zIndexCounter;
+            }
+
+            // Function to show and center a modal
+            function showAndCenterModal(modalId) {
+                const modal = document.querySelector(`#${modalId}`);
+                if (modal) {
+                    // Add show class and display block
+                    modal.classList.add('show');
+                    modal.style.display = 'block';
+                    
+                    // Center the draggable modal
+                    const draggableModal = modal.querySelector('.draggable-modal');
+                    if (draggableModal) {
                         const windowWidth = window.innerWidth;
                         const windowHeight = window.innerHeight;
-                        const modalWidth = modal.offsetWidth;
-                        const modalHeight = modal.offsetHeight;
+                        const modalWidth = draggableModal.offsetWidth;
+                        const modalHeight = draggableModal.offsetHeight;
 
-                        modal.style.left = `${(windowWidth - modalWidth) / 2}px`;
-                        modal.style.top = `${(windowHeight - modalHeight) / 2}px`;
-                        modal.style.transform = 'translate(0px, 0px)';
-                        modal.setAttribute('data-x', 0);
-                        modal.setAttribute('data-y', 0);
+                        draggableModal.style.left = `${(windowWidth - modalWidth) / 2}px`;
+                        draggableModal.style.top = `${(windowHeight - modalHeight) / 2}px`;
+                        draggableModal.style.transform = 'translate(0px, 0px)';
+                        draggableModal.setAttribute('data-x', 0);
+                        draggableModal.setAttribute('data-y', 0);
 
-                        bringToFront(modal);
+                        bringToFront(draggableModal);
                     }
+                    
+                    // Add backdrop
+                    addBackdrop();
                 }
+            }
 
-                // L   ivewire event listeners
-                document.addEventListener('livewire:init', () => {
-                    Livewire.on('alert-types-updated', () => {
-                        document.querySelectorAll('[wire\\:model="alertTypes"]').forEach(checkbox => {
-                            checkbox.checked = checkbox.value.includes(checkbox.value);
-                        });
-                    });
+            // Function to hide a modal
+            function hideModal(modalId) {
+                const modal = document.querySelector(`#${modalId}`);
+                if (modal) {
+                    modal.classList.remove('show');
+                    modal.style.display = 'none';
+                    removeBackdrop();
+                }
+            }
 
-                    Livewire.on('showAlertPopup', () => {
-                        centerModal('alertModal');
-                    });
+            // Backdrop management
+            function addBackdrop() {
+                let backdrop = document.querySelector('.modal-backdrop');
+                if (!backdrop) {
+                    backdrop = document.createElement('div');
+                    backdrop.className = 'modal-backdrop fade show';
+                    backdrop.style.zIndex = '1040';
+                    document.body.appendChild(backdrop);
+                }
+            }
 
-                    Livewire.on('showProfilePopup', () => {
-                        centerModal('profileModal');
-                    });
+            function removeBackdrop() {
+                const backdrop = document.querySelector('.modal-backdrop');
+                if (backdrop && !document.querySelector('.modal.show')) {
+                    backdrop.remove();
+                }
+            }
+
+            // Livewire event listeners
+            document.addEventListener('livewire:init', () => {
+                Livewire.on('show-alert-popup', () => {
+                    setTimeout(() => {
+                        showAndCenterModal('alertModal');
+                    }, 100);
                 });
 
-                // Initial centering if modals are already visible
-                if (document.querySelector('#alertModal.show')) {
-                    centerModal('alertModal');
-                }
-                if (document.querySelector('#profileModal.show')) {
-                    centerModal('profileModal');
-                }
-            });
-            // for alert edit 
-            document.addEventListener('livewire:load', function () {
-                Livewire.on('alert-types-updated', () => {
-                    // Force re-render checkboxes
-                    document.querySelectorAll('[wire\\:model="alertTypes"]').forEach(checkbox => {
-                        checkbox.checked = @json($this->alertTypes).includes(checkbox.value);
-                    });
+                Livewire.on('show-profile-popup', () => {
+                    setTimeout(() => {
+                        showAndCenterModal('profileModal');
+                    }, 100);
                 });
-            });
-            document.addEventListener('livewire:init', function () {
-                // Force checkbox updates when Livewire finishes rendering
+
                 Livewire.on('alert-types-updated', () => {
                     setTimeout(() => {
                         document.querySelectorAll('[wire\\:model="alertTypes"]').forEach(checkbox => {
-                            const shouldBeChecked = @this.alertTypes.includes(checkbox.value);
-                            checkbox.checked = shouldBeChecked;
-                            checkbox.dispatchEvent(new Event('change'));
+                            checkbox.dispatchEvent(new Event('change', { bubbles: true }));
                         });
                     }, 50);
                 });
+
+                Livewire.on('lookup-completed', () => {
+                    console.log('Lookup completed');
+                });
             });
-        </script>
+
+            // Handle close buttons
+            document.addEventListener('click', function(event) {
+                if (event.target.closest('[wire\\:click="closeAlertPopup"]')) {
+                    hideModal('alertModal');
+                }
+                
+                if (event.target.closest('[wire\\:click="closeProfilePopup"]')) {
+                    hideModal('profileModal');
+                }
+                
+                // Close dropdown when clicking outside
+                const lookupInput = document.querySelector('input[wire\\:keyup="onKeyUp"]');
+                const dropdown = document.querySelector('.list-group');
+                
+                if (dropdown && lookupInput && 
+                    !dropdown.contains(event.target) && 
+                    !lookupInput.contains(event.target) &&
+                    !event.target.closest('.list-group')) {
+                    Livewire.dispatch('clear-matches');
+                }
+            });
+
+            // Handle Escape key
+            document.addEventListener('keydown', function(event) {
+                if (event.key === 'Escape') {
+                    hideModal('alertModal');
+                    hideModal('profileModal');
+                }
+                
+                // Handle Enter key in lookup
+                const lookupInput = document.querySelector('input[wire\\:keyup="onKeyUp"]');
+                if (event.key === 'Enter' && lookupInput && lookupInput === document.activeElement) {
+                    event.preventDefault();
+                    
+                    const firstMatch = document.querySelector('.list-group-item');
+                    if (firstMatch) {
+                        firstMatch.click();
+                    }
+                }
+            });
+
+            // Initial check for modals that should be visible
+            setTimeout(() => {
+                if (document.querySelector('#alertModal')?.classList.contains('show')) {
+                    showAndCenterModal('alertModal');
+                }
+                if (document.querySelector('#profileModal')?.classList.contains('show')) {
+                    showAndCenterModal('profileModal');
+                }
+            }, 200);
+        });
+    </script>
 </div>

@@ -19,6 +19,7 @@ use App\Livewire\PurchaseOrder\Manage as POManage;
 use App\Livewire\PurchaseOrder\Edit as POEdit;
 use App\Livewire\PurchaseOrder\Cancelled as POCancelled;
 use App\Livewire\PurchaseOrder\Duplicateasremark as PODuplicatesRemark;
+use App\Livewire\PurchaseOrder\Vieworder as viewpurchaseorder;
 
 use App\Livewire\ConfirmationOrders\Add as ConfirmationAdd;
 use App\Livewire\ConfirmationOrders\Manage as ConfirmationManage;
@@ -111,13 +112,14 @@ use App\Livewire\Misc\OrderPlacedReport;
 use App\Livewire\Misc\PackingSlipsReport;
 use App\Livewire\Misc\RecevingLog;
 use App\Livewire\Misc\Editlogged as Editlogged;
+use App\Livewire\Dashboardsample as sample;
 
 Route::get('/', Login::class)->name('login');
 
 Route::middleware('auth')->group(function(){
         // Dashboard
         Route::get('/dashboard', Dashboard::class)->name('dashboard');
-
+        Route::get('/dashboard/sample', sample::class)->name('sample.dashboard');
         // Quotes
         Route::prefix('qoute')->group(function(){
             Route::get('/add', QuoteAdd::class)->name('add.qoutes');
@@ -134,6 +136,7 @@ Route::middleware('auth')->group(function(){
         Route::prefix('purchase-orders')->name('purchase.orders.')->group(function () {
             Route::get('add', POAdd::class)->name('add');
             Route::get('manage', POManage::class)->name('manage');
+            Route::get('/view/{id}',viewpurchaseorder::class)->name('view');
             Route::get('/edit/{id}',POEdit::class)->name('edit');
             Route::get('cancelled', POCancelled::class)->name('cancelled');
             Route::get('duplicates-remark', PODuplicatesRemark::class)->name('duplicates-remark');

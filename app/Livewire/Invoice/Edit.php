@@ -35,6 +35,7 @@ class Edit extends Component
     public $newAlert = '';
     public $editingAlertId = null;
     public $button_status = 0;
+    public array $alertTypes = [];
 
 
 
@@ -66,7 +67,6 @@ class Edit extends Component
         $this->commission  = $this->invoice->commision;
 
         $this->items = [];
-      //  dd($this->invoice->items);
         foreach ($this->invoice->items as $item) {
             $this->items[] = [
                 'item'        => $item->item,
@@ -87,6 +87,17 @@ class Edit extends Component
 
         $this->reps = reps::all();
         $this->calculateTotals();
+        
+        // Check if there are any pending alerts/profiles from session
+        if (session('invoice_edit_alerts')) {
+            $this->showAlertPopup = true;
+            $this->alertMessages = session('invoice_edit_alerts');
+        }
+        
+        if (session('invoice_edit_profiles')) {
+            $this->showProfilePopup = true;
+            $this->profileMessages = session('invoice_edit_profiles');
+        }
     }
 
     public function updated($property)
@@ -115,7 +126,7 @@ class Edit extends Component
 
     public function update()
     {
-                 $this->validate([
+        $this->validate([
             'vid' => ['required'],
             'sid' => ['required'],
             'sterms' => ['required'],
@@ -127,8 +138,10 @@ class Edit extends Component
             'items.*.unit_price' => ['nullable', 'numeric'],
             'items.*.commission' => ['boolean'],
         ]);
-        // dd("wewq");
+        
         $this->button_status = 1;
+        
+        // Check for alerts
         $alerts = Alert::where('customer', $this->customer)
             ->where('part_no', $this->part_no)
             ->where('rev', $this->rev)
@@ -138,97 +151,109 @@ class Edit extends Component
             ->filter(function ($alert) {
                 return in_array('inv', explode('|', $alert->viewable));
             });
-            // for profile alert ..
+            
         // Check for profile alerts
-        $profiles = Profile::where('custid',$this->vid)->with('details')
+        $profiles = Profile::where('custid', $this->vid)
+            ->whereHas('details', function ($query) {
+                $query->where('viewable', 'LIKE', '%cre%');
+            })
+            ->with(['details' => function ($query) {
+                $query->where('viewable', 'LIKE', '%cre%');
+            }])
             ->get();
-    // dd($profiles->count());
+    
         $hasAlerts = $alerts->count() > 0;
         $hasProfiles = $profiles->count() > 0;
 
+        // Store alerts/profiles in session to persist across redirects if needed
+        session(['invoice_edit_alerts' => $alerts]);
+        session(['invoice_edit_profiles' => $profiles]);
+
+        // Show popups if they exist
         if ($hasAlerts) {
             $this->showAlertPopup = true;
             $this->alertMessages = $alerts;
+            
+            // Dispatch Livewire event to ensure modal opens
+            $this->dispatch('show-alert-popup');
         }
 
         if ($hasProfiles) {
             $this->showProfilePopup = true;
             $this->profileMessages = $profiles;
+            
+            // Dispatch Livewire event to ensure modal opens
+            $this->dispatch('show-profile-popup');
         }
 
-        // If no alerts at all, save immediately
+        // If no popups at all, save immediately
         if (!$hasAlerts && !$hasProfiles) {
             $this->saveproccess();
         }
-       // $this->saveproccess;
     }
-      public function closeAlertPopup(): void
-        {
-            $this->showAlertPopup = false;
-            // dd($this->showAlertPopup);
-            $this->checkIfShouldSave();
-        }
+    
+    public function closeAlertPopup(): void
+    {
+        $this->showAlertPopup = false;
+        // Clear the session data
+        session()->forget('invoice_edit_alerts');
+        $this->checkIfShouldSave();
+    }
 
-        public function closeProfilePopup(): void
-        {
-            $this->showProfilePopup = false;
-            //  dd($this->showProfilePopup);
-            $this->checkIfShouldSave();
-        }
+    public function closeProfilePopup(): void
+    {
+        $this->showProfilePopup = false;
+        // Clear the session data
+        session()->forget('invoice_edit_profiles');
+        $this->checkIfShouldSave();
+    }
 
-        protected function checkIfShouldSave(): void
-        {
-            // Only save if both popups are closed
-            if (!$this->showAlertPopup && !$this->showProfilePopup) {
-            // dd("main save function");
-                $this->saveproccess();
-            }
-        }
-        public array $alertTypes = [];
-        public function addAlert(): void
-        {
-            $this->validate([
-                'newAlert' => 'required|string|max:255',
-                'alertTypes' => 'required|array|min:1'
-            ]);
-
-            // Debug before save
-            logger()->debug('Pre-Save Data', [
-                'alert' => $this->newAlert,
-                'types' => $this->alertTypes,
-                'imploded' => collect($this->alertTypes)->implode('|')
-            ]);
-
+    protected function checkIfShouldSave(): void
+    {
+        // Only save if both popups are closed AND we're not in the middle of adding/editing alerts
+        if (!$this->showAlertPopup && !$this->showProfilePopup && !$this->editingAlertId && empty($this->newAlert)) {
+            // Double-check that all required validations passed
             try {
-            // dd($this->alertTypes);
-                $alert = Alert::create([
-                    'customer' => $this->customer ?? '',
-                    'part_no' => $this->part_no ?? '',
-                    'rev' => $this->rev ?? '',
-                    'alert' => trim($this->newAlert),
-                    'viewable' => collect($this->alertTypes)->implode('|'),
-                    'atype' => 'p',
-                ]);
-
-                // Debug after save
-                logger()->debug('Created Alert', $alert->toArray());
-
-                $this->reset(['newAlert', 'alertTypes']);
-                $this->loadAlerts();
-                session()->flash('success', 'Alert added successfully.');
-                
+                $this->saveproccess();
             } catch (\Exception $e) {
-                logger()->error('Alert Creation Error', [
-                    'error' => $e->getMessage(),
-                    'trace' => $e->getTraceAsString()
-                ]);
-                session()->flash('error', 'Failed to add alert. Check logs for details.');
+                $this->button_status = 0;
+                session()->flash('error', 'Failed to update invoice: ' . $e->getMessage());
             }
         }
+    }
+    
+    public function addAlert(): void
+    {
+        $this->validate([
+            'newAlert' => 'required|string|max:255',
+            'alertTypes' => 'required|array|min:1'
+        ]);
 
+        try {
+            $alert = Alert::create([
+                'customer' => $this->customer ?? '',
+                'part_no' => $this->part_no ?? '',
+                'rev' => $this->rev ?? '',
+                'alert' => trim($this->newAlert),
+                'viewable' => collect($this->alertTypes)->implode('|'),
+                'atype' => 'p',
+            ]);
 
-        public function loadAlerts()
-        {
+            $this->reset(['newAlert', 'alertTypes']);
+            $this->loadAlerts();
+            session()->flash('success', 'Alert added successfully.');
+            
+        } catch (\Exception $e) {
+            logger()->error('Alert Creation Error', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            session()->flash('error', 'Failed to add alert. Check logs for details.');
+        }
+    }
+
+    public function loadAlerts()
+    {
         $alerts = Alert::where('customer', $this->customer)
             ->where('part_no', $this->part_no)
             ->where('rev', $this->rev)
@@ -239,71 +264,67 @@ class Edit extends Component
                 return in_array('inv', explode('|', $alert->viewable));
             });
 
-            if($alerts->count() > 0) {
-                //$this->showAlertPopup = true;
-                $this->alertMessages = $alerts;
-            }
+        if($alerts->count() > 0) {
+            $this->alertMessages = $alerts;
         }
+    }
 
-        public function editAlert($id)
-        {
-            $alert = Alert::findOrFail($id);
-            
-            $this->editingAlertId = $id;
-            $this->newAlert = $alert->alert;
-            
-            // Clear the array first
-            $this->alertTypes = [];
-            
-            // Small delay to ensure Livewire processes the change
-            usleep(1000);
-            
-            // Set the new values
-            $this->alertTypes = collect(explode('|', $alert->viewable))
-                ->map(fn($item) => trim($item))
-                ->filter()
-                ->values()
-                ->toArray();
-            
-            // Force Livewire to update the view
-            $this->js('window.dispatchEvent(new CustomEvent("alert-types-updated"))');
-        }
+    public function editAlert($id)
+    {
+        $alert = Alert::findOrFail($id);
+        
+        $this->editingAlertId = $id;
+        $this->newAlert = $alert->alert;
+        
+        // Clear the array first
+        $this->alertTypes = [];
+        
+        // Small delay to ensure Livewire processes the change
+        usleep(1000);
+        
+        // Set the new values
+        $this->alertTypes = collect(explode('|', $alert->viewable))
+            ->map(fn($item) => trim($item))
+            ->filter()
+            ->values()
+            ->toArray();
+        
+        // Force Livewire to update the view
+        $this->dispatch('alert-types-updated');
+    }
 
+    public function updateAlert()
+    {
+        $this->validate(['newAlert' => 'required|string|max:255']);
+        $viewable = collect($this->alertTypes)->filter()->implode('|');
 
-        public function updateAlert()
-        {
-            $this->validate(['newAlert' => 'required|string|max:255']);
-            //dd($this->newAlert);
-            $viewable = collect($this->alertTypes)->filter()->implode('|');
+        Alert::where('id', $this->editingAlertId)->update([
+            'alert' => trim($this->newAlert),
+            'viewable' => $viewable,
+        ]);
 
-            Alert::where('id', $this->editingAlertId)->update([
-                'alert' => trim($this->newAlert),
-                'viewable' => $viewable,
-            ]);
+        $this->reset(['newAlert', 'alertTypes', 'editingAlertId']);
+        $this->loadAlerts();
+    }
 
-            $this->reset(['newAlert', 'alertTypes', 'editingAlertId']);
-            $this->loadAlerts();
-        }
+    public function deleteAlert($id)
+    {
+        Alert::where('id', $id)->delete();
+        $this->loadAlerts();
+    }
 
+    public function cancelEdit()
+    {
+        $this->resetAlertInputs();
+    }
 
-        public function deleteAlert($id)
-        {
-            Alert::where('id', $id)->delete();
-            $this->loadAlerts();
-        }
+    public function resetAlertInputs()
+    {
+        $this->reset(['newAlert','alertTypes']);
+    }
 
-        public function cancelEdit()
-        {
-            $this->resetAlertInputs();
-        }
-
-        public function resetAlertInputs()
-        {
-            $this->reset(['newAlert','alertTypes']);
-        }
-
-    public function saveproccess(){
-
+    public function saveproccess()
+    {
         DB::transaction(function () {
             $invoice = Invoice::findOrFail($this->invoiceId);
             $invoice->update([
@@ -331,7 +352,7 @@ class Edit extends Component
                 'commision' => $this->commission,
                 'comval' => $this->totalCommission,
             ]);
-           // dd($this->items);
+            
             InvoiceItem::where('pid', $invoice->invoice_id)->delete();
             foreach ($this->items as $row) {
                 if (!empty($row['item'])) {
@@ -355,6 +376,7 @@ class Edit extends Component
         session()->flash('success', 'Invoice updated successfully!');
         return redirect(route('invoice.manage'));
     }
+    
     public function render()
     {
         return view('livewire.invoice.edit', [
@@ -362,6 +384,7 @@ class Edit extends Component
             'shippers' => Shipper::orderBy('c_name')->get(),
         ])->layout('layouts.app', ['title' => 'Edit Invoice']);
     }
+    
     public function lineTotal($index)
     {
         $row = $this->items[$index] ?? ['qty' => 0, 'unit_price' => 0];
@@ -369,6 +392,7 @@ class Edit extends Component
         $unit = floatval($row['unit_price'] ?? 0);
         return $qty * $unit;
     }
+    
     public function onKeyUp(string $value): void
     {
         $this->search = $value;                 // keep the box in sync
@@ -391,35 +415,54 @@ class Edit extends Component
                 'cust'  => $row->cust_name,
             ])->toArray();
     }
-     /* user clicked a suggestion */
-     public function selectLookup(string $part, string $rev, string $cust): void
-     {
-        //  $this->part_no  = $part;                  // fill your real fields
-        //  $this->rev      = $rev;
-        //  $this->customer = $cust;
-         
-         $this->search   = "{$cust}_{$part}_{$rev}"; // optional: show chosen string
-         $this->matches  = [];                      // hide dropdown
-         $order = Order::where('part_no',  $part)
-         ->where('rev',      $rev)
-         ->where('cust_name',$cust)
-         ->first();
-         $this->customer = $order->cust_name;
-         $this->rev = $order->rev;
-         $this->part_no = $order->part_no;
-         $this->lyrcnt = $order->no_layer;
-         $this->ord_by = $order->req_by;
-        // dd($this->customer);
-     }
-     /** Handle the click coming from <li wire:click="useMatch($i)"> */
+    
+    public function clearMatches(): void
+    {
+        $this->matches = [];
+    }
+    
+    /* user clicked a suggestion */
+    public function selectLookup(string $part, string $rev, string $cust): void
+    {
+        // First clear the search and matches
+        $this->search = "{$cust}_{$part}_{$rev}";
+        $this->matches = [];
+        
+        // Find the order record
+        $order = Order::where('part_no', $part)
+            ->where('rev', $rev)
+            ->where('cust_name', $cust)
+            ->first();
+        
+        if ($order) {
+            // Populate all the fields
+            $this->customer = $order->cust_name ?? '';
+            $this->rev = $order->rev ?? '';
+            $this->part_no = $order->part_no ?? '';
+            $this->lyrcnt = $order->no_layer ?? '';
+            $this->ord_by = $order->req_by ?? '';
+            $this->oo = $order->our_ord_num ?? '';
+            $this->po = $order->po ?? '';
+            $this->delto = $order->delivered_to ?? $order->deliver_to ?? '';
+            
+            // If you have a date field in orders, populate it
+            if (isset($order->date1) || isset($order->delivered_on)) {
+                $this->date1 = $order->date1 ?? $order->delivered_on ?? '';
+            }
+            
+            // Dispatch event to notify the view
+            $this->dispatch('lookup-completed');
+        }
+    }
+    
+    /** Handle the click coming from <li wire:click="useMatch($i)"> */
     public function useMatch(int $i): void
     {
         if (! isset($this->matches[$i])) {
-            return;                     // out‑of‑bounds guard
+            return;
         }
 
         $m = $this->matches[$i];
-
         $this->selectLookup($m['part'], $m['rev'], $m['cust']);
     }
 }

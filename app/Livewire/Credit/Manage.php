@@ -23,16 +23,12 @@ class Manage extends Component
     public string $delPart          = '';
     public string $delRev           = '';
     
-    // for search ..
-    public $partSearchInput = '';
-    public $customerSearchInput = '';
+    // Alpine.js compatible filter properties
+    public $searchPartNoInput = '';
+    public $searchCustomerInput = '';
     public $searchPartNo = '';
     public $searchCustomer = '';
-        // for search ...
-    public $searchPartNoInput = '';
-    public $matches    = [];          // array of suggestions ⬅️  NEW
-    public $matches_partno = []; // array of part no ..
-    public $searchCustomerInput = '';
+
     // SIMPLE alert properties
     public $alertMessage = '';
     public $alertType = '';
@@ -44,25 +40,33 @@ class Manage extends Component
         $this->alertType = '';
     }
 
-
     public function mount()
     {
-        $this->partSearchInput = $this->searchPartNo;
-        $this->customerSearchInput = $this->searchCustomer;
+        $this->searchPartNoInput = $this->searchPartNo;
+        $this->searchCustomerInput = $this->searchCustomer;
     }
 
-    public function searchByPartNo()
+    // Alpine.js compatible search methods
+    public function searchq()
     {
-        $this->searchPartNo = $this->partSearchInput;
+        $this->searchPartNo = $this->searchPartNoInput;
         $this->resetPage();
     }
 
-    public function clearFilters()
+    public function searchbyCustomer()
     {
-        $this->searchPartNo = '';
-        $this->searchCustomer = '';
-        $this->partSearchInput = '';
-        $this->customerSearchInput = '';
+        $this->searchCustomer = $this->searchCustomerInput;
+        $this->resetPage();
+    }
+
+    public function filterclose()
+    {
+        $this->reset([
+            'searchPartNoInput',
+            'searchCustomerInput',
+            'searchPartNo',
+            'searchCustomer'
+        ]);
         $this->resetPage();
     }
 
@@ -74,7 +78,6 @@ class Manage extends Component
         'sortField'     => ['except' => 'credit_id'],
         'sortDirection' => ['except' => 'desc'],
     ];
-
 
     /* sort handler */
     public function sortBy(string $field): void
@@ -102,18 +105,17 @@ class Manage extends Component
         $this->confirmingDelete = true;
     }
 
-    /** user clicked “Confirm Delete” */
+    /** user clicked "Confirm Delete" */
     public function deleteGroup($id): void
     {
         $this->deleteId = $id;
         Credit::where('credit_id', $this->deleteId)->delete();
 
         $this->confirmingDelete = false;
-        // SIMPLE: Just set the alert
+        
         $this->alertMessage = 'Credit deleted successfully.';
         $this->alertType = 'danger';
         
-        // Clear alert after a short delay by forcing a re-render
         $this->dispatch('refresh-component');
     }
 
@@ -134,12 +136,9 @@ class Manage extends Component
             $newItem->save();
         }
 
-        // session()->flash('success', 'Credit record duplicated successfully.');
-        // $this->resetPage();
         $this->alertMessage = 'Credit record duplicated successfully.';
         $this->alertType = 'success';
         
-        // Clear alert after a short delay by forcing a re-render
         $this->dispatch('refresh-component');
     }
 
@@ -163,64 +162,4 @@ class Manage extends Component
         return view('livewire.credit.manage', compact('credits'))
             ->layout('layouts.app', ['title' => 'Credits']);
     }
-        // search ...
-    public function searchq(){
-         // assign the input values to the actual search vars
-        $this->searchPartNo = $this->searchPartNoInput;
-       // dd($this->partSearchInput);
-        //  dd($this->searchPartNo);
-            // reset pagination
-        $this->resetPage();
-
-        // clear the input fields (but keep actual filters intact)
-       $this->reset(['searchPartNoInput']);  
-    }
-    public function searchbyCustomer() {
-       // $customer = data_tb::where('c_name',$this->searchCustomerInput)->first();
-       // dd($customer->data_id);
-        $this->searchCustomer = $this->searchCustomerInput;
-       // reset pagination
-       $this->resetPage();
-
-        // clear the input fields (but keep actual filters intact)
-       $this->reset(['searchCustomerInput']);    
-    }
-        // search ...
-    public function onKeyUp(string $value){
-       // dd($value);
-         if (mb_strlen(trim($value)) < 2) {
-            $this->matches = [];
-            return;
-        }
-        $this->matches = Credit::query()
-            ->where('customer', 'like', "%{$value}%")
-            ->get()
-            ->toArray();
-        //dd($this->matches);
-    }   
-    public function useMatch($i){
-       // dd($this->matches[$i]['data_id']);
-        $this->searchCustomerInput = $this->matches[$i]['customer'];
-        $this->matches = [];
-    }
-    public function usekeyupno(string $value){
-         if (mb_strlen(trim($value)) < 2) {
-            $this->matches_partno = [];
-            return;
-        }
-        $this->matches_partno = Credit::query()
-        ->select('part_no')
-        ->where('part_no', 'like', "%{$value}%")
-        ->get()
-        ->toArray();
-    }
-    public function useMatchpn($i){
-        $this->searchPartNoInput = $this->matches_partno[$i]['part_no'];
-        $this->matches_partno = [];
-    }
-        public function resetFilters()
-    {
-        $this->reset(['searchPartNo', 'searchCustomer']);
-    }
-    
 }

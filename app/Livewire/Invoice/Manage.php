@@ -12,7 +12,11 @@ class Manage extends Component
     use WithPagination;
 
     public $perPage = 100;
-    public $searchPart = '';
+    
+    // Alpine.js compatible filter properties
+    public $searchPartNoInput = '';
+    public $searchCustomerInput = '';
+    public $searchPartNo = '';
     public $searchCustomer = '';
 
     public $showPaymentModal = false;
@@ -21,19 +25,8 @@ class Manage extends Component
     public $paydetail = '';
     public $paydate = '';
     public $paynote = '';
-    // 
-    // public $mailstop = 0;
-    // public $pending  = 0;
-      // for search ..
-    public $partSearchInput = '';
-    public $customerSearchInput = '';
-    public $searchPartNo = '';
-        // for search ...
-    public $searchPartNoInput = '';
-    public $matches    = [];          // array of suggestions ⬅️  NEW
-    public $matches_partno = []; // array of part no ..
-    public $searchCustomerInput = '';
-     // SIMPLE alert properties
+
+    // SIMPLE alert properties
     public $alertMessage = '';
     public $alertType = '';
     protected $listeners = ['alert-hidden' => 'clearAlert'];
@@ -44,21 +37,44 @@ class Manage extends Component
         $this->alertType = '';
     }
 
+    public function updatingSearchPartNo() { 
+        $this->resetPage(); 
+    }
     
-    public function updatingSearchPart() { $this->resetPage(); }
-    public function updatingSearchCustomer() { $this->resetPage(); }
+    public function updatingSearchCustomer() { 
+        $this->resetPage(); 
+    }
+
+    // Alpine.js compatible search methods
+    public function searchq()
+    {
+        $this->searchPartNo = $this->searchPartNoInput;
+        $this->resetPage();
+    }
+
+    public function searchbyCustomer()
+    {
+        $this->searchCustomer = $this->searchCustomerInput;
+        $this->resetPage();
+    }
+
+    public function filterclose()
+    {
+        $this->reset([
+            'searchPartNoInput',
+            'searchCustomerInput',
+            'searchPartNo',
+            'searchCustomer'
+        ]);
+        $this->resetPage();
+    }
 
     public function openPaymentModal($id)
     {
         $invoice = Invoice::findOrFail($id);
-      //  dd($invoice->invoice_id);
         $this->selectedInvoiceId = $invoice->invoice_id;
         $invoice->ispaid = 1;
         $invoice->save();
-        // $this->paytype = $invoice->paytype ?? '';
-        // $this->paydetail = $invoice->paydetail ?? '';
-        // $this->paydate = $invoice->paydate ?? '';
-        // $this->paynote = $invoice->paynote ?? '';
         $this->showPaymentModal = true;
     }
 
@@ -75,11 +91,10 @@ class Manage extends Component
             'showPaymentModal', 'selectedInvoiceId', 'paytype',
             'paydetail', 'paydate', 'paynote'
         ]);
-         // SIMPLE: Just set the alert
+        
         $this->alertMessage = 'Payment Details Updated Successfully!';
         $this->alertType = 'success';
         
-        // Clear alert after a short delay by forcing a re-render
         $this->dispatch('refresh-component');
     }
 
@@ -88,45 +103,40 @@ class Manage extends Component
         $invoice = Invoice::findOrFail($id);
         $invoice->ispaid = $invoice->ispaid == 1 ? 0 : 1;
         $invoice->save();
-        
     }
-    public function togglePending($id){
-      //  dd($id);
+    
+    public function togglePending($id)
+    {
         $invoice = Invoice::findOrFail($id);
         $invoice->pending = $invoice->pending == 1 ? 0 : 1;
         $invoice->save();
-       // session()->flash('success', 'Past Due Updated Successfully!');
-         // SIMPLE: Just set the alert
+        
         $this->alertMessage = 'Past Due Updated Successfully!';
         $this->alertType = 'success';
         
-        // Clear alert after a short delay by forcing a re-render
         $this->dispatch('refresh-component');
     }
-    public function toggleMailStop($id){
+    
+    public function toggleMailStop($id)
+    {
         $invoice = Invoice::findOrFail($id);
         $invoice->mailstop = $invoice->mailstop == 1 ? 0 : 1;
         $invoice->save();
-        //session()->flash('success', 'Mail Stop Updated Successfully!');
-         // SIMPLE: Just set the alert
+        
         $this->alertMessage = 'Mail Stop Updated Successfully!';
         $this->alertType = 'success';
         
-        // Clear alert after a short delay by forcing a re-render
         $this->dispatch('refresh-component');
-
     }
+    
     public function delete($id)
     {
         Invoice::findOrFail($id)->delete();
-        //session()->flash('warning', 'Invoice Deleted Successfully!');
-         // SIMPLE: Just set the alert
+        
         $this->alertMessage = 'Invoice Deleted Successfully!';
         $this->alertType = 'danger';
         
-        // Clear alert after a short delay by forcing a re-render
         $this->dispatch('refresh-component');
-
     }
 
     public function duplicate($id)
@@ -152,11 +162,10 @@ class Manage extends Component
                 'pid' => $newId
             ]);
         }
-         // SIMPLE: Just set the alert
-        $this->alertMessage = 'Quote duplicated successfully.';
+        
+        $this->alertMessage = 'Invoice duplicated successfully.';
         $this->alertType = 'success';
         
-        // Clear alert after a short delay by forcing a re-render
         $this->dispatch('refresh-component');
     }
 
@@ -164,7 +173,7 @@ class Manage extends Component
     {
         $invoices = Invoice::query()
             ->when($this->searchCustomer, fn($q) => $q->where('customer', 'like', "%{$this->searchCustomer}%"))
-            ->when($this->searchPart, fn($q) => $q->where('part_no', 'like', "%{$this->searchPart}%"))
+            ->when($this->searchPartNo, fn($q) => $q->where('part_no', 'like', "%{$this->searchPartNo}%"))
             ->orderByDesc('invoice_id')
             ->paginate($this->perPage);
 
@@ -172,67 +181,4 @@ class Manage extends Component
             'invoices' => $invoices,
         ])->layout('layouts.app', ['title' => 'Invoice']);
     }
-       // search ...
-    public function searchq(){
-         // assign the input values to the actual search vars
-        $this->searchPart = $this->searchPartNoInput;
-       // dd($this->partSearchInput);
-        //  dd($this->searchPartNo);
-            // reset pagination
-        $this->resetPage();
-
-        // clear the input fields (but keep actual filters intact)
-       $this->reset(['searchPartNoInput']);  
-    }
-    public function searchbyCustomer() {
-       // $customer = data_tb::where('c_name',$this->searchCustomerInput)->first();
-       // dd($customer->data_id);
-        $this->searchCustomer = $this->searchCustomerInput;
-       // reset pagination
-       $this->resetPage();
-
-        // clear the input fields (but keep actual filters intact)
-       $this->reset(['searchCustomerInput']);    
-    }
-        // search ...
-    public function onKeyUp(string $value){
-       // dd($value);
-         if (mb_strlen(trim($value)) < 2) {
-            $this->matches = [];
-            return;
-        }
-        $this->matches = Invoice::query()
-        ->where('customer', 'like', "%{$value}%")
-        ->select('customer')
-        ->distinct()
-        ->get()
-        ->toArray();
-        //dd($this->matches);
-    }   
-    public function useMatch($i){
-       // dd($this->matches[$i]['data_id']);
-        $this->searchCustomerInput = $this->matches[$i]['customer'];
-        $this->matches = [];
-    }
-    public function usekeyupno(string $value){
-         if (mb_strlen(trim($value)) < 2) {
-            $this->matches_partno = [];
-            return;
-        }
-        $this->matches_partno = Invoice::query()
-        ->select('part_no')
-        ->where('part_no', 'like', "%{$value}%")
-        ->distinct()
-        ->get()
-        ->toArray();
-    }
-    public function useMatchpn($i){
-        $this->searchPartNoInput = $this->matches_partno[$i]['part_no'];
-        $this->matches_partno = [];
-    }
-        public function resetFilters()
-    {
-        $this->reset(['searchPart', 'searchCustomer']);
-    }
-
 }

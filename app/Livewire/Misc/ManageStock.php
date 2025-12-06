@@ -12,12 +12,16 @@ class ManageStock extends Component
 {
     use WithPagination;
 
-    public $search = '';
+    // Alpine.js compatible filter properties
+    public $searchPartNoInput = '';
+    public $searchCustomerInput = '';
+    public $searchPartNo = '';
     public $searchCustomer = '';
+    
     public $confirmingDelete = null;
     protected $paginationTheme = 'bootstrap';
 
-     // SIMPLE alert properties
+    // SIMPLE alert properties
     public $alertMessage = '';
     public $alertType = '';
     protected $listeners = ['alert-hidden' => 'clearAlert'];
@@ -28,18 +32,38 @@ class ManageStock extends Component
         $this->alertType = '';
     }
 
-    public function updatingSearch() { $this->resetPage(); }
-    public function updatingSearchCustomer() { $this->resetPage(); }
+    public function updatingSearchPartNo() { 
+        $this->resetPage(); 
+    }
+    
+    public function updatingSearchCustomer() { 
+        $this->resetPage(); 
+    }
 
-    public function performSearch()
+    // Alpine.js compatible search methods
+    public function searchq()
     {
-        // This is intentionally left blank.
-        // It triggers Livewire to re-render based on current public properties ($search, $searchCustomer)
+        $this->searchPartNo = $this->searchPartNoInput;
+        $this->resetPage();
     }
-    public function resetFilters()
+
+    public function searchbyCustomer()
     {
-        $this->reset(['search', 'searchCustomer']);
+        $this->searchCustomer = $this->searchCustomerInput;
+        $this->resetPage();
     }
+
+    public function filterclose()
+    {
+        $this->reset([
+            'searchPartNoInput',
+            'searchCustomerInput',
+            'searchPartNo',
+            'searchCustomer'
+        ]);
+        $this->resetPage();
+    }
+
     public function confirmDelete($id)
     {
         $this->confirmingDelete = $id;
@@ -49,11 +73,10 @@ class ManageStock extends Component
     {
         stock_tb::where('stkid', $id)->delete();
         DB::table('stock_ret')->where('stkid', $id)->delete(); // If you still have this table
-        // SIMPLE: Just set the alert
+        
         $this->alertMessage = 'Stock deleted successfully.';
         $this->alertType = 'danger';
         
-        // Clear alert after a short delay by forcing a re-render
         $this->dispatch('refresh-component');
     }
 
@@ -61,24 +84,23 @@ class ManageStock extends Component
     {
         $stock = stock_tb::findOrFail($id)->replicate();
         $stock->save();
-         // SIMPLE: Just set the alert
+        
         $this->alertMessage = 'Stock duplicated successfully.';
         $this->alertType = 'success';
         
-        // Clear alert after a short delay by forcing a re-render
         $this->dispatch('refresh-component');
     }
 
     public function render()
     {
         $stocks = stock_tb::query()
-            ->when($this->search, fn($q) => $q->where('part_no', 'like', '%' . $this->search . '%'))
+            ->when($this->searchPartNo, fn($q) => $q->where('part_no', 'like', '%' . $this->searchPartNo . '%'))
             ->when($this->searchCustomer, function ($q) {
                 $q->whereHas('customer', function ($q2) {
                     $q2->where('c_name', 'like', '%' . $this->searchCustomer . '%');
                 });
             })
-            ->with(['customer', 'vendor'])
+            ->with(['customer', 'vendor', 'allocations'])
             ->orderBy('stkid','asc')
             ->paginate(100);
 

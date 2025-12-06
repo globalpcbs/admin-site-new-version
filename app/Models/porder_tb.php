@@ -46,5 +46,9 @@ class porder_tb extends Model
     {
         return $this->belongsTo(vendor_tb::class, 'vid', 'data_id');
     }
+    public function shipper()
+    {
+        return $this->belongsTo(shipper_tb::class, 'sid', 'data_id');
+    }
 
 }

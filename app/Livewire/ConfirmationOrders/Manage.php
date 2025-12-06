@@ -7,9 +7,9 @@ use Livewire\WithPagination;
 use App\Models\corder_tb;
 use App\Models\citems_tb;
 use App\Models\mdlitems_tb;
-use App\Models\data_tb as Customer;
-use App\Models\shipper_tb as Shipper;
-use App\Models\order_tb as Order;
+use App\Models\data_tb      as Customer;
+use App\Models\shipper_tb   as Shipper;
+use App\Models\order_tb     as Order;
 use Illuminate\Support\Facades\DB;
 
 class Manage extends Component
@@ -17,19 +17,18 @@ class Manage extends Component
     use WithPagination;
 
     public $confirmingDeleteId = null;
-    public $partSearchInput = '';
-    public $customerSearchInput = '';
+    
+    // Alpine.js compatible filter properties
+    public $searchPartNoInput = '';
+    public $searchCustomerInput = '';
+    public $searchPartNo = '';
+    public $searchCustomer = '';
 
     protected $paginationTheme = 'bootstrap';
     
-    public $searchPartNoInput = '';
-    public $matches = [];
-    public $matches_partno = [];
-    public $searchCustomerInput = '';
-    
+    // SIMPLE alert properties
     public $alertMessage = '';
     public $alertType = '';
-    
     protected $listeners = ['alert-hidden' => 'clearAlert'];
 
     public function clearAlert()
@@ -58,6 +57,8 @@ class Manage extends Component
 
         $this->alertMessage = 'Confirmation Order Deleted successfully.';
         $this->alertType = 'danger';
+        
+        // Clear alert after a short delay by forcing a re-render
         $this->dispatch('refresh-component');
     }
 
@@ -93,80 +94,32 @@ class Manage extends Component
 
         $this->alertMessage = 'Confirmation Order duplicated successfully.';
         $this->alertType = 'success';
+        
         $this->dispatch('refresh-component');
     }
 
-    // FIXED: Enter key search methods
+    // Alpine.js compatible search methods
     public function searchq()
     {
-        $this->partSearchInput = $this->searchPartNoInput;
+        $this->searchPartNo = $this->searchPartNoInput;
         $this->resetPage();
-        
-        // Clear dropdowns
-        $this->matches_partno = [];
-        $this->matches = [];
-        
-        $this->reset(['searchPartNoInput']);  
     }
 
-    public function searchbyCustomer() 
+    public function searchbyCustomer()
     {
-        // FIXED: Correct variable assignment
-        $this->customerSearchInput = $this->searchCustomerInput;
+        $this->searchCustomer = $this->searchCustomerInput;
         $this->resetPage();
-        
-        // Clear dropdowns
-        $this->matches = [];
-        $this->matches_partno = [];
-        
-        $this->reset(['searchCustomerInput']);    
     }
 
-    public function onKeyUp(string $value)
+    public function filterclose()
     {
-        if (mb_strlen(trim($value)) < 2) {
-            $this->matches = [];
-            return;
-        }
-        
-        $this->matches = corder_tb::query()
-            ->select('customer')
-            ->where('customer', 'like', "%{$value}%")
-            ->distinct()
-            ->get()
-            ->toArray();
-    }
-
-    public function useMatch($i)
-    {
-        $this->searchCustomerInput = $this->matches[$i]['customer'];
-        $this->matches = []; // Clear dropdown
-    }
-
-    public function usekeyupno(string $value)
-    {
-        if (mb_strlen(trim($value)) < 2) {
-            $this->matches_partno = [];
-            return;
-        }
-
-        $this->matches_partno = corder_tb::query()
-            ->select('part_no')
-            ->where('part_no', 'like', "%{$value}%")
-            ->distinct()
-            ->get()
-            ->toArray();
-    }
-
-    public function useMatchpn($i)
-    {
-        $this->searchPartNoInput = $this->matches_partno[$i]['part_no'];
-        $this->matches_partno = []; // Clear dropdown
-    }
-
-    public function resetFilters()
-    {
-        $this->reset(['partSearchInput', 'customerSearchInput', 'matches', 'matches_partno']);
+        $this->reset([
+            'searchPartNoInput',
+            'searchCustomerInput',
+            'searchPartNo',
+            'searchCustomer'
+        ]);
+        $this->resetPage();
     }
 
     public function render()
@@ -175,12 +128,12 @@ class Manage extends Component
             ->select('poid', 'our_ord_num as conf_no', 'customer', 'part_no', 'rev', 'podate')
             ->orderByDesc('poid');
 
-        if (!empty($this->partSearchInput)) {
-            $query->where('part_no', 'like', '%' . $this->partSearchInput . '%');
+        if (!empty($this->searchPartNo)) {
+            $query->where('part_no', 'like', '%' . $this->searchPartNo . '%');
         }
 
-        if (!empty($this->customerSearchInput)) {
-            $query->where('customer', 'like', '%' . $this->customerSearchInput . '%');
+        if (!empty($this->searchCustomer)) {
+            $query->where('customer', 'like', '%' . $this->searchCustomer . '%');
         }
 
         $orders = $query->paginate(50);

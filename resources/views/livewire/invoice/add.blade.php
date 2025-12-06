@@ -1,4 +1,5 @@
 <div>
+    <div>
     @include('includes.flash')
     <div class="card">
         <div class="card-header">
@@ -193,7 +194,6 @@
                     </tfoot>
                 </table>
 
-
                 {{-- Other Information --}}
                 <h5><i class="fa fa-info-circle"></i> Other Information</h5>
 
@@ -213,19 +213,19 @@
                                 autocomplete="off">
                         </div>
 
-                        @if($matches)
+                        @if(count($matches) > 0)
                         <ul class="list-group position-absolute w-100 shadow-sm"
                             style="z-index:1050; max-height:220px; overflow-y:auto;">
                             @foreach($matches as $i => $m)
                             <li wire:key="match-{{ $i }}" class="list-group-item list-group-item-action"
-                                wire:click="useMatch({{ $i }})">
+                                wire:click="useMatch({{ $i }})" style="cursor: pointer;">
                                 {{ $m['label'] }}
                             </li>
                             @endforeach
                         </ul>
                         @endif
                     </div>
-                    <!-- {{ $search }} -->
+                    
                     <!-- Customer -->
                     <div class="col-md-4">
                         <label class="form-label fw-semibold">
@@ -316,7 +316,7 @@
                         </label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-location-arrow"></i></span>
-                            <input type="text" class="form-control" wire:model="delto">
+                            <input type="text" class="form-control" wire:model="delto" value="{{ $delto }}">
                         </div>
                         @error('delto') <div class="text-danger small">{{ $message }}</div> @enderror
                     </div>
@@ -328,7 +328,7 @@
                         </label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-calendar"></i></span>
-                            <input type="date" class="form-control" wire:model="date1">
+                            <input type="date" class="form-control" wire:model="date1" value="{{ $date1 }}">
                         </div>
                         @error('date1') <div class="text-danger small">{{ $message }}</div> @enderror
                     </div>
@@ -340,7 +340,7 @@
                         </label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-percent"></i></span>
-                            <input type="text" class="form-control" wire:model="stax">
+                            <input type="text" class="form-control" wire:model="stax" value="{{ $stax }}">
                         </div>
                         @error('stax') <div class="text-danger small">{{ $message }}</div> @enderror
                     </div>
@@ -353,7 +353,7 @@
                     </label>
                     <div class="input-group">
                         <span class="input-group-text"><i class="fa fa-commenting"></i></span>
-                        <textarea rows="4" class="form-control" wire:model.defer="comments"></textarea>
+                        <textarea rows="4" class="form-control" wire:model.defer="comments">{{ $comments }}</textarea>
                     </div>
                     @error('comments') <div class="text-danger small">{{ $message }}</div> @enderror
                 </div>
@@ -366,9 +366,11 @@
             </form>
         </div>
     </div>
+
     <!-- Alert Modal -->
-    <div class="modal fade @if($showAlertPopup) show d-block @endif" id="alertModal" tabindex="-1"
-        style="@if($showAlertPopup) display: block; @endif" role="dialog">
+    <div class="modal fade @if($showAlertPopup) show @endif" id="alertModal" tabindex="-1"
+        aria-hidden="@if(!$showAlertPopup) true @else false @endif"
+        style="@if($showAlertPopup) display: block; background-color: transparent; @endif">
         <div class="modal-dialog modal-dialog-centered draggable-modal" style="max-width: 500px;">
             <div class="modal-content" style="background: #ccffff; border: 1px solid #999; font-size: 13px;">
                 <div class="modal-header py-2 px-3 modal-drag-handle"
@@ -418,7 +420,7 @@
                         </label>
                         <div class="input-group mb-2">
                             <input type="text" class="form-control" value="{{ $newAlert }}" wire:model="newAlert"
-                                style="pointer-events: auto;"> <!-- Ensure input is always clickable -->
+                                style="pointer-events: auto;">
                             <br />
                             @error('newAlert')
                                 <font color="red">{{ $message }}</font>
@@ -451,8 +453,9 @@
     </div>
 
     <!-- Profile Modal -->
-    <div class="modal fade @if($showProfilePopup) show d-block @endif" id="profileModal" tabindex="-1"
-        style="@if($showProfilePopup) display: block; @endif" role="dialog">
+    <div class="modal fade @if($showProfilePopup) show @endif" id="profileModal" tabindex="-1"
+        aria-hidden="@if(!$showProfilePopup) true @else false @endif"
+        style="@if($showProfilePopup) display: block; background-color: transparent; @endif">
         <div class="modal-dialog modal-dialog-centered draggable-modal" style="max-width: 400px; width: 50%;">
             <div class="modal-content" style="background: #f0f8ff; border: 1px solid #999; font-size: 13px;">
                 <div class="modal-header py-2 px-3 modal-drag-handle"
@@ -487,139 +490,239 @@
                 </div>
             </div>
         </div>
-        </di v>
+    </div>
 
-        <style>
-            .modal {
-                z-index: 1040;
-                background-color: transparent;
-                pointer-events: none;
-                /* Allow clicks to pass through modal container */
-            }
+    <style>
+        .modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1040;
+        }
+        
+        .modal {
+            z-index: 1050;
+            background-color: transparent;
+            pointer-events: none;
+        }
 
-            .modal.show {
-                z-index: 1050;
-                display: block;
-            }
+        .modal.show {
+            z-index: 1050;
+            display: block;
+        }
 
-            .draggable-modal {
-                position: fixed;
-                margin: 0;
-                z-index: 1050;
-                pointer-events: auto;
-                /* Enable interactions within modal */
-            }
+        .draggable-modal {
+            position: fixed;
+            margin: 0;
+            z-index: 1050;
+            pointer-events: auto;
+        }
 
-            .mod al-drag-handle {
-                cursor: move;
-            }
+        .modal-drag-handle {
+            cursor: move;
+        }
 
-            /* Ensure all interactive elements are clickable */
-            .modal-content * {
-                pointer-events: auto;
-            }
-        </style>
+        /* Ensure all interactive elements are clickable */
+        .modal-content * {
+            pointer-events: auto;
+        }
+        
+        /* Style for the lookup dropdown */
+        .list-group {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-top: 2px;
+        }
+        
+        .list-group-item {
+            padding: 8px 12px;
+            border: none;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .list-group-item:last-child {
+            border-bottom: none;
+        }
+        
+        .list-group-item:hover {
+            background-color: #f5f5f5;
+        }
+    </style>
 
-        <script src="https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js"></script>
-        <script>
-            document.addEventListener('DOMContentLoaded', function () {
-                let zIndexCounter = 1050;
+    <script src="https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            let zIndexCounter = 1050;
 
-                // Initializ  e interact.js for draggable modals
-                interact('.d raggable-modal').draggable({
-                    allo  wFrom: '.modal-drag-handle',
-                    ignoreFrom: 'button, input, a, .btn, [wire\\:click], [wire\\:model]',
-                    modifiers: [
-                        interact.modifiers.restrictRect({
-                            restriction: 'parent',
-                            endOnly: true
-                        })
-                    ],
-                    listener  s: {
-                        start(event) {
-                            bringToFront(event.target);
-                        },
-                        move(event) {
-                            const target = event.target;
-                            const x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx;
-                            const y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
+            // Initialize interact.js for draggable modals
+            interact('.draggable-modal').draggable({
+                allowFrom: '.modal-drag-handle',
+                ignoreFrom: 'button, input, a, .btn, [wire\\:click], [wire\\:model]',
+                modifiers: [
+                    interact.modifiers.restrictRect({
+                        restriction: 'parent',
+                        endOnly: true
+                    })
+                ],
+                listeners: {
+                    start(event) {
+                        bringToFront(event.target);
+                    },
+                    move(event) {
+                        const target = event.target;
+                        const x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx;
+                        const y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
 
-                            target.style.transform = `translate(${x}px, ${y}px)`;
-                            target.setAttribute('data-x', x);
-                            target.setAttribute('data-y', y);
-                        }
+                        target.style.transform = `translate(${x}px, ${y}px)`;
+                        target.setAttribute('data-x', x);
+                        target.setAttribute('data-y', y);
                     }
-                });
-
-                function bringToFront(modal) {
-                    zIndexCounter++;
-                    modal.style.zIndex = zIndexCounter;
                 }
+            });
 
-                // Cente    r modals when they appear
-                function centerModal(modalId) {
-                    const modal = document.querySelector(`#${modalId} .draggable-modal`);
-                    if (modal) {
+            function bringToFront(modal) {
+                zIndexCounter++;
+                modal.style.zIndex = zIndexCounter;
+            }
+
+            // Function to show and center a modal
+            function showAndCenterModal(modalId) {
+                const modal = document.querySelector(`#${modalId}`);
+                if (modal) {
+                    // Add show class and display block
+                    modal.classList.add('show');
+                    modal.style.display = 'block';
+                    
+                    // Center the draggable modal
+                    const draggableModal = modal.querySelector('.draggable-modal');
+                    if (draggableModal) {
                         const windowWidth = window.innerWidth;
                         const windowHeight = window.innerHeight;
-                        const modalWidth = modal.offsetWidth;
-                        const modalHeight = modal.offsetHeight;
+                        const modalWidth = draggableModal.offsetWidth;
+                        const modalHeight = draggableModal.offsetHeight;
 
-                        modal.style.left = `${(windowWidth - modalWidth) / 2}px`;
-                        modal.style.top = `${(windowHeight - modalHeight) / 2}px`;
-                        modal.style.transform = 'translate(0px, 0px)';
-                        modal.setAttribute('data-x', 0);
-                        modal.setAttribute('data-y', 0);
+                        draggableModal.style.left = `${(windowWidth - modalWidth) / 2}px`;
+                        draggableModal.style.top = `${(windowHeight - modalHeight) / 2}px`;
+                        draggableModal.style.transform = 'translate(0px, 0px)';
+                        draggableModal.setAttribute('data-x', 0);
+                        draggableModal.setAttribute('data-y', 0);
 
-                        bringToFront(modal);
+                        bringToFront(draggableModal);
                     }
+                    
+                    // Add backdrop
+                    addBackdrop();
                 }
+            }
 
-                // L   ivewire event listeners
-                document.addEventListener('livewire:init', () => {
-                    Livewire.on('alert-types-updated', () => {
-                        document.querySelectorAll('[wire\\:model="alertTypes"]').forEach(checkbox => {
-                            checkbox.checked = checkbox.value.includes(checkbox.value);
-                        });
-                    });
+            // Function to hide a modal
+            function hideModal(modalId) {
+                const modal = document.querySelector(`#${modalId}`);
+                if (modal) {
+                    modal.classList.remove('show');
+                    modal.style.display = 'none';
+                    removeBackdrop();
+                }
+            }
 
-                    Livewire.on('showAlertPopup', () => {
-                        centerModal('alertModal');
-                    });
+            // Backdrop management
+            function addBackdrop() {
+                let backdrop = document.querySelector('.modal-backdrop');
+                if (!backdrop) {
+                    backdrop = document.createElement('div');
+                    backdrop.className = 'modal-backdrop fade show';
+                    backdrop.style.zIndex = '1040';
+                    document.body.appendChild(backdrop);
+                }
+            }
 
-                    Livewire.on('showProfilePopup', () => {
-                        centerModal('profileModal');
-                    });
+            function removeBackdrop() {
+                const backdrop = document.querySelector('.modal-backdrop');
+                if (backdrop && !document.querySelector('.modal.show')) {
+                    backdrop.remove();
+                }
+            }
+
+            // Livewire event listeners
+            document.addEventListener('livewire:init', () => {
+                Livewire.on('show-alert-popup', () => {
+                    setTimeout(() => {
+                        showAndCenterModal('alertModal');
+                    }, 100);
                 });
 
-                // Initial centering if modals are already visible
-                if (document.querySelector('#alertModal.show')) {
-                    centerModal('alertModal');
-                }
-                if (document.querySelector('#profileModal.show')) {
-                    centerModal('profileModal');
-                }
-            });
-            // for alert edit 
-            document.addEventListener('livewire:load', function () {
-                Livewire.on('alert-types-updated', () => {
-                    // Force re-render checkboxes
-                    document.querySelectorAll('[wire\\:model="alertTypes"]').forEach(checkbox => {
-                        checkbox.checked = @json($this->alertTypes).includes(checkbox.value);
-                    });
+                Livewire.on('show-profile-popup', () => {
+                    setTimeout(() => {
+                        showAndCenterModal('profileModal');
+                    }, 100);
                 });
-            });
-            document.addEventListener('livewire:init', function () {
-                // Force checkbox updates when Livewire finishes rendering
+
                 Livewire.on('alert-types-updated', () => {
                     setTimeout(() => {
                         document.querySelectorAll('[wire\\:model="alertTypes"]').forEach(checkbox => {
-                            const shouldBeChecked = @this.alertTypes.includes(checkbox.value);
-                            checkbox.checked = shouldBeChecked;
-                            checkbox.dispatchEvent(new Event('change'));
+                            checkbox.dispatchEvent(new Event('change', { bubbles: true }));
                         });
                     }, 50);
                 });
+
+                Livewire.on('lookup-completed', () => {
+                    console.log('Lookup completed');
+                });
             });
-        </script>
+
+            // Handle close buttons
+            document.addEventListener('click', function(event) {
+                if (event.target.closest('[wire\\:click="closeAlertPopup"]')) {
+                    hideModal('alertModal');
+                }
+                
+                if (event.target.closest('[wire\\:click="closeProfilePopup"]')) {
+                    hideModal('profileModal');
+                }
+                
+                // Close dropdown when clicking outside
+                const lookupInput = document.querySelector('input[wire\\:keyup="onKeyUp"]');
+                const dropdown = document.querySelector('.list-group');
+                
+                if (dropdown && lookupInput && 
+                    !dropdown.contains(event.target) && 
+                    !lookupInput.contains(event.target) &&
+                    !event.target.closest('.list-group')) {
+                    Livewire.dispatch('clear-matches');
+                }
+            });
+
+            // Handle Escape key
+            document.addEventListener('keydown', function(event) {
+                if (event.key === 'Escape') {
+                    hideModal('alertModal');
+                    hideModal('profileModal');
+                }
+                
+                // Handle Enter key in lookup
+                const lookupInput = document.querySelector('input[wire\\:keyup="onKeyUp"]');
+                if (event.key === 'Enter' && lookupInput && lookupInput === document.activeElement) {
+                    event.preventDefault();
+                    const firstMatch = document.querySelector('.list-group-item');
+                    if (firstMatch) {
+                        firstMatch.click();
+                    }
+                }
+            });
+
+            // Initial check for modals that should be visible
+            setTimeout(() => {
+                if (document.querySelector('#alertModal')?.classList.contains('show')) {
+                    showAndCenterModal('alertModal');
+                }
+                if (document.querySelector('#profileModal')?.classList.contains('show')) {
+                    showAndCenterModal('profileModal');
+                }
+            }, 200);
+        });
+    </script>
+</div>
 </div>

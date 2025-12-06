@@ -22,19 +22,14 @@ class Manage extends Component
     // for delete ..
     public $confirmingDelete = false;
     public $deleteId = null;
-    // for search ..
-    public $partSearchInput = '';
-    public $customerSearchInput = '';
+    
+    // Alpine.js compatible filter properties
+    public $searchPartNoInput = '';
+    public $searchCustomerInput = '';
     public $searchPartNo = '';
     public $searchCustomer = '';
-    // for search ...
-    public $searchPartNoInput = '';
-    public $matches    = [];          // array of suggestions ⬅️  NEW
-    public $matches_partno = []; // array of part no ..
-    public $searchCustomerInput = '';
 
-    // Reset pagination when filters change
-        // SIMPLE alert properties
+    // SIMPLE alert properties
     public $alertMessage = '';
     public $alertType = '';
     protected $listeners = ['alert-hidden' => 'clearAlert'];
@@ -44,6 +39,7 @@ class Manage extends Component
         $this->alertMessage = '';
         $this->alertType = '';
     }
+
     public function updatingSearchPartNo()
     {
         $this->resetPage();
@@ -54,18 +50,27 @@ class Manage extends Component
         $this->resetPage();
     }
 
-    public function searchByPartNo()
+    // Alpine.js compatible search methods
+    public function searchq()
     {
-        $this->searchPartNo = $this->partSearchInput;
+        $this->searchPartNo = $this->searchPartNoInput;
         $this->resetPage();
     }
 
-    public function clearFilters()
+    public function searchbyCustomer()
     {
-        $this->partSearchInput = '';
-        $this->customerSearchInput = '';
-        $this->searchPartNo = '';
-        $this->searchCustomer = '';
+        $this->searchCustomer = $this->searchCustomerInput;
+        $this->resetPage();
+    }
+
+    public function filterclose()
+    {
+        $this->reset([
+            'searchPartNoInput',
+            'searchCustomerInput',
+            'searchPartNo',
+            'searchCustomer'
+        ]);
         $this->resetPage();
     }
 
@@ -85,9 +90,8 @@ class Manage extends Component
             'packingSlips' => $packingSlips,
         ])->layout('layouts.app', ['title' => 'Manage Packing Slips']);
     }
+
     // for delete with confirmation ..
-
-
     public function confirmDelete($id)
     {
         $this->deleteId = $id;
@@ -102,13 +106,12 @@ class Manage extends Component
         $this->confirmingDelete = false;
         $this->deleteId = null;
 
-         // SIMPLE: Just set the alert
         $this->alertMessage = 'Packing Slip Deleted successfully.';
         $this->alertType = 'danger';
         
-        // Clear alert after a short delay by forcing a re-render
         $this->dispatch('refresh-component');
     }
+
     // for replica ..
     public function duplicate($id)
     {
@@ -152,21 +155,18 @@ class Manage extends Component
 
             DB::commit();
 
-             // SIMPLE: Just set the alert
             $this->alertMessage = 'Packing Slip duplicated successfully.';
             $this->alertType = 'success';
             
-            // Clear alert after a short delay by forcing a re-render
             $this->dispatch('refresh-component');
 
         } catch (\Exception $e) {
             DB::rollBack();
-            // SIMPLE: Just set the alert
             $this->alertMessage = 'Duplication failed: ' . $e->getMessage();
             $this->alertType = 'danger';
         }
-
     }
+
     // invoice confirmation ..
     public function togglePending($invoiceId)
     {
@@ -176,90 +176,13 @@ class Manage extends Component
         $packing->pending = ($packing->pending === 'Yes') ? 'No' : 'Yes';
         $packing->save();
 
-         // SIMPLE: Just set the alert
         $this->alertMessage = 'Pending status updated successfully.';
         $this->alertType = 'success';
         
-        // Clear alert after a short delay by forcing a re-render
         $this->dispatch('refresh-component');
     }
+
     public function isLogged($id){
         return redirect(route('packing.loggedin',$id));
-    }
-    // search ...
-    public function searchq(){
-         // assign the input values to the actual search vars
-        $this->searchPartNo = $this->searchPartNoInput;
-       // dd($this->partSearchInput);
-        //  dd($this->searchPartNo);
-            // reset pagination
-        $this->resetPage();
-
-        // clear the input fields (but keep actual filters intact)
-       $this->reset(['searchPartNoInput']);  
-    }
-    
-    public function searchbyCustomer() 
-    {
-        // Check if input is empty
-        if (empty(trim($this->searchCustomerInput))) {
-            $this->searchCustomer = '';
-            $this->resetPage();
-            return;
-        }
-
-        $customer = data_tb::where('c_name', $this->searchCustomerInput)->first();
-        
-        // If customer not found, show alert and return
-        if (!$customer) {
-            $this->alertMessage = 'Customer not found. Please select from suggestions.';
-            $this->alertType = 'warning';
-            $this->searchCustomer = '';
-            $this->resetPage();
-            return;
-        }
-
-        $this->searchCustomer = $customer->data_id;
-        $this->resetPage();
-        $this->reset(['searchCustomerInput']);    
-    }
-    
-    // search ...
-    public function onKeyUp(string $value){
-       // dd($value);
-         if (mb_strlen(trim($value)) < 2) {
-            $this->matches = [];
-            return;
-        }
-        $this->matches = data_tb::query()
-            ->where('c_name', 'like', "%{$value}%")
-            ->get()
-            ->toArray();
-        //dd($this->matches);
-    }   
-    public function useMatch($i){
-       // dd($this->matches[$i]['data_id']);
-        $this->searchCustomerInput = $this->matches[$i]['c_name'];
-        $this->matches = [];
-    }
-    public function usekeyupno(string $value){
-         if (mb_strlen(trim($value)) < 2) {
-            $this->matches_partno = [];
-            return;
-        }
-        $this->matches_partno = packing_tb::query()
-        ->select('part_no')
-        ->where('part_no', 'like', "%{$value}%")
-        ->get()
-        ->toArray();
-    }
-    public function useMatchpn($i){
-        $this->searchPartNoInput = $this->matches_partno[$i]['part_no'];
-        $this->matches_partno = [];
-    }
-    
-    public function resetFilters()
-    {
-        $this->reset(['searchPartNo', 'searchCustomer']);
     }
 }
