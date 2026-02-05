@@ -33,6 +33,25 @@ Route::get('/partno-suggestions', function (Request $request) {
     
     return response()->json($suggestions);
 });
+Route::get('/qoute/customer-suggestions', function (Request $request) {
+    $query = $request->get('q');
+    
+    if (strlen($query) < 2) {
+        return response()->json([]);
+    }
+    
+    $suggestions = Order::query()
+        ->select('cust_name')
+        ->where('cust_name', 'like', "%{$query}%")
+        ->distinct()
+        ->orderBy('cust_name', 'asc')
+        ->limit(10)
+        ->get()
+        ->toArray();
+    
+    return response()->json($suggestions);
+});
+//for packing ..
 
 Route::get('/customer-suggestions', function (Request $request) {
     $query = $request->get('q');

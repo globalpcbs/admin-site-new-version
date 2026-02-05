@@ -379,8 +379,9 @@
             }
             
             try {
-                const response = await fetch(`/api/customer-suggestions?q=${encodeURIComponent(query)}`);
+                const response = await fetch(`/api/qoute/customer-suggestions?q=${encodeURIComponent(query)}`);
                 const data = await response.json();
+              //  console.log(data);
                 return data;
             } catch (error) {
                 console.error('Error fetching customer suggestions:', error);
