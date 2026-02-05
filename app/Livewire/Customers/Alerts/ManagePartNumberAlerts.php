@@ -24,12 +24,6 @@ class ManagePartNumberAlerts extends Component
     public int $perPage = 50;
     public int $page    = 1;
 
-    /* Delete‑modal state */
-    public bool    $confirmingDelete = false;
-    public ?string $delCustomer = null;
-    public ?string $delPart     = null;
-    public ?string $delRev      = null;
-
     /* Keep filters in URL */
     protected $queryString = [
         'searchPartNo'     => ['except' => ''],
@@ -153,24 +147,15 @@ class ManagePartNumberAlerts extends Component
             ->orderByDesc('first_id');
     }
 
-    /* ────── Delete helpers ────── */
-    public function confirmDelete(string $customer, string $part, string $rev): void
+    /* ────── Delete method ────── */
+    public function deleteGroup(string $customer, string $part, string $rev): void
     {
-        $this->delCustomer = $customer;
-        $this->delPart     = $part;
-        $this->delRev      = $rev;
-        $this->confirmingDelete = true;
-    }
-
-    public function deleteGroup(): void
-    {
-        alerts_tb::where('customer', $this->delCustomer)
-            ->where('part_no', $this->delPart)
-            ->where('rev',     $this->delRev)
+        alerts_tb::where('customer', $customer)
+            ->where('part_no', $part)
+            ->where('rev', $rev)
             ->delete();
 
         $this->resetPage();
-        $this->reset(['confirmingDelete', 'delCustomer', 'delPart', 'delRev']);
 
         session()->flash('warning', 'Alert group deleted successfully.');
     }

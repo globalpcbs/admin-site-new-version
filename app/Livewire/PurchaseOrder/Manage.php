@@ -46,11 +46,12 @@ class Manage extends Component
         $this->resetPage();
         
         // Dispatch event to reset Alpine.js components
-        $this->dispatch('reset-alpine-filters');
+        $this->dispatch('resetFiltersCompleted');
     }
 
     public function delete($id)
     {
+        //dd($id);
         porder_tb::destroy($id);
         $this->alertMessage = 'Purchase Order deleted successfully.';
         $this->alertType = 'warning';
@@ -106,7 +107,7 @@ class Manage extends Component
             });
         }
 
-        $orders = $query->paginate(1000);
+        $orders = $query->paginate(100);
 
         return view('livewire.purchase-order.manage', compact('orders'))->layout('layouts.app');
     }

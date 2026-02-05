@@ -103,7 +103,7 @@ class ManageStock extends Component
             ->with(['customer', 'vendor', 'allocations'])
             ->orderBy('stkid','asc')
             ->paginate(100);
-
+        //dd($stocks);
         return view('livewire.misc.manage-stock', compact('stocks'))->layout('layouts.app', ['title' => 'Manage Stock']);
     }
 }

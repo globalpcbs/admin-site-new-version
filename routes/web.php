@@ -121,7 +121,7 @@ Route::middleware('auth')->group(function(){
         Route::get('/dashboard', Dashboard::class)->name('dashboard');
         Route::get('/dashboard/sample', sample::class)->name('sample.dashboard');
         // Quotes
-        Route::prefix('qoute')->group(function(){
+        Route::prefix('quote')->group(function(){
             Route::get('/add', QuoteAdd::class)->name('add.qoutes');
             Route::get('/manage', QuoteManage::class)->name('qoutes.manage');
             Route::get('/edit/{id}', Edit::class)->name('qoutes.edit');

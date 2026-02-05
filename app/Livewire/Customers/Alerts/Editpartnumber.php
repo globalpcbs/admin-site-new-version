@@ -4,6 +4,7 @@ namespace App\Livewire\Customers\Alerts;
 
 use Livewire\Component;
 use App\Models\alerts_tb;
+use App\Models\order_tb;
 use Illuminate\Support\Facades\DB;
 
 class Editpartnumber extends Component
@@ -11,13 +12,13 @@ class Editpartnumber extends Component
     /* ───────── Route‑bound params ───────── */
     public string $customer;
     public string $part;
-    public string $rev = '';     // may arrive empty
+    public string $rev = '';
 
     /* ───────── Form fields ───────── */
     public string $txtcust = '';
     public string $pno     = '';
-    public string $rev_inp = '';  // separate because $rev comes from route
-    public array  $alerts  = [];  // [['text'=>'…','viewable'=>['quo','po']] …]
+    public string $rev_inp = '';
+    public array  $alerts  = [];
 
     /* ───────── Mount: preload existing data ───────── */
     public function mount(string $customer, string $part, string $rev = ''): void
@@ -26,36 +27,46 @@ class Editpartnumber extends Component
         $this->part     = $this->pno     = trim($part);
         $this->rev      = $this->rev_inp = trim($rev);
 
+        $this->loadAlertsForPart();
+    }
+
+    /**
+     * Load alerts for the current part
+     */
+    public function loadAlertsForPart(): void
+    {
         // fetch current alerts for this trio
-        $rows = alerts_tb::whereRaw('TRIM(customer)=?', [$this->customer])
-            ->whereRaw('TRIM(part_no)=?', [$this->part])
-            ->whereRaw('TRIM(rev)=?', [$this->rev])
+        $rows = alerts_tb::whereRaw('TRIM(customer)=?', [$this->txtcust])
+            ->whereRaw('TRIM(part_no)=?', [$this->pno])
+            ->whereRaw('TRIM(rev)=?', [$this->rev_inp])
             ->where('atype', 'p')
             ->orderBy('id')
             ->get();
 
         // if none found, offer one empty row
         $this->alerts = $rows->isEmpty()
-            ? [['text' => '', 'viewable' => []]]
+            ? [['id' => uniqid(), 'text' => '', 'viewable' => []]]
             : $rows->map(fn ($row) => [
-                   'id'       => uniqid(),
+                  'id'       => uniqid(),
                   'text'     => $row->alert,
                   'viewable' => explode('|', $row->viewable ?? ''),
               ])->all();
     }
 
     /* ───────── Helpers ───────── */
-    public function addAlert()          { 
+    public function addAlert(): void
+    { 
         $this->alerts[] = [
-            'id' => uniqid(),   // unique key
-            'text'=>'', 
-            'viewable'=>[]
+            'id' => uniqid(),
+            'text' => '', 
+            'viewable' => []
         ]; 
     }
-    public function removeAlert($idx)   
+    
+    public function removeAlert($idx): void
     { 
-       // dd($idx);
-        unset($this->alerts[$idx]); $this->alerts = array_values($this->alerts); 
+        unset($this->alerts[$idx]); 
+        $this->alerts = array_values($this->alerts); 
     }
 
     /* ───────── Validation rules ───────── */
@@ -76,13 +87,14 @@ class Editpartnumber extends Component
         $this->validate();
 
         DB::transaction(function () {
-            // wipe existing rows
+            // Delete alerts for the ORIGINAL part (from route params)
             alerts_tb::where('customer', $this->customer)
-                ->where('part_no',  $this->part)
-                ->where('rev',      $this->rev)
+                ->where('part_no', $this->part)
+                ->where('rev', $this->rev)
+                ->where('atype', 'p')
                 ->delete();
 
-            // re‑insert
+            // Insert new alerts (could be for same or different part after search)
             foreach ($this->alerts as $alert) {
                 alerts_tb::create([
                     'customer' => $this->txtcust,
@@ -95,10 +107,8 @@ class Editpartnumber extends Component
             }
         });
 
-        session()->flash('success', 'Alerts updated successfully.');
-      //  $this->redirectRoute('alerts.manage');   // ← adjust if list route named differently
+        // Redirect without flash message
         return redirect(route('customers.alerts.manage-part'));
-
     }
 
     /* ───────── View ───────── */

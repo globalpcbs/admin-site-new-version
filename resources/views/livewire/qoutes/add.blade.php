@@ -95,8 +95,8 @@
 
                         <strong>Quote Needed by: </strong>
                         <input name="txtquote" wire:model="quote_by" size="10" />
-                        <strong> NRE Charge:</strong>
-                        <input size="3" type="text" name="necharge" wire:model="necharge" @if($new_or_rep == "Repeat Order") disabled @endif>
+                        <strong> NRE Charge: </strong>
+                        <input size="3" type="text" name="necharge" wire:model.live="necharge" wire:key="nre-{{ $new_or_rep }}" @if($new_or_rep == "Repeat Order") readonly @endif>
                         Select Misc :
                         <select name="txtmisc" wire:model="selectedMisc" onchange="getmisc();"
                             wire:change="showMiscField">
@@ -822,8 +822,8 @@
                     </div>
 
                     <div class="d-flex flex-wrap gap-2">
-                        @foreach(['quo' => 'Quote', 'con' => 'Confirmation', 'pac' => 'Packing', 'inv' => 'Invoice', 'cre' => 'Credit'] as $value => $label)
-                            <div class="form-check">
+                        @foreach(['quo' => 'Quote','po' => 'Purchase Order','con' => 'Confirmation', 'pac' => 'Packing', 'inv' => 'Invoice', 'cre' => 'Credit'] as $value => $label)
+                            <div class="form-check form-check-inline mb-0" style="margin-right: 0;">
                                 <input type="checkbox" class="form-check-input" id="type-{{ $value }}" value="{{ $value }}"
                                     wire:model="alertTypes"
                                     wire:key="alert-type-{{ $value }}-{{ $editingAlertId ?? 'new' }}">

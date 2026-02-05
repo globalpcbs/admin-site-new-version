@@ -92,12 +92,21 @@ class Add extends Component
         }
     }
 
-    public function updated($property)
+   public function updated($property)
     {
+        // Keep this as fallback
         if (str_starts_with($property, 'items.') || $property === 'commission') {
             $this->calculateTotals();
         }
     }
+    public function updating($name, $value)
+{
+    // This fires IMMEDIATELY when any property starts updating
+    if (str_starts_with($name, 'items.')) {
+        // Trigger calculations immediately
+        $this->calculateTotals();
+    }
+}
 
     public function lineTotal($index)
     {

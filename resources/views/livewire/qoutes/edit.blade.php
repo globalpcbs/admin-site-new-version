@@ -820,9 +820,9 @@
                         </div>
                     </div>
 
-                    <div class="d-flex flex-wrap gap-2">
-                        @foreach(['quo' => 'Quote', 'con' => 'Confirmation', 'pac' => 'Packing', 'inv' => 'Invoice', 'cre' => 'Credit'] as $value => $label)
-                            <div class="form-check">
+                    <div class="d-flex flex-wrap gap-1">
+                      @foreach(['po' => 'Purchase Order', 'con' => 'Confirmation', 'pac' => 'Packing', 'inv' => 'Invoice', 'cre' => 'Credit'] as $value => $label)
+                            <div class="form-check form-check-inline mb-0" style="margin-right: 0;">
                                 <input type="checkbox" class="form-check-input" id="type-{{ $value }}" value="{{ $value }}"
                                     wire:model="alertTypes"
                                     wire:key="alert-type-{{ $value }}-{{ $editingAlertId ?? 'new' }}">
@@ -1010,4 +1010,13 @@
                 });
             });
         </script>
+        <style>
+    .form-check-inline .form-check-input {
+        margin-right: 0;
+    }
+    .form-check-inline .form-check-label {
+        margin-left: 0;
+        padding-left: 0;
+    }
+</style>
 </div>

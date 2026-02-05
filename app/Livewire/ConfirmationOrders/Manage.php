@@ -102,12 +102,14 @@ class Manage extends Component
     public function searchq()
     {
         $this->searchPartNo = $this->searchPartNoInput;
+        $this->reset(['searchPartNoInput']); // Clear the input
         $this->resetPage();
     }
 
     public function searchbyCustomer()
     {
         $this->searchCustomer = $this->searchCustomerInput;
+        $this->reset(['searchCustomerInput']); // Clear the input
         $this->resetPage();
     }
 

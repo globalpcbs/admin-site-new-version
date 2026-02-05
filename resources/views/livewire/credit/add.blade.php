@@ -461,8 +461,8 @@
                     </div>
 
                     <div class="d-flex flex-wrap gap-2">
-                        @foreach(['quo' => 'Quote', 'con' => 'Confirmation', 'pac' => 'Packing', 'inv' => 'Invoice', 'cre' => 'Credit'] as $value => $label)
-                            <div class="form-check">
+                        @foreach(['quo' => 'Quote', 'con' => 'Confirmation','po' => 'Purchase Order', 'pac' => 'Packing', 'inv' => 'Invoice'] as $value => $label)
+                            <div class="form-check" style="margin-right: 0;">
                                 <input type="checkbox" class="form-check-input" id="type-{{ $value }}" value="{{ $value }}"
                                     wire:model="alertTypes"
                                     wire:key="alert-type-{{ $value }}-{{ $editingAlertId ?? 'new' }}">

@@ -1,5 +1,13 @@
 <div>
     @include('includes.flash')
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    @if(session('allocation_success'))
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ session('allocation_success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
 
     <div class="card mb-4">
         <div class="card-header bg-primary text-white">
@@ -29,7 +37,7 @@
                                     style="z-index:1050; max-height:220px; overflow-y:auto;">
                                     @foreach($matches as $i => $m)
                                     <li wire:key="match-{{ $i }}" class="list-group-item list-group-item-action"
-                                        wire:click="useMatch({{ $i }})">
+                                        wire:click="useMatch({{ $i }})" style="cursor: pointer;">
                                         {{ $m['label'] }}
                                     </li>
                                     @endforeach
@@ -92,16 +100,32 @@
                             <label class="form-label">
                                 <i class="fa fa-calendar"></i> Date Added
                             </label>
-                            <input type="date" class="form-control" wire:model.defer="date_added">
+
+                            <div wire:ignore>
+                                <input type="text"
+                                    class="form-control"
+                                    id="date_added"
+                                    placeholder="MM-DD-YYYY">
+                            </div>
+
                             @error('date_added') <span class="text-danger small">{{ $message }}</span> @enderror
                         </div>
+
                         <div class="mb-2">
                             <label class="form-label">
                                 <i class="fa fa-calendar"></i> Manufacturing Date
-                            </label>
-                            <input type="date" class="form-control" wire:model.defer="manufacturing_date">
+                            </label>    
+
+                            <div wire:ignore>
+                                    <input type="text"
+                                    class="form-control"
+                                    id="manufacturing_date"
+                                    placeholder="MM-DD-YYYY">
+                            </div>
+
                             @error('manufacturing_date') <span class="text-danger small">{{ $message }}</span> @enderror
                         </div>
+
                     </div>
                     <div class="col-lg-8">
                         <div class="row">
@@ -121,8 +145,8 @@
                             </div>
                             <div class="col-md-3 d-flex align-items-end">
                                 <div class="form-check mt-1">
-                                    <input class="form-check-input" type="checkbox" wire:model.defer="panel" id="panel">
-                                    <label class="form-check-label" for="panel">
+                                    <input class="form-check-input" type="checkbox" wire:model.defer="docsready" value="1" id="docsready">
+                                    <label class="form-check-label" for="docsready">
                                         Panel
                                     </label>
                                 </div>
@@ -131,22 +155,23 @@
                                 <label class="form-label">
                                     <i class="fa fa-hourglass-half"></i> Shelf Life
                                 </label>
-                              <select class="form-select" wire:model.defer="shelf_life">
+                                <select class="form-select" wire:model.defer="shelflife">
                                     @for ($i = 1; $i <= 12; $i++)
-                                        <option value="{{ $i }} Month{{ $i > 1 ? 's' : '' }}">{{ $i }} Month{{ $i > 1 ? 's' : '' }}</option>
+                                        <option value="{{ $i }}" {{ $shelflife == $i ? 'selected' : '' }}>
+                                            {{ $i }} Month{{ $i > 1 ? 's' : '' }}
+                                        </option>
                                     @endfor
                                 </select>
-                                @error('shelf_life') <span class="text-danger small">{{ $message }}</span> @enderror
+                                @error('shelflife') <span class="text-danger small">{{ $message }}</span> @enderror
                             </div>
                         </div>
                         <div class="row mt-3">
-
                             <!-- Unit Price -->
                             <div class="col-md-6">
                                 <label class="form-label">
                                     <i class="fa fa-dollar"></i> Unit Price
                                 </label>
-                                <input type="number" step="0.01" class="form-control" wire:model="uprice">
+                                <input type="number" step="0.01" class="form-control" wire:model="uprice" wire:change="calculateTotal">
                                 @error('uprice') <span class="text-danger small">{{ $message }}</span> @enderror
                             </div>
 
@@ -155,15 +180,13 @@
                                 <label class="form-label">
                                     <i class="fa fa-sort-numeric-asc"></i> Qty
                                 </label>
-                                <input type="number" class="form-control" wire:model="qty">
+                                <input type="number" class="form-control" wire:model="qty" wire:change="calculateTotal">
                                 @error('qty') <span class="text-danger small">{{ $message }}</span> @enderror
                             </div>
                         </div>
                         <div class="row mt-4">
                             <div class="col-md-12">
-                                <div wire:poll.500ms>
-                                    <b>Total:</b> ${{ number_format($this->total, 2) }}
-                                </div>
+                                <b>Total:</b> ${{ number_format($this->total, 2) }}
                             </div>
                         </div>
                     </div>
@@ -178,6 +201,7 @@
                         @error('comments') <span class="text-danger small">{{ $message }}</span> @enderror
                     </div>
                 </div>
+                
                 <!-- Action Buttons -->
                 <div class="mt-4 d-flex gap-2">
                     <button class="btn btn-success">
@@ -186,8 +210,117 @@
                     <button type="reset" class="btn btn-secondary">
                         <i class="fa fa-undo"></i> Reset
                     </button>
+                    <a href="{{ route('misc.manage-stock') }}" class="btn btn-primary">
+                        <i class="fa fa-list"></i> Manage Stock
+                    </a>
                 </div>
             </form>
         </div>
     </div>
+    
+    <!-- Allocation Popup (Optional for Add) -->
+    @if($showAllocationPopup)
+    <div class="modal fade show d-block" tabindex="-1" role="dialog" style="background: rgba(0,0,0,0.5);">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Allocate Stock</h5>
+                    <button type="button" class="btn-close" wire:click="closeAllocation"></button>
+                </div>
+                <div class="modal-body">
+                    <form wire:submit.prevent="saveAllocation">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Customer</label>
+                                <input type="text" class="form-control" wire:model="allocation_customer"
+                                       wire:keyup.debounce.300ms="onCustomerKeyUp($event.target.value)">
+                                @if(count($customer_matches) > 0)
+                                <ul class="list-group" style="position: absolute; z-index: 1000; max-height: 200px; overflow-y: auto;">
+                                    @foreach($customer_matches as $match)
+                                    <li class="list-group-item list-group-item-action" 
+                                        style="cursor: pointer;"
+                                        wire:click="useCustomerMatch('{{ $match }}')">
+                                        {{ $match }}
+                                    </li>
+                                    @endforeach
+                                </ul>
+                                @endif
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">PO#</label>
+                                <input type="text" class="form-control" wire:model="allocation_pono">
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <label class="form-label">Due Date</label>
+                                <input type="text" class="form-control" wire:model="allocation_duedate" placeholder="mm-dd-yyyy">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Allocation Date</label>
+                                <input type="text" class="form-control" wire:model="allocation_date" placeholder="mm-dd-yyyy">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Quantity</label>
+                                <input type="number" class="form-control" wire:model="allocation_qut">
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Allocate By</label>
+                                <input type="text" class="form-control" wire:model="allocation_by">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Delivered On</label>
+                                <input type="text" class="form-control" wire:model="allocation_deliveredon" placeholder="mm-dd-yyyy">
+                            </div>
+                        </div>
+                        
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" wire:click="closeAllocation">Cancel</button>
+                            <button type="submit" class="btn btn-primary">Submit</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
 </div>
+
+<script>
+document.addEventListener('livewire:init', () => {
+
+    flatpickr('#date_added', {
+        dateFormat: 'm-d-Y',
+        allowInput: true,
+        onChange: function (_, dateStr) {
+            @this.set('date_added', dateStr);
+        }
+    });
+
+    flatpickr('#manufacturing_date', {
+        dateFormat: 'm-d-Y',
+        allowInput: true,
+        onChange: function (_, dateStr) {
+            @this.set('manufacturing_date', dateStr);
+        }
+    });
+
+});
+
+document.addEventListener('livewire:init', () => {
+
+    Livewire.on('setDateAdded', value => {
+        document.querySelector('#date_added')?._flatpickr?.setDate(value, true);
+    });
+
+    Livewire.on('setManufDate', value => {
+        document.querySelector('#manufacturing_date')?._flatpickr?.setDate(value, true);
+    });
+
+});
+</script>
+

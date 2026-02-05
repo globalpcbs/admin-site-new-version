@@ -10,7 +10,9 @@ class Manage extends Component
     use WithPagination;
 
     public $search = '';
-    public $deleteId = null;
+    public $showAlert = false;
+    public $alertMessage = '';
+    public $alertType = '';
 
     public function updatingSearch()
     {
@@ -23,21 +25,32 @@ class Manage extends Component
         $this->resetPage();
     }
 
-    public function setDeleteId($id)
-    {
-        $this->deleteId = $id;
-    }
-
     public function deleteVendor($id)
     {
         Vendor::where('data_id', $id)->delete();
-        session()->flash('warning', 'Vendor deleted successfully!');
+        
+        // Set alert variables
+        $this->showAlert = true;
+        $this->alertMessage = 'Vendor deleted successfully!';
+        $this->alertType = 'warning';
+        
+        // Auto-hide alert after 3 seconds
+        $this->dispatch('hide-alert-after-delay');
+    }
+
+    public function hideAlert()
+    {
+        $this->showAlert = false;
+        $this->alertMessage = '';
+        $this->alertType = '';
     }
 
     public function render()
     {
-        $allVendors = Vendor::select('c_name')->distinct()->orderby('c_name','asc')->get();
-
+        $allVendors = Vendor::select('c_name')
+        ->orderByRaw('LOWER(c_name) asc')
+        ->get();
+       // dd($allVendors);
         $vendors = Vendor::when($this->search, function ($query) {
             $query->where('c_name', $this->search);
         })->orderBy('data_id', 'desc')->paginate(10);

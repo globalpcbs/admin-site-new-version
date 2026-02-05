@@ -54,12 +54,16 @@ class Manage extends Component
     public function searchq()
     {
         $this->searchPartNo = $this->searchPartNoInput;
+        $this->reset(['searchPartNoInput']); // Clear the input
         $this->resetPage();
     }
 
     public function searchbyCustomer()
     {
+       // dd($this->searchCustomerInput);
+       //$data_id = data_tb::where('c_name',$this->searchCustomerInput)->first();
         $this->searchCustomer = $this->searchCustomerInput;
+        $this->reset(['searchCustomerInput']); // Clear the input
         $this->resetPage();
     }
 
@@ -76,12 +80,17 @@ class Manage extends Component
 
     public function render()
     {
-        $packingSlips = packing_tb::query()
+        $packingSlips = packing_tb::with('custo') // eager load customer
             ->when($this->searchPartNo, function ($query) {
                 $query->where('part_no', 'like', '%' . $this->searchPartNo . '%');
             })
             ->when($this->searchCustomer, function ($query) {
-                $query->where('customer', $this->searchCustomer);
+                $search = $this->searchCustomer;
+                
+                $query->whereHas('custo', function($q) use ($search) {
+                    // Partial match (like 'a') or full name
+                    $q->where('c_name', 'like', "%{$search}%");
+                });
             })
             ->orderBy('invoice_id', 'desc')
             ->paginate(100);
@@ -90,6 +99,7 @@ class Manage extends Component
             'packingSlips' => $packingSlips,
         ])->layout('layouts.app', ['title' => 'Manage Packing Slips']);
     }
+
 
     // for delete with confirmation ..
     public function confirmDelete($id)

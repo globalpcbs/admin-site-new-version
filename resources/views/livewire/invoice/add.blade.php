@@ -120,14 +120,14 @@
                                 <div class="input-group input-group-sm">
                                     <span class="input-group-text"><i class="fa fa-tag"></i></span>
                                     <input type="text" class="form-control"
-                                        wire:model.debounce.300ms="items.{{ $index }}.item" wire:input="$refresh">
+                                        wire:model.live="items.{{ $index }}.item" wire:input="$refresh">
                                 </div>
                             </td>
 
                             <!-- Description -->
                             <td>
                                 <input type="text" class="form-control form-control-sm"
-                                    wire:model.debounce.300ms="items.{{ $index }}.description" wire:input="$refresh">
+                                    wire:model.live="items.{{ $index }}.description" wire:input="$refresh">
                             </td>
 
                             <!-- Qty -->
@@ -135,7 +135,7 @@
                                 <div class="input-group input-group-sm">
                                     <span class="input-group-text"><i class="fa fa-sort-numeric-asc"></i></span>
                                     <input type="text" class="form-control text-end"
-                                        wire:model.debounce.300ms="items.{{ $index }}.qty" wire:input="$refresh">
+                                        wire:model.live="items.{{ $index }}.qty" wire:input="$refresh">
                                 </div>
                             </td>
 
@@ -144,7 +144,7 @@
                                 <div class="input-group input-group-sm">
                                     <span class="input-group-text"><i class="fa fa-usd"></i></span>
                                     <input type="text" class="form-control text-end"
-                                        wire:model.debounce.300ms="items.{{ $index }}.unit_price" wire:input="$refresh">
+                                        wire:model.live="items.{{ $index }}.unit_price" wire:input="$refresh">
                                 </div>
                             </td>
 
@@ -160,7 +160,7 @@
 
                             <!-- Commission Checkbox -->
                             <td class="text-center">
-                                <input type="checkbox" wire:model="items.{{ $index }}.commission"
+                                <input type="checkbox" wire:model.live="items.{{ $index }}.commission"
                                     wire:change="$refresh">
                             </td>
                         </tr>
@@ -435,8 +435,8 @@
                     </div>
 
                     <div class="d-flex flex-wrap gap-2">
-                        @foreach(['quo' => 'Quote', 'con' => 'Confirmation', 'pac' => 'Packing', 'inv' => 'Invoice', 'cre' => 'Credit'] as $value => $label)
-                            <div class="form-check">
+                        @foreach(['quo' => 'Quote', 'con' => 'Confirmation','po' => 'Purchase Order', 'pac' => 'Packing', 'cre' => 'Credit'] as $value => $label)
+                            <div class="form-check" style="margin-right: 0;">
                                 <input type="checkbox" class="form-check-input" id="type-{{ $value }}" value="{{ $value }}"
                                     wire:model="alertTypes"
                                     wire:key="alert-type-{{ $value }}-{{ $editingAlertId ?? 'new' }}">

@@ -205,6 +205,15 @@ class Add extends Component
         {
             $this->vid = $value;
         }
+
+        public function updatedNewOrRep($value)
+        {
+           // dd($value);
+            if ($value === 'Repeat Order') {
+              //  dd("Worker");
+                $this->necharge = "0.00";
+            }
+        }
         // Add these methods to your Livewire component
 
 

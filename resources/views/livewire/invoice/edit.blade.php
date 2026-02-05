@@ -49,9 +49,9 @@
                         </select>
                     </div>
                     <div class="col-sm-4">
-                        <label class="col-form-label"><i class="fa fa-percent"></i> Commission (%)</label>
-                        <input type="text" wire:model="commission" class="form-control" placeholder="Commission %" value="{{ $commission }}">
-                    </div>
+    <label class="col-form-label"><i class="fa fa-percent"></i> Commission (%)</label>
+    <input type="text" wire:model.live="commission" class="form-control" placeholder="Commission %">
+</div>
                 </div>
 
                 {{-- Shipping Info --}}
@@ -103,6 +103,7 @@
                 </div>
 
                 {{-- Line Items --}}
+               {{-- Line Items --}}
                 <table class="table table-bordered table-striped align-middle text-nowrap">
                     <thead class="table-light">
                         <tr>
@@ -123,16 +124,14 @@
                                     <div class="input-group input-group-sm">
                                         <span class="input-group-text"><i class="fa fa-tag"></i></span>
                                         <input type="text" class="form-control"
-                                            wire:model.debounce.300ms="items.{{ $index }}.item" wire:input="$refresh"
-                                            value="{{ $row['item'] ?? '' }}">
+                                            wire:model.live="items.{{ $index }}.item">
                                     </div>
                                 </td>
 
                                 <!-- Description -->
                                 <td>
                                     <input type="text" class="form-control form-control-sm"
-                                        wire:model.debounce.300ms="items.{{ $index }}.description" wire:input="$refresh"
-                                        value="{{ $row['description'] ?? '' }}">
+                                        wire:model.live="items.{{ $index }}.description">
                                 </td>
 
                                 <!-- Qty -->
@@ -140,8 +139,7 @@
                                     <div class="input-group input-group-sm">
                                         <span class="input-group-text"><i class="fa fa-sort-numeric-asc"></i></span>
                                         <input type="text" class="form-control text-end"
-                                            wire:model.debounce.300ms="items.{{ $index }}.qty" wire:input="$refresh"
-                                            value="{{ $row['qty'] ?? '' }}">
+                                            wire:model.live="items.{{ $index }}.qty">
                                     </div>
                                 </td>
 
@@ -150,8 +148,7 @@
                                     <div class="input-group input-group-sm">
                                         <span class="input-group-text"><i class="fa fa-usd"></i></span>
                                         <input type="text" class="form-control text-end"
-                                            wire:model.debounce.300ms="items.{{ $index }}.unit_price" wire:input="$refresh"
-                                            value="{{ $row['unit_price'] ?? '' }}">
+                                            wire:model.live="items.{{ $index }}.unit_price">
                                     </div>
                                 </td>
 
@@ -167,12 +164,10 @@
 
                                 <!-- Commission Checkbox -->
                                 <td class="text-center">
-                                    <input type="checkbox" wire:model="items.{{ $index }}.commission"
-                                        wire:change="$refresh" @checked($row['commission'] ?? false)>
+                                    <input type="checkbox" wire:model.live="items.{{ $index }}.commission">
                                 </td>
                             </tr>
                         @endforeach
-
                     </tbody>
 
                     <tfoot>
@@ -429,8 +424,8 @@
                     </div>
 
                     <div class="d-flex flex-wrap gap-2">
-                        @foreach(['quo' => 'Quote', 'con' => 'Confirmation', 'pac' => 'Packing', 'inv' => 'Invoice', 'cre' => 'Credit'] as $value => $label)
-                            <div class="form-check">
+                        @foreach(['quo' => 'Quote', 'con' => 'Confirmation','po' => 'Purchase Order', 'pac' => 'Packing', 'cre' => 'Credit'] as $value => $label)
+                            <div class="form-check" style="margin-right: 0;">
                                 <input type="checkbox" class="form-check-input" id="type-{{ $value }}" value="{{ $value }}"
                                     wire:model="alertTypes"
                                     wire:key="alert-type-{{ $value }}-{{ $editingAlertId ?? 'new' }}">

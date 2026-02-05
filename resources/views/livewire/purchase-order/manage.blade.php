@@ -49,6 +49,13 @@
                                 x-on:focus="showDropdown = true"
                                 x-on:keydown.enter="performSearch()"
                                 autocomplete="off" />
+                            <!-- Clear Button -->
+                            <button class="btn btn-outline-secondary" type="button" 
+                                x-on:click="clearInput()" 
+                                x-show="inputValue.length > 0"
+                                title="Clear">
+                                <i class="fa fa-times"></i>
+                            </button>
                             <button class="btn btn-primary" type="button" x-on:click="performSearch()">
                                 <i class="fa fa-search"></i>
                             </button>
@@ -87,6 +94,13 @@
                                 x-on:focus="showDropdown = true"
                                 x-on:keydown.enter="performSearch()"
                                 autocomplete="off" />
+                            <!-- Clear Button -->
+                            <button class="btn btn-outline-secondary" type="button" 
+                                x-on:click="clearInput()" 
+                                x-show="inputValue.length > 0"
+                                title="Clear">
+                                <i class="fa fa-times"></i>
+                            </button>
                             <button class="btn btn-primary" type="button" x-on:click="performSearch()">
                                 <i class="fa fa-search"></i>
                             </button>
@@ -126,6 +140,13 @@
                                 x-on:focus="showDropdown = true"
                                 x-on:keydown.enter="performSearch()"
                                 autocomplete="off" />
+                            <!-- Clear Button -->
+                            <button class="btn btn-outline-secondary" type="button" 
+                                x-on:click="clearInput()" 
+                                x-show="inputValue.length > 0"
+                                title="Clear">
+                                <i class="fa fa-times"></i>
+                            </button>
                             <button class="btn btn-primary" x-on:click="performSearch()">
                                 <i class="fa fa-search"></i> Search
                             </button>
@@ -220,9 +241,9 @@
                             <td>{{ $order->podate }}</td>
                             <td>{{ $order->vendor->c_shortname ?? 'N/A' }}</td>
                             <td>
-                                <a href="{{ route('purchase.orders.view',$order->poid) }}" class="btn btn-info btn-xs">
+                                <!-- <a href="{{ route('purchase.orders.view',$order->poid) }}" class="btn btn-info btn-xs">
                                     <i class="fa fa-eye"></i> View
-                                </a>
+                                </a> -->
                                 <a href="{{ route('purchase.orders.edit',$order->poid) }}"
                                     class="btn btn-sm btn-xs btn-primary">
                                     <i class="fa fa-pencil"></i> Edit
@@ -302,6 +323,10 @@
             [x-cloak] {
                 display: none !important;
             }
+            
+            .btn-outline-secondary {
+                border-color: #dee2e6;
+            }
         </style>
 
         <script>
@@ -324,6 +349,11 @@
                             if (!this.$el.contains(e.target)) {
                                 this.showDropdown = false;
                             }
+                        });
+                        
+                        // Listen for Livewire reset event
+                        Livewire.on('resetFiltersCompleted', () => {
+                            this.clearInput();
                         });
                     },
                     
@@ -356,16 +386,22 @@
                         if (this.inputValue.trim()) {
                             @this.set('searchPart', this.inputValue.trim());
                             this.showDropdown = false;
+                            // Clear input immediately
+                            this.inputValue = '';
                             // Remove focus from input after search
-                            this.$refs.searchInput.blur();
+                            if (this.$refs.searchInput) {
+                                this.$refs.searchInput.blur();
+                            }
                         }
                     },
                     
-                    reset() {
+                    clearInput() {
                         this.inputValue = '';
                         this.suggestions = [];
                         this.showDropdown = false;
                         this.highlightedIndex = -1;
+                        // Also clear Livewire property if needed
+                        @this.set('searchPart', '');
                         // Remove focus from input
                         if (this.$refs.searchInput) {
                             this.$refs.searchInput.blur();
@@ -388,6 +424,11 @@
                             if (!this.$el.contains(e.target)) {
                                 this.showDropdown = false;
                             }
+                        });
+                        
+                        // Listen for Livewire reset event
+                        Livewire.on('resetFiltersCompleted', () => {
+                            this.clearInput();
                         });
                     },
                     
@@ -420,16 +461,22 @@
                         if (this.inputValue.trim()) {
                             @this.set('searchCustomer', this.inputValue.trim());
                             this.showDropdown = false;
+                            // Clear input immediately
+                            this.inputValue = '';
                             // Remove focus from input after search
-                            this.$refs.searchInput.blur();
+                            if (this.$refs.searchInput) {
+                                this.$refs.searchInput.blur();
+                            }
                         }
                     },
                     
-                    reset() {
+                    clearInput() {
                         this.inputValue = '';
                         this.suggestions = [];
                         this.showDropdown = false;
                         this.highlightedIndex = -1;
+                        // Also clear Livewire property if needed
+                        @this.set('searchCustomer', '');
                         // Remove focus from input
                         if (this.$refs.searchInput) {
                             this.$refs.searchInput.blur();
@@ -452,6 +499,11 @@
                             if (!this.$el.contains(e.target)) {
                                 this.showDropdown = false;
                             }
+                        });
+                        
+                        // Listen for Livewire reset event
+                        Livewire.on('resetFiltersCompleted', () => {
+                            this.clearInput();
                         });
                     },
                     
@@ -484,16 +536,22 @@
                         if (this.inputValue.trim()) {
                             @this.set('searchVendor', this.inputValue.trim());
                             this.showDropdown = false;
+                            // Clear input immediately
+                            this.inputValue = '';
                             // Remove focus from input after search
-                            this.$refs.searchInput.blur();
+                            if (this.$refs.searchInput) {
+                                this.$refs.searchInput.blur();
+                            }
                         }
                     },
                     
-                    reset() {
+                    clearInput() {
                         this.inputValue = '';
                         this.suggestions = [];
                         this.showDropdown = false;
                         this.highlightedIndex = -1;
+                        // Also clear Livewire property if needed
+                        @this.set('searchVendor', '');
                         // Remove focus from input
                         if (this.$refs.searchInput) {
                             this.$refs.searchInput.blur();
@@ -502,13 +560,14 @@
                 }
             }
 
-            // Listen for Livewire reset event and clear Alpine inputs
+            // Initialize Livewire listener
             document.addEventListener('livewire:init', () => {
+                // This event is dispatched from the Livewire component when reset is clicked
                 Livewire.on('resetFiltersCompleted', () => {
                     // Reset all Alpine.js components
-                    if (partNoSearchComponent) partNoSearchComponent.reset();
-                    if (customerSearchComponent) customerSearchComponent.reset();
-                    if (vendorSearchComponent) vendorSearchComponent.reset();
+                    if (partNoSearchComponent) partNoSearchComponent.clearInput();
+                    if (customerSearchComponent) customerSearchComponent.clearInput();
+                    if (vendorSearchComponent) vendorSearchComponent.clearInput();
                 });
             });
 
@@ -535,37 +594,6 @@
                     });
                 });
             });
-            function resetAllFilters() {
-                // 1. Clear Alpine.js components
-                if (partNoSearchComponent) {
-                    partNoSearchComponent.inputValue = '';
-                    partNoSearchComponent.suggestions = [];
-                    partNoSearchComponent.showDropdown = false;
-                }
-                
-                if (customerSearchComponent) {
-                    customerSearchComponent.inputValue = '';
-                    customerSearchComponent.suggestions = [];
-                    customerSearchComponent.showDropdown = false;
-                }
-                
-                if (vendorSearchComponent) {
-                    vendorSearchComponent.inputValue = '';
-                    vendorSearchComponent.suggestions = [];
-                    vendorSearchComponent.showDropdown = false;
-                }
-                
-                // 2. IMPORTANT: Reset Livewire properties using wire:set
-                @this.set('searchPart', '');
-                @this.set('searchCustomer', '');
-                @this.set('searchVendor', '');
-                
-                // 3. Reset pagination
-                @this.resetPage();
-                
-                // 4. Optional: Force refresh the data
-                @this.call('$refresh');
-            }
         </script>
     </div>
 </div>

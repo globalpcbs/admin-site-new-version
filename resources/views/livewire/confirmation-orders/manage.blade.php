@@ -45,7 +45,7 @@
                                    onkeyup="showPartNoSuggestions(this.value)"
                                    onfocus="showPartNoSuggestions(this.value)"
                                    onkeydown="handlePartNoKeydown(event)" />
-                            <button class="btn btn-primary" type="button" wire:click="searchq" id="partNoSearchBtn">
+                            <button class="btn btn-primary" type="button" onclick="performPartNoSearch()" id="partNoSearchBtn">
                                 <i class="fa fa-search"></i>
                             </button>
                         </div>
@@ -66,7 +66,7 @@
                                    onkeyup="showCustomerSuggestions(this.value)"
                                    onfocus="showCustomerSuggestions(this.value)"
                                    onkeydown="handleCustomerKeydown(event)" />
-                            <button class="btn btn-primary" type="button" wire:click="searchbyCustomer" id="customerSearchBtn">
+                            <button class="btn btn-primary" type="button" onclick="performCustomerSearch()" id="customerSearchBtn">
                                 <i class="fa fa-search"></i>
                             </button>
                         </div>
@@ -206,6 +206,32 @@
             @this.set('searchCustomerInput', '');
         }
 
+        // Perform part number search and clear input
+        function performPartNoSearch() {
+            const input = document.getElementById('partNoInput');
+            // Trigger Livewire search
+            @this.searchq();
+            // Clear input immediately for UI feedback
+            input.value = '';
+            input.blur();
+            // Hide suggestions dropdown
+            document.getElementById('partNoSuggestions').style.display = 'none';
+            selectedPartNoIndex = -1;
+        }
+
+        // Perform customer search and clear input
+        function performCustomerSearch() {
+            const input = document.getElementById('customerInput');
+            // Trigger Livewire search
+            @this.searchbyCustomer();
+            // Clear input immediately for UI feedback
+            input.value = '';
+            input.blur();
+            // Hide suggestions dropdown
+            document.getElementById('customerSuggestions').style.display = 'none';
+            selectedCustomerIndex = -1;
+        }
+
         // Handle Part Number input keydown events
         function handlePartNoKeydown(event) {
             const dropdown = document.getElementById('partNoSuggestions');
@@ -220,8 +246,7 @@
                     selectPartNo(selectedValue);
                 } else {
                     // Perform search with current input value
-                    input.blur();
-                    document.getElementById('partNoSearchBtn').click();
+                    performPartNoSearch();
                 }
                 dropdown.style.display = 'none';
                 selectedPartNoIndex = -1;
@@ -262,8 +287,7 @@
                     selectCustomer(selectedValue);
                 } else {
                     // Perform search with current input value
-                    input.blur();
-                    document.getElementById('customerSearchBtn').click();
+                    performCustomerSearch();
                 }
                 dropdown.style.display = 'none';
                 selectedCustomerIndex = -1;
@@ -406,14 +430,17 @@
         function selectPartNo(partNo) {
             const input = document.getElementById('partNoInput');
             input.value = partNo;
-            input.blur();
+            @this.set('searchPartNoInput', partNo);
             document.getElementById('partNoSuggestions').style.display = 'none';
             selectedPartNoIndex = -1;
             
-            // Update Livewire property and search immediately
-            @this.set('searchPartNoInput', partNo);
+            // Trigger search and clear input
             setTimeout(() => {
                 @this.searchq();
+                // Clear input after search is triggered
+                setTimeout(() => {
+                    input.value = '';
+                }, 50);
             }, 100);
         }
         
@@ -421,14 +448,17 @@
         function selectCustomer(customerName) {
             const input = document.getElementById('customerInput');
             input.value = customerName;
-            input.blur();
+            @this.set('searchCustomerInput', customerName);
             document.getElementById('customerSuggestions').style.display = 'none';
             selectedCustomerIndex = -1;
             
-            // Update Livewire property and search immediately
-            @this.set('searchCustomerInput', customerName);
+            // Trigger search and clear input
             setTimeout(() => {
                 @this.searchbyCustomer();
+                // Clear input after search is triggered
+                setTimeout(() => {
+                    input.value = '';
+                }, 50);
             }, 100);
         }
         
@@ -440,15 +470,6 @@
                 selectedPartNoIndex = -1;
                 selectedCustomerIndex = -1;
             }
-        });
-
-        // Remove focus when clicking search buttons
-        document.getElementById('partNoSearchBtn').addEventListener('click', function() {
-            document.getElementById('partNoInput').blur();
-        });
-
-        document.getElementById('customerSearchBtn').addEventListener('click', function() {
-            document.getElementById('customerInput').blur();
         });
 
         // Initialize - hide dropdowns on page load

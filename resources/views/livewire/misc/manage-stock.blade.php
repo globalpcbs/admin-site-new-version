@@ -159,98 +159,120 @@
                     </thead>
                     <tbody>
                         @foreach ($stocks as $s)
-                        @php
-                        $rowbg = '';
-                        $mdate = '';
+                            @php
+                                $rowbg = '';
+                                
+                                // Expiration calculation remains the same
+                                if (!empty($s->manuf_dt) && !empty($s->shelflife)) {
+                                    $manufactureDate = DateTime::createFromFormat('m-d-Y', $s->manuf_dt);
+                                    if ($manufactureDate) {
+                                        $expirationDate = clone $manufactureDate;
+                                        $expirationDate->add(new DateInterval('P' . $s->shelflife . 'M'));
+                                        $today = new DateTime('today');
+                                        if ($today >= $expirationDate) {
+                                            $rowbg = 'table-danger';
+                                        }
+                                    }
+                                }
+                                
+                                // CORRECTED LOGIC:
+                                // Get undelivered allocations (delivered_on = '00-00-0000')
+                                $undeliveredAllocations = $s->allocations->where('delivered_on', '00-00-0000');
+                                $allocatedQty = $undeliveredAllocations->sum('qut');  // Sum of undelivered allocations
+                                $stockQty = $s->qty;  // Total stock quantity from database
+                                $remainingQty = $stockQty - $allocatedQty;  // What's actually available
+                            @endphp
 
-                        if (!empty($s->manuf_dt)) {
-                        $mdt = explode('-', $s->manuf_dt);
-                        if (count($mdt) === 3) {
-                        $mdate = $mdt[0] . '-' . $mdt[2];
-                        $timestamp = strtotime($mdt[2] . '-' . $mdt[0] . '-' . $mdt[1]);
-                        $daysOld = (time() - $timestamp) / (3600 * 24);
-                        if (
-                        ($s->finish == 'HASL' && $daysOld > 170) ||
-                        (in_array($s->finish, ['ENIG', 'ENEPIG']) && $daysOld > 350)
-                        ) {
-                        $rowbg = 'table-danger';
-                        }
-                        }
-                        }
-                        @endphp
-                        <tr class="{{ $rowbg }}">
-                            <td>{{ $s->stkid }}</td>
-                            <td>{{ $s->customer }}</td>
-                            <td class="ctr" style="position: relative;">
-                                @php
-                                    $comment = $s->comments;
-                                @endphp
+                            <tr class="{{ $rowbg }}">
+                                <td>{{ $s->stkid }}</td>
+                                <td>{{ $s->customer }}</td>
+                                <td class="ctr" style="position: relative;">
+                                    @php
+                                        $comment = $s->comments;
+                                    @endphp
 
-                                <span @if($comment) style="color:red; font-weight:bold;" @endif>
-                                    {{ $s->part_no }}
-                                </span>
+                                    <span @if($comment) style="color:red; font-weight:bold;" @endif>
+                                        {{ $s->part_no }}
+                                    </span>
 
-                                @if ($comment)
-                                    <div class="ttip_overlay">
-                                        <h6 class="fw-bold">Comment</h6>
-                                        {!! nl2br(e($comment)) !!}
-                                    </div>
-                                @endif
-                            </td>
-                            <td>{{ $s->rev }}</td>
-                            <td>{{ $s->vendor->c_name ?? '-' }}</td>
-                            <td>{{ substr($s->dtadded, -10) }} </td>
-                            <td>{{ $s->dc }}</td>
-                            <td>{{ $s->finish }}</td>
-                            <td>{{ $s->manuf_dt }}</td>
-                            <td>
-                            {{ $s->allocations->sum('qut') + $s->qty }}
+                                    @if ($comment)
+                                        <div class="ttip_overlay">
+                                            <h6 class="fw-bold">Comment</h6>
+                                            {!! nl2br(e($comment)) !!}
+                                        </div>
+                                    @endif
+                                </td>
+                                <td>{{ $s->rev }}</td>
+                                <td>{{ $s->vendor->c_name ?? '-' }}</td>
+                                <td>{{ substr($s->dtadded, -10) }} </td>
+                                <td>{{ $s->dc }}</td>
+                                <td>{{ $s->finish }}</td>
+                                <td>{{ $s->manuf_dt }}</td>
+                                
+                                <!-- CORRECT: Stock Qty (Total original quantity) -->
+                                <td>
+                                    {{ $stockQty }}
+                                </td>
+                                
+                                <!-- CORRECT: Remaining Qty (Available after subtracting undelivered allocations) -->
+                                <td style="position: relative;">
+                                    @php
+                                        // Check if there are undelivered allocations
+                                        $hasUndeliveredAllocations = $allocatedQty > 0;
+                                        // Check if fully allocated (remaining = 0)
+                                        $isFullyAllocated = $remainingQty == 0 && $allocatedQty > 0;
+                                    @endphp
+                                    
+                                    <span @if($hasUndeliveredAllocations || $isFullyAllocated) style="color:red; font-weight:bold;" @endif>
+                                        {{ $remainingQty }}
+                                    </span>
 
-                            </td>
-                            <td style="position: relative;">
-                                <span @if($s->qty == 0) style="color:red; font-weight:bold;" @endif>
-                                    {{ $s->qty }}
-                                </span>
-
-                                @if($s->qty == 0 && $s->allocations->count() > 0)
-                                    <div class="ttip_overlay" id="aldiv_{{ $s->stkid }}">
-                                        <label>Stock Allocation</label>
-                                        <table class="al_tb table table-bordered table-sm">
-                                            <thead>
-                                                <tr>
-                                                    <th>Customer</th>
-                                                    <th>PO#</th>
-                                                    <th>Qty</th>
-                                                    <th>Due Date</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                @foreach($s->allocations as $allocation)
+                                    @if($hasUndeliveredAllocations)
+                                        <div class="ttip_overlay" id="aldiv_{{ $s->stkid }}">
+                                            <label>Stock Allocation (Undelivered)</label>
+                                            <table class="al_tb table table-bordered table-sm">
+                                                <thead>
                                                     <tr>
-                                                        <td>{{ $allocation->customer }}</td>
-                                                        <td>{{ $allocation->pono }}</td>
-                                                        <td>{{ $allocation->qut }}</td>
-                                                        <td>{{ \Carbon\Carbon::parse($allocation->due_date)->format('m-d-Y') }}</td>
+                                                        <th>Customer</th>
+                                                        <th>PO#</th>
+                                                        <th>Qty</th>
+                                                        <th>Due Date</th>
                                                     </tr>
-                                                @endforeach
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                @endif
-                            </td>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach($undeliveredAllocations as $allocation)
+                                                        <tr>
+                                                            <td>{{ $allocation->customer }}</td>
+                                                            <td>{{ $allocation->pono }}</td>
+                                                            <td>{{ $allocation->qut }}</td>
+                                                            <td>{{ \Carbon\Carbon::parse($allocation->due_date)->format('m-d-Y') }}</td>
+                                                        </tr>
+                                                    @endforeach
+                                                </tbody>
+                                                <tfoot>
+                                                    <tr style="background-color: #f8f9fa;">
+                                                        <td colspan="2"><strong>Total Allocated:</strong></td>
+                                                        <td><strong>{{ $allocatedQty }}</strong></td>
+                                                        <td></td>
+                                                    </tr>
+                                                </tfoot>
+                                            </table>
+                                        </div>
+                                    @endif
+                                </td>
 
-                            <td>
-                                <a href="{{ route('misc.edit.stock',$s->stkid) }}" class="btn btn-sm btn-xs btn-info">
-                                    <i class="fa fa-pencil"></i>
-                                </a>
-                                <button class="btn btn-sm btn-xs btn-danger" wire:click="delete({{ $s->stkid }})" wire:confirm="Are you sure?" wire:key="delete-{{ $s->stkid }}">
-                                    <i class="fa fa-trash"></i>
-                                </button>
-                                <button class="btn btn-sm btn-xs btn-secondary" wire:click="duplicate({{ $s->stkid }})" wire:key="duplicate-{{ $s->stkid }}">
-                                    <i class="fa fa-copy"></i>
-                                </button>
-                            </td>
-                        </tr>
+                                <td>
+                                    <a href="{{ route('misc.edit.stock',$s->stkid) }}" class="btn btn-sm btn-xs btn-info">
+                                        <i class="fa fa-pencil"></i>
+                                    </a>
+                                    <button class="btn btn-sm btn-xs btn-danger" wire:click="delete({{ $s->stkid }})" wire:confirm="Are you sure?" wire:key="delete-{{ $s->stkid }}">
+                                        <i class="fa fa-trash"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-xs btn-secondary" wire:click="duplicate({{ $s->stkid }})" wire:key="duplicate-{{ $s->stkid }}">
+                                        <i class="fa fa-copy"></i>
+                                    </button>
+                                </td>
+                            </tr>
                         @endforeach
 
                         @if ($stocks->isEmpty())

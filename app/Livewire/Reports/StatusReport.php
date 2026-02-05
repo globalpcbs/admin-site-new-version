@@ -3,12 +3,18 @@
 namespace App\Livewire\Reports;
 
 use Livewire\Component;
+use Livewire\WithPagination;
 use Illuminate\Support\Facades\DB;
 use App\Models\porder_tb;
+use App\Models\data_tb;
+use App\Models\vendor_tb;
 
 class StatusReport extends Component
 {
-    public $orders = [];
+    use WithPagination;
+
+    protected $paginationTheme = 'bootstrap';
+
     public $showModal = false;
     public $orderId;
     public $cus_due;
@@ -18,7 +24,25 @@ class StatusReport extends Component
     public $showNoteModal = false;
     public $note = '';
     public $poidForNote;
-    public $from, $to, $partNumber, $customerName, $vendorName;
+    
+    // Filter properties - Bound to UI inputs
+    public $from = '';
+    public $to = '';
+    public $partNumber = '';
+    public $customerName = '';
+    public $vendorName = '';
+
+    // Active Search Filters - Used for querying
+    public $activeFrom = '';
+    public $activeTo = '';
+    public $activePartNumber = '';
+    public $activeCustomerName = '';
+    public $activeVendorName = '';
+    
+    // Auto-complete suggestions
+    public $partNumberSuggestions = [];
+    public $customerNameSuggestions = [];
+    public $vendorNameSuggestions = [];
 
     public function openNoteModal($poid)
     {
@@ -36,10 +60,10 @@ class StatusReport extends Component
             $order->save();
         }
         $this->showNoteModal = false;
-        $this->refreshData();
+        // No need to loadAllData(), render() will handle it
         session()->flash('success', 'Note updated successfully.');
     }
-    // Called directly by wire:click
+
     public function openModal($id)
     {
         $order = porder_tb::findOrFail($id);
@@ -58,86 +82,166 @@ class StatusReport extends Component
         $order->save();
 
         $this->reset(['showModal', 'orderId', 'cus_due', 'sup_due']);
-        $this->refreshData();
         session()->flash('success', 'Due dates updated successfully!');
     }
+    
     public function closeModal()
     {
         $this->showModal = false;
     }
+    
     public function mount()
     {
-        $this->refreshData();
-    }
-    public function updated($propertyName)
-{
-    $this->refreshData();
-}
-
-public function refreshData()
-{
-    $wheres = [];
-
-    if ($this->from && $this->to) {
-        $wheres[] = "STR_TO_DATE(p.dweek, '%m-%d-%Y') BETWEEN STR_TO_DATE('{$this->from}', '%Y-%m-%d') AND STR_TO_DATE('{$this->to}', '%Y-%m-%d')";
+        // Initial load is handled by render()
     }
 
-    if ($this->partNumber) {
-        $wheres[] = "p.part_no LIKE '%{$this->partNumber}%'";
+    // Auto-complete methods
+    public function updatedPartNumber($value)
+    {
+        if (strlen($value) >= 2) {
+            $this->partNumberSuggestions = porder_tb::where('part_no', 'like', '%' . $value . '%')
+                ->distinct()
+                ->orderBy('part_no')
+                ->take(10)
+                ->pluck('part_no')
+                ->toArray();
+        } else {
+            $this->partNumberSuggestions = [];
+        }
     }
 
-    if ($this->customerName) {
-        $wheres[] = "p.customer LIKE '%{$this->customerName}%'";
+    public function updatedCustomerName($value)
+    {
+        if (strlen($value) >= 2) {
+            $this->customerNameSuggestions = data_tb::where('c_name', 'like', '%' . $value . '%')
+                ->orWhere('c_shortname', 'like', '%' . $value . '%')
+                ->distinct()
+                ->orderBy('c_name')
+                ->take(10)
+                ->pluck('c_name')
+                ->toArray();
+        } else {
+            $this->customerNameSuggestions = [];
+        }
     }
 
-    if ($this->vendorName) {
-        $wheres[] = "v.c_shortname LIKE '%{$this->vendorName}%'";
+    public function updatedVendorName($value)
+    {
+        if (strlen($value) >= 2) {
+            $this->vendorNameSuggestions = vendor_tb::where('c_shortname', 'like', '%' . $value . '%')
+                ->orWhere('c_name', 'like', '%' . $value . '%')
+                ->distinct()
+                ->orderBy('c_shortname')
+                ->take(10)
+                ->pluck('c_shortname')
+                ->toArray();
+        } else {
+            $this->vendorNameSuggestions = [];
+        }
     }
 
-    $wherestr = count($wheres) ? 'WHERE ' . implode(' AND ', $wheres) : '';
-    $ord_by = 'ORDER BY p.poid ASC';
+    // Key to force re-render of inputs
+    public $refreshKey = 0;
 
-    $query = "
-        SELECT p.*, i.invoice_id, i.podate invoicedon, v.c_shortname vc,
-               UNIX_TIMESTAMP(STR_TO_DATE(p.dweek,'%m-%d-%Y')) dw
-        FROM porder_tb p
-        LEFT OUTER JOIN invoice_tb i ON (p.part_no = i.part_no AND p.rev = i.rev AND p.po = i.po)
-        LEFT OUTER JOIN vendor_tb v ON v.data_id = p.vid
-        $wherestr
-        $ord_by
-        LIMIT 200
-    ";
+    // Search method
+    public function search()
+    {
+        // Copy UI inputs to Active Search filters
+        $this->activeFrom = $this->from;
+        $this->activeTo = $this->to;
+        $this->activePartNumber = $this->partNumber;
+        $this->activeCustomerName = $this->customerName;
+        $this->activeVendorName = $this->vendorName;
 
-    $this->orders = DB::select($query);
-}
-public function resetFilters()
-{
-    $this->from = null;
-    $this->to = null; 
-    $this->partNumber = ''; 
-    $this->customerName = '';
-    $this->vendorName = '';
+        $this->resetPage();
+        
+        // Clear UI inputs as requested
+        $this->from = '';
+        $this->to = '';
+        $this->partNumber = '';
+        $this->customerName = '';
+        $this->vendorName = '';
+        
+        // Clear suggestions
+        $this->partNumberSuggestions = [];
+        $this->customerNameSuggestions = [];
+        $this->vendorNameSuggestions = [];
+        
+        $this->refreshKey++; // Force inputs to re-render
+        $this->dispatch('clear-inputs');
+    }
 
-    // optionally, reset pagination too
-    $this->refreshData();
-}
+    // Reset filters
+    public function resetFilters()
+    {
+        // Clear Active filters
+        $this->activeFrom = '';
+        $this->activeTo = '';
+        $this->activePartNumber = '';
+        $this->activeCustomerName = '';
+        $this->activeVendorName = '';
+
+        // Clear UI inputs
+        $this->from = '';
+        $this->to = ''; 
+        $this->partNumber = ''; 
+        $this->customerName = '';
+        $this->vendorName = '';
+        
+        // Clear suggestions
+        $this->partNumberSuggestions = [];
+        $this->customerNameSuggestions = [];
+        $this->vendorNameSuggestions = [];
+
+        $this->refreshKey++; // Force inputs to re-render
+        $this->resetPage();
+        $this->dispatch('clear-inputs');
+        
+        session()->flash('success', 'Filters reset successfully.');
+    }
+
     public function toggleOrder($poid, $isChecked)
     {
-        // You may update your database or perform logic based on $poid and $isChecked
-
-        // Example: Update the "allow" column to true/false
         DB::table('porder_tb')
             ->where('poid', $poid)
             ->update(['allow' => $isChecked ? 'true' : 'false']);
-
-        // Optionally refresh the $orders data
-        //$this->mount();
+            
         session()->flash('success', 'WT Status Has Been updated successfully!');
     }
+    
     public function render()
     {
-            // dd($this->orders);
-        return view('livewire.reports.status-report')
-           ->layout('layouts.app', ['title' => 'Reports']);
+        $query = DB::table('porder_tb as p')
+            ->selectRaw("p.*, i.invoice_id, i.podate as invoicedon, v.c_shortname as vc, UNIX_TIMESTAMP(STR_TO_DATE(p.dweek,'%m-%d-%Y')) as dw")
+            ->leftJoin('invoice_tb as i', function($join) {
+                // Corresponding logic to: ON (p.part_no = i.part_no AND p.rev = i.rev AND p.po = i.po)
+                $join->on('p.part_no', '=', 'i.part_no')
+                     ->on('p.rev', '=', 'i.rev')
+                     ->on('p.po', '=', 'i.po');
+            })
+            ->leftJoin('vendor_tb as v', 'v.data_id', '=', 'p.vid');
+
+        // Apply Active Filters
+        if ($this->activeFrom && $this->activeTo) {
+             $query->whereRaw("STR_TO_DATE(p.dweek, '%m-%d-%Y') BETWEEN STR_TO_DATE(?, '%Y-%m-%d') AND STR_TO_DATE(?, '%Y-%m-%d')", [$this->activeFrom, $this->activeTo]);
+        }
+
+        if ($this->activePartNumber) {
+            $query->where('p.part_no', 'like', '%' . $this->activePartNumber . '%');
+        }
+
+        if ($this->activeCustomerName) {
+            $query->where('p.customer', 'like', '%' . $this->activeCustomerName . '%');
+        }
+
+        if ($this->activeVendorName) {
+            $query->where('v.c_shortname', 'like', '%' . $this->activeVendorName . '%');
+        }
+
+        $orders = $query->orderBy('p.poid', 'asc')->paginate(100);
+
+        return view('livewire.reports.status-report', [
+            'orders' => $orders
+        ])->layout('layouts.app', ['title' => 'Reports']);
     }
 }

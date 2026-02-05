@@ -277,7 +277,7 @@ class Add extends Component
             $packing->sterm = $this->sterms;
             $packing->comments = $this->comments;
             $packing->podate = now()->format('m/d/Y');
-            $packing->customer = $this->customer_look;
+            $packing->customer = $this->customer;
             $packing->part_no = $this->part_no;
             $packing->rev = $this->rev;
             $packing->delto = $this->delto;

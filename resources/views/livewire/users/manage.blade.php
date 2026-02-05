@@ -25,7 +25,7 @@
                                     <button class="btn btn-info btn-sm" wire:click="editUser({{ $user->id }})">
                                         <i class="fa fa-edit"></i> Edit
                                     </button>
-                                    <button class="btn btn-danger btn-sm" wire:click="confirmDelete({{ $user->id }})" wire:key="delete-{{ $user->id }}">
+                                    <button class="btn btn-danger btn-sm" wire:click="deleteUser({{ $user->id }})" wire:confirm="Are you sure you want to delete this user?" wire:key="delete-{{ $user->id }}">
                                         <i class="fa fa-trash"></i> Delete
                                     </button>
                                 </td>

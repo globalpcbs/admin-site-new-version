@@ -11,6 +11,8 @@ use App\Models\stock_tb;
 use App\Models\data_tb;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\StatusReportApiController;
+use App\Http\Controllers\Api\AutocompleteController;
 
 // Existing APIs for quotes (keep these)
 Route::get('/partno-suggestions', function (Request $request) {
@@ -34,20 +36,31 @@ Route::get('/partno-suggestions', function (Request $request) {
 
 Route::get('/customer-suggestions', function (Request $request) {
     $query = $request->get('q');
-    
-    if (strlen($query) < 2) {
+
+    // agar query choti hai to blank array
+    if (!$query || strlen($query) < 1) {
         return response()->json([]);
     }
-    
-    $suggestions = Order::query()
-        ->select('cust_name')
-        ->where('cust_name', 'like', "%{$query}%")
-        ->distinct()
-        ->orderBy('cust_name', 'asc')
-        ->limit(10)
+
+    $suggestions = packing_tb::whereHas('custo', function ($q) use ($query) {
+            $q->where('c_name', 'like', '%' . $query . '%');
+        })
+        ->with(['custo' => function ($q) {
+            $q->select('data_id', 'c_name');
+        }])
+        ->limit(50) // max 50 suggestions
         ->get()
+        ->pluck('custo')      // sirf customer object
+        ->unique('data_id')   // duplicate remove
+        ->values()
+        ->map(function ($item) {
+            return [
+                'data_id'  => $item['data_id'],
+                'customer'   => $item['c_name'],
+            ];
+        })
         ->toArray();
-    
+
     return response()->json($suggestions);
 });
 // These routes will be available at /api/purchase/...
@@ -288,4 +301,36 @@ Route::get('/stock-customer-suggestions', function (Request $request) {
         ->toArray();
     
     return response()->json($suggestions);
+});
+// Add to routes/web.php
+// Add this route to your web.php file
+Route::get('/search-parts', function (Illuminate\Http\Request $request) {
+    $search = $request->query('q');
+    
+    if (strlen($search) < 2) {
+        return response()->json([]);
+    }
+    
+    $results = \App\Models\order_tb::where('cust_name', 'LIKE', "%{$search}%")
+        ->orWhere('part_no', 'LIKE', "%{$search}%")
+        ->orWhere('rev', 'LIKE', "%{$search}%")
+        ->orderBy('cust_name')
+        ->orderBy('part_no')
+        ->orderBy('rev')
+        ->limit(20)
+        ->get()
+        ->unique(function ($item) {
+            return $item->cust_name . '|' . $item->part_no . '|' . $item->rev;
+        })
+        ->values();
+    
+    return response()->json($results);
+});
+// for search report ...
+
+// Public API routes for the status report
+Route::prefix('autocomplete')->group(function () {
+    Route::get('/part-numbers', [AutocompleteController::class, 'partNumbers']);
+    Route::get('/customers', [AutocompleteController::class, 'customers']);
+    Route::get('/vendors', [AutocompleteController::class, 'vendors']);
 });

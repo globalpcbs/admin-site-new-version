@@ -347,7 +347,7 @@
                     'inv' => 'Invoice',
                     'cre' => 'Credit'
                     ] as $value => $label)
-                    <div class="form-check">
+                    <div class="form-check" style="margin-right:0px;">
                         <input type="checkbox" class="form-check-input" id="type-{{ $value }}" value="{{ $value }}"
                             wire:model="alertTypes" @checked(in_array($value, $alertTypes ?? []))>
                         <label class="form-check-label" for="type-{{ $value }}">

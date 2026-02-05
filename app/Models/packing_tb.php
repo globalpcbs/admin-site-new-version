@@ -43,5 +43,8 @@ class packing_tb extends Model
     public function custo(){
         return $this->belongsTo(data_tb::class,'vid');
     }
+    public function customer(){
+        return $this->belongsTo(data_tb::class,'customer','data_id');
+    }
 
 }

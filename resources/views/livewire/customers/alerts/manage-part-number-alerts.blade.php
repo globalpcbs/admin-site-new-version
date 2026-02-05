@@ -93,7 +93,7 @@
                     </thead>
                     <tbody>
                         @forelse ($alerts as $index => $row)
-                        <tr wire:key="alert-row-{{ $row->first_id  }}">
+                        <tr wire:key="alert-row-{{ $row->first_id }}">
                             <td class="text-center">
                                 {{ ($alerts->currentPage() - 1) * $alerts->perPage() + $index + 1 }}.
                             </td>
@@ -120,7 +120,8 @@
                                 </a>
 
                                 <button class="btn btn-sm btn-outline-danger" 
-                                    wire:click="confirmDelete('{{ $row->customer }}', '{{ $row->part_no }}', '{{ $row->rev }}')">
+                                    wire:confirm="Are you sure you want to delete all alerts for {{ $row->customer }}, part {{ $row->part_no }}, rev {{ $row->rev }}?"
+                                    wire:click="deleteGroup('{{ $row->customer }}', '{{ $row->part_no }}', '{{ $row->rev }}')">
                                     <i class="fa fa-trash"></i>
                                 </button>
                             </td>
@@ -137,41 +138,5 @@
                 {{ $alerts->links('pagination::bootstrap-5') }}
             </div>
         </div>
-
-        {{-- Delete Confirmation Modal --}}
-        @if ($confirmingDelete)
-        <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content">
-                    <div class="modal-header bg-danger text-white">
-                        <h5 class="modal-title">
-                            <i class="fa fa-exclamation-triangle"></i>
-                            Confirm Deletion
-                        </h5>
-                        <button type="button" class="btn-close" wire:click="$set('confirmingDelete', false)"></button>
-                    </div>
-
-                    <div class="modal-body">
-                        <p class="mb-0">
-                            Delete all alerts for
-                            <strong>{{ $delCustomer }}</strong>,
-                            part <strong>{{ $delPart }}</strong>,
-                            rev <strong>{{ $delRev }}</strong>?
-                        </p>
-                    </div>
-
-                    <div class="modal-footer">
-                        <button class="btn btn-secondary" wire:click="$set('confirmingDelete', false)">
-                            Cancel
-                        </button>
-
-                        <button class="btn btn-danger" wire:click="deleteGroup">
-                            <i class="fa fa-trash"></i> Confirm Delete
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-        @endif
     </div>
 </div>

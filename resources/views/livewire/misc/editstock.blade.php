@@ -1,6 +1,7 @@
 <div>
     @include('includes.flash')
-
+       <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <div class="card mb-4">
         <div class="card-header bg-primary text-white">
             <strong><i class="fa fa-plus-square"></i> Add Stock</strong>
@@ -92,14 +93,24 @@
                             <label class="form-label">
                                 <i class="fa fa-calendar"></i> Date Added
                             </label>
-                            <input type="date" class="form-control" wire:model="date_added">
+                            <div wire:ignore>
+    <input type="text"
+           class="form-control"
+           id="date_added"
+           placeholder="MM-DD-YYYY">
+</div>
                             @error('date_added') <span class="text-danger small">{{ $message }}</span> @enderror
                         </div>
                         <div class="mb-2">
                             <label class="form-label">
                                 <i class="fa fa-calendar"></i> Manufacturing Date
                             </label>
-                            <input type="date" class="form-control" wire:model="manufacturing_date">
+                            <div wire:ignore>
+                                <input type="text"
+                                    class="form-control"
+                                    id="manufacturing_date"
+                                    placeholder="MM-DD-YYYY">
+                            </div>
                             @error('manufacturing_date') <span class="text-danger small">{{ $message }}</span> @enderror
                         </div>
                     </div>
@@ -133,7 +144,7 @@
                                 </label>
                                 <select class="form-select" wire:model.defer="shelf_life">
                                     @for ($i = 1; $i <= 12; $i++)
-                                        <option value="{{ $i }} Month{{ $i > 1 ? 's' : '' }}">{{ $i }} Month{{ $i > 1 ? 's' : '' }}</option>
+                                        <option value="{{ $i }}" {{ $i == $shelf_life ? 'selected' : '' }}>{{ $i }} Month{{ $i > 1 ? 's' : '' }}</option>
                                     @endfor
                                 </select>
                                 @error('shelf_life') <span class="text-danger small">{{ $message }}</span> @enderror
@@ -155,7 +166,7 @@
                                 <label class="form-label">
                                     <i class="fa fa-sort-numeric-asc"></i> Qty
                                 </label>
-                                <input type="number" class="form-control" wire:model.live="qty" wire:key="qty-{{ $inputKey }}">
+                                <input type="text" class="form-control" wire:model.live="qty" wire:key="qty-{{ $inputKey }}">
                                 @error('qty') <span class="text-danger small">{{ $message }}</span> @enderror
                             </div>
                         </div>
@@ -306,3 +317,39 @@
         </div>
     </div>
 </div>
+<script>
+document.addEventListener('livewire:init', () => {
+
+    flatpickr('#date_added', {
+        dateFormat: 'm-d-Y',
+        allowInput: true,
+        onChange: function (_, dateStr) {
+            @this.set('date_added', dateStr);
+        }
+    });
+
+    flatpickr('#manufacturing_date', {
+        dateFormat: 'm-d-Y',
+        allowInput: true,
+        onChange: function (_, dateStr) {
+            @this.set('manufacturing_date', dateStr);
+        }
+    });
+
+});
+
+document.addEventListener('livewire:init', () => {
+
+    Livewire.on('setDateAdded', value => {
+        document.querySelector('#date_added')?._flatpickr?.setDate(value, true);
+    });
+
+    Livewire.on('setManufDate', value => {
+        document.querySelector('#manufacturing_date')?._flatpickr?.setDate(value, true);
+    });
+
+});
+</script>
+
+
+

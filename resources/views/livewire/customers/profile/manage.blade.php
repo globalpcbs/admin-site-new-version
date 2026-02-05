@@ -63,7 +63,7 @@
                                 <a href="{{ route('customers.profile.edit',$profile->profid) }}" class="btn btn-sm btn-outline-success">
                                     <i class="fa fa-edit"></i> 
                                 </a>
-                                <button wire:click="deleteProfile({{ $profile->profid }})" class="btn btn-sm btn-outline-danger" wire:key="delete-{{ $profile->profid }}">
+                                <button wire:click="deleteProfile({{ $profile->profid }})" wire:confirm="Are you sure? You want to delete customer profile" class="btn btn-sm btn-outline-danger" wire:key="delete-{{ $profile->profid }}">
                                     <i class="fa fa-trash"></i> 
                                 </button>
                             </td>

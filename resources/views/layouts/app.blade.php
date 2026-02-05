@@ -50,6 +50,20 @@
         <!-- Bracket CSS -->
         <link rel="stylesheet" href="{{ asset('css/bracket.css')}}">
         <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+        <style>
+        [x-cloak] { display: none !important; }
+        .realtime-tooltip {
+            display: none;
+            position: absolute;
+            background: white;
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 4px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+        }
+    </style>
+
     @else
         <!-- vendor css -->
         <link href="{{ asset('lib/font-awesome/css/font-awesome.css')}}" rel="stylesheet">

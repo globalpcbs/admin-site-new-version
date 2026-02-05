@@ -80,8 +80,8 @@ class Edit extends Component
         $this->items = array_pad($this->items, 6, [
             'item' => '',
             'description' => '',
-            'qty' => null,
-            'unit_price' => null,
+            'qty' => 0,  // Changed from null to 0
+            'unit_price' => 0,  // Changed from null to 0
             'commission' => false,
         ]);
 
@@ -100,11 +100,43 @@ class Edit extends Component
         }
     }
 
+    // Add these lifecycle methods for real-time calculations
+    public function boot()
+    {
+        $this->calculateTotals();
+    }
+    
+    public function hydrate()
+    {
+        $this->calculateTotals();
+    }
+    
+    // Handle immediate updates when typing
+    public function updating($name, $value)
+    {
+        if (str_starts_with($name, 'items.')) {
+            $this->calculateTotals();
+        }
+    }
+    
     public function updated($property)
     {
         if (str_starts_with($property, 'items.') || $property === 'commission') {
             $this->calculateTotals();
         }
+    }
+    
+    // Helper method to safely convert to float
+    private function safeFloat($value): float
+    {
+        if (is_null($value) || $value === '' || $value === false) {
+            return 0.0;
+        }
+        
+        // Remove any commas and non-numeric characters except decimal point and minus
+        $cleaned = preg_replace('/[^0-9\.\-]/', '', (string)$value);
+        
+        return floatval($cleaned);
     }
 
     public function calculateTotals()
@@ -113,13 +145,17 @@ class Edit extends Component
         $this->totalCommission = 0;
 
         foreach ($this->items as $row) {
-            $qty = (float) ($row['qty'] ?? 0);
-            $price = (float) str_replace(',', '', $row['unit_price'] ?? 0);
+            $qty = $this->safeFloat($row['qty'] ?? 0);
+            $price = $this->safeFloat($row['unit_price'] ?? 0);
             $lineTotal = $qty * $price;
 
             $this->total += $lineTotal;
-            if (!empty($row['item']) && $row['commission']) {
-                $this->totalCommission += ($lineTotal * ($this->commission / 100));
+            
+            // Check if commission is checked and has valid values
+            if (($row['commission'] ?? false) && $qty > 0 && $price > 0) {
+                $commissionPercent = $this->safeFloat($this->commission ?? 0);
+                $commissionAmount = $lineTotal * ($commissionPercent / 100);
+                $this->totalCommission += $commissionAmount;
             }
         }
     }
@@ -356,8 +392,8 @@ class Edit extends Component
             InvoiceItem::where('pid', $invoice->invoice_id)->delete();
             foreach ($this->items as $row) {
                 if (!empty($row['item'])) {
-                    $qty = (float) $row['qty'];
-                    $uprice = (float) str_replace(',', '', $row['unit_price']);
+                    $qty = $this->safeFloat($row['qty']);
+                    $uprice = $this->safeFloat($row['unit_price']);
 
                     $item = new InvoiceItem();
                     $item->pid = $invoice->invoice_id;
@@ -379,6 +415,8 @@ class Edit extends Component
     
     public function render()
     {
+        // Ensure totals are calculated before rendering
+        $this->calculateTotals();
         return view('livewire.invoice.edit', [
             'customers' => Customer::orderBy('c_name')->get(),
             'shippers' => Shipper::orderBy('c_name')->get(),
@@ -387,9 +425,14 @@ class Edit extends Component
     
     public function lineTotal($index)
     {
-        $row = $this->items[$index] ?? ['qty' => 0, 'unit_price' => 0];
-        $qty = floatval($row['qty'] ?? 0);
-        $unit = floatval($row['unit_price'] ?? 0);
+        if (!isset($this->items[$index])) {
+            return 0;
+        }
+        
+        $row = $this->items[$index];
+        $qty = $this->safeFloat($row['qty'] ?? 0);
+        $unit = $this->safeFloat($row['unit_price'] ?? 0);
+        
         return $qty * $unit;
     }
     
@@ -464,5 +507,15 @@ class Edit extends Component
 
         $m = $this->matches[$i];
         $this->selectLookup($m['part'], $m['rev'], $m['cust']);
+    }
+    
+    // Computed property for total (optional, but good for consistency)
+    public function getTotalProperty()
+    {
+        return collect($this->items)->reduce(function ($carry, $item) {
+            $qty = $this->safeFloat($item['qty'] ?? 0);
+            $price = $this->safeFloat($item['unit_price'] ?? 0);
+            return $carry + ($qty * $price);
+        }, 0);
     }
 }

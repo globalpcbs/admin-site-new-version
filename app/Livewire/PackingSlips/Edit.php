@@ -288,7 +288,7 @@ class Edit extends Component
             $packing->state = $this->state;
             $packing->sterm = $this->sterms;
             $packing->comments = $this->comments;
-            $packing->customer = $this->customer_look;
+            $packing->customer = $this->customer;
             $packing->part_no = $this->part_no;
             $packing->rev = $this->rev;
             $packing->delto = $this->delto;
