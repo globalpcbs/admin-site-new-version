@@ -107,7 +107,7 @@ class Manage extends Component
             });
         }
 
-        $orders = $query->paginate(100);
+        $orders = $query->paginate(50);
 
         return view('livewire.purchase-order.manage', compact('orders'))->layout('layouts.app');
     }
