@@ -207,17 +207,17 @@
 
                             <td>
                                 <a href="https://files.pcbsglobal.website/download-pdf2.php?id={{ $invoice->invoice_id }}&oper=view"
-                                    class="btn btn-sm btn-outline-info btn-xs" target="_blank"><i class="fa fa-eye"></i> View PDF</a>
+                                    class="btn btn-sm btn-info btn-xs" target="_blank"><i class="fa fa-eye"></i> View PDF</a>
                                 <a href="https://files.pcbsglobal.website/download-pdf2.php?id={{ $invoice->invoice_id }}&oper=download"
-                                    class="btn btn-sm btn-outline-danger btn-xs"><i class="fa fa-download"></i> Download PDF</a>
-                                <button class="btn btn-sm btn-outline-warning btn-xs"
+                                    class="btn btn-sm btn-danger btn-xs"><i class="fa fa-download"></i> Download PDF</a>
+                                <button class="btn btn-sm btn-warning btn-xs"
                                     wire:click="duplicate({{ $invoice->invoice_id }})" wire:key="duplicate-{{ $invoice->invoice_id }}">
                                     <i class="fa fa-copy"></i> Duplicate
                                 </button>
                                 <a href="{{ route('invoice.edit',$invoice->invoice_id) }}">
-                                    <button class="btn btn-outline-success btn-xs"><i class="fa fa-edit"></i> Edit</button>
+                                    <button class="btn btn-success btn-xs"><i class="fa fa-edit"></i> Edit</button>
                                 </a>
-                                <button class="btn btn-sm btn-outline-danger btn-xs"
+                                <button class="btn btn-sm btn-danger btn-xs"
                                     wire:click="delete({{ $invoice->invoice_id }})" wire:confirm wire:key="delete-{{ $invoice->invoice_id }}">
                                     <i class="fa fa-trash"></i> Delete
                                 </button>
