@@ -264,8 +264,7 @@
                                     <i class="fa fa-file-text"></i> DOC
                                 </a>
 
-                                <button wire:click="delete({{ $order->poid }})" wire:key="delete-{{ $order->poid }}" class="btn btn-xs btn-sm btn-danger"
-                                    onclick="return confirm('Are you sure to delete?')">
+                                <button wire:click="delete({{ $order->poid }})" wire:key="delete-{{ $order->poid }}" class="btn btn-xs btn-sm btn-danger" wire:confirm="Are you sure, you want to delete this purchase order?">
                                     <i class="fa fa-trash"></i> Delete
                                 </button>
 
