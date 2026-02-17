@@ -135,8 +135,8 @@
             </div>
             
             <!-- Invoice Table -->
-            <div class="table-responsive">
-                <table class="table table-bordered table-hover table-striped align-middle table-sm">
+            <div>
+                <table class="table table-bordered table-sm table-striped">
                     <thead class="table-light">
                         <tr>
                             <th><i class="fa fa-key"></i> ID</th>
