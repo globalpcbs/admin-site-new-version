@@ -130,13 +130,13 @@
 
         <div class="card">
             <div class="card-header">
-                <i class="fa fa-list"></i> Manage Invoice
+               <b> <i class="fa fa-list"></i> Manage Invoice</b>
                 <i class="fa fa-spin fa-spinner float-end" wire:loading></i>
             </div>
             
             <!-- Invoice Table -->
-            <div>
-                <table class="table table-bordered table-sm table-striped">
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover table-striped align-middle table-sm">
                     <thead class="table-light">
                         <tr>
                             <th><i class="fa fa-key"></i> ID</th>

@@ -183,7 +183,7 @@
         <!-- Orders Table Card -->
         <div class="card">
             <div class="card-header">
-                <i class="fa fa-list"></i> Manage Purchase Orders
+                <b><i class="fa fa-list"></i> Manage Purchase Orders</b>
                 <i class="fa fa-spinner fa-spin float-end" wire:loading></i>
             </div>
 
