@@ -157,9 +157,9 @@
                                 <i class="fa fa-edit"></i> Edit 
                             </a>
                             <a href="https://files.pcbsglobal.website/download-pdf.php?id={{ $quote->ord_id }}&oper=download&name={{ ucfirst(Auth::user()->username) }}"
-                                class="btn btn-success btn-xs btn-sm">Download PDF</a>
+                                class="btn btn-success btn-xs btn-sm"> <i class="fa fa-download"></i> Download PDF</a>
                             <a href="https://files.pcbsglobal.website/download-pdf.php?id={{ $quote->ord_id }}&oper=view&name={{ ucfirst(Auth::user()->username) }}"
-                                class="btn btn-info btn-xs btn-sm" target="_blank">VIEW PDF</a>
+                                class="btn btn-info btn-xs btn-sm" target="_blank"> <i class="fa fa-eye"></i> VIEW PDF</a>
                             <a href="https://files.pcbsglobal.website/download-doc.php?id={{ $quote->ord_id }}"
                                 class="btn btn-sm btn-xs btn-secondary">Download DOC</a>
                             <button wire:click="deleteQuote({{ $quote->ord_id }})" 

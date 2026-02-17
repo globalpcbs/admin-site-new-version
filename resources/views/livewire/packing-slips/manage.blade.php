@@ -136,7 +136,7 @@
                                     </button>
                                 </a>
                                 <button type="button" class="btn btn-sm btn-xs btn-danger"
-                                    wire:click="deletePackingSlip({{ $slip->invoice_id }})" wire:confirm="Are you sure? You want to delete packing slip." wire:key="delete-{{ $slip->invoice_id }}">
+                                    wire:click="deletePackingSlip({{ $slip->invoice_id }})" wire:confirm="Are you sure You want to delete packing slip?" wire:key="delete-{{ $slip->invoice_id }}">
                                     <i class="fa fa-trash"></i> Del
                                 </button>
                                 <button type="button" class="btn btn-sm btn-xs btn-secondary"

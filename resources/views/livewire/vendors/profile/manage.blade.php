@@ -55,7 +55,7 @@
                         </a>
                     </td>
                     <td>
-                        <button class="btn btn-sm btn-danger" wire:confirm="Are you sure? You want to delete profile" wire:click="deleteVendorProfile({{ $vendor->profid }})" wire:key="delete-{{ $vendor->profid }}">
+                        <button class="btn btn-sm btn-danger" wire:confirm="Are you sure You want to delete this profile?" wire:click="deleteVendorProfile({{ $vendor->profid }})" wire:key="delete-{{ $vendor->profid }}">
                             <i class="fa fa-trash"></i> Delete
                         </button>
                     </td>

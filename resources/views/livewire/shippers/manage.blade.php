@@ -71,7 +71,7 @@
                                 <button class="btn btn-danger btn-sm"
                                     wire:click="deleteShipper({{ $shipper->data_id }})"
                                     wire:key="delete-{{ $shipper->data_id }}"
-                                    wire:confirm="Are you sure? you want to delete shipper"
+                                    wire:confirm="Are you sure you want to delete this shipper?"
                                     >
                                     <i class="fa fa-trash"></i> Delete
                                 </button>
