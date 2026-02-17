@@ -153,24 +153,24 @@
                         <td>{{ $quote->rev }}</td>
                         <td>{{ \Carbon\Carbon::parse($quote->ord_date)->format('m/d/Y') }}</td>
                         <td>
-                            <a href="https://files.pcbsglobal.website/download-pdf.php?id={{ $quote->ord_id }}&oper=download&name={{ ucfirst(Auth::user()->username) }}"
-                                class="btn btn-primary btn-xs btn-sm">Download PDF</a>
-                           <a href="https://files.pcbsglobal.website/download-pdf.php?id={{ $quote->ord_id }}&oper=view&name={{ ucfirst(Auth::user()->username) }}"
-                                class="btn btn-info btn-xs btn-sm" target="_blank">VIEW PDF</a>
-                            <a href="https://files.pcbsglobal.website/download-doc.php?id={{ $quote->ord_id }}"
-                                class="btn btn-warning btn-xs btn-sm">Download DOC</a>
-                            <a href="{{ route('qoutes.edit',$quote->ord_id) }}" class="btn btn-success btn-xs btn-sm">
+                            <a href="{{ route('qoutes.edit',$quote->ord_id) }}" class="btn btn-primary btn-xs btn-sm">
                                 <i class="fa fa-edit"></i> Edit 
                             </a>
+                            <a href="https://files.pcbsglobal.website/download-pdf.php?id={{ $quote->ord_id }}&oper=download&name={{ ucfirst(Auth::user()->username) }}"
+                                class="btn btn-success btn-xs btn-sm">Download PDF</a>
+                            <a href="https://files.pcbsglobal.website/download-pdf.php?id={{ $quote->ord_id }}&oper=view&name={{ ucfirst(Auth::user()->username) }}"
+                                class="btn btn-info btn-xs btn-sm" target="_blank">VIEW PDF</a>
+                            <a href="https://files.pcbsglobal.website/download-doc.php?id={{ $quote->ord_id }}"
+                                class="btn btn-sm btn-xs btn-secondary">Download DOC</a>
                             <button wire:click="deleteQuote({{ $quote->ord_id }})" 
                                 wire:key="delete-{{ $quote->ord_id }}"
-                                onclick="confirm('Are you sure you want to delete this quote?') || event.stopImmediatePropagation()"
+                                wire:confirm="Are you sure you want to delete this quote?"
                                 class="btn btn-sm btn-xs btn-danger">
                                 <i class="fa fa-trash"></i> Delete
                             </button>
                             <button wire:click="duplicateQuote({{ $quote->ord_id }})" 
                                 wire:key="duplicate-{{ $quote->ord_id }}"
-                                class="btn btn-xs btn-sm btn-primary">
+                                class="btn btn-xs btn-sm btn-warning">
                                 <i class="fa fa-copy"></i> Duplicate
                             </button>
                         </td>
