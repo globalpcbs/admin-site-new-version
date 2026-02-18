@@ -604,7 +604,7 @@ class Edit extends Component
         }
      public function saveproccess()
     {
-        dd($this->necharge);
+       // dd($this->new_or_rep);
             // Prepare price data from manual inputs
             $priceData = [];
             foreach ($this->manualPrices as $qIndex => $leadTimes) {
