@@ -13,6 +13,10 @@ class Manage extends Component
     public $confirmingDelete = false;
     public $deleteId = null;
     public $selectedVendor = null;
+    
+    // SIMPLE alert properties
+    public $alertMessage = '';
+    public $alertType = '';
 
     public function filterVendors($vendorId)
     {
