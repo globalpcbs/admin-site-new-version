@@ -175,11 +175,11 @@
                                 <i class="fa fa-edit"></i> Edit 
                             </a>
                             <a href="https://files.pcbsglobal.website/download-pdf.php?id={{ $quote->ord_id }}&oper=download&name={{ ucfirst(Auth::user()->username) }}"
-                                class="btn btn-success btn-xs btn-sm"> <i class="fa fa-download"></i> Download PDF</a>
+                                class="btn btn-success btn-xs btn-sm"> <i class="fa fa-download"></i>  PDF</a>
                             <a href="https://files.pcbsglobal.website/download-pdf.php?id={{ $quote->ord_id }}&oper=view&name={{ ucfirst(Auth::user()->username) }}"
-                                class="btn btn-info btn-xs btn-sm" target="_blank"> <i class="fa fa-eye"></i> VIEW PDF</a>
+                                class="btn btn-info btn-xs btn-sm" target="_blank"> <i class="fa fa-eye"></i>  PDF</a>
                             <a href="https://files.pcbsglobal.website/download-doc.php?id={{ $quote->ord_id }}"
-                                class="btn btn-sm btn-xs btn-secondary">Download DOC</a>
+                                class="btn btn-sm btn-xs btn-secondary"> <i class="fa fa-file"></i> DOC</a>
                             <button wire:click="deleteQuote({{ $quote->ord_id }})" 
                                 wire:key="delete-{{ $quote->ord_id }}"
                                 wire:confirm="Are you sure you want to delete this quote?"
