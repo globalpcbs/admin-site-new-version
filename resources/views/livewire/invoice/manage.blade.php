@@ -164,7 +164,7 @@
                             <th><i class="fa fa-exclamation-circle"></i> Past <br /> Due</th>
                             <th><i class="fa fa-check-square-o"></i> Paid</th>
                             <th><i class="fa fa-envelope-o"></i> Stop <br /> Mails</th>
-                            <th>Action</th>
+                            <th> <i class="fa fa-envelope-o"></i> Action</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -228,11 +228,11 @@
                                 <a href="https://files.pcbsglobal.website/download-pdf2.php?id={{ $invoice->invoice_id }}&oper=download"
                                     class="btn btn-sm btn-success btn-xs"><i class="fa fa-download"></i> PDF</a>
                                 <a href="https://files.pcbsglobal.website/download-pdf2.php?id={{ $invoice->invoice_id }}&oper=view"
-                                    class="btn btn-sm btn-info btn-xs" target="_blank"><i class="fa fa-eye"></i> PDF</a>
+                                    class="btn btn-sm btn-info btn-xs" target="_blank"><i class="fa fa-eye"></i> View PDF</a>
                                                                    
                                 <button class="btn btn-sm btn-danger btn-xs"
                                     wire:click="delete({{ $invoice->invoice_id }})" wire:confirm="Are you sure You want to delete invoice?" wire:key="delete-{{ $invoice->invoice_id }}">
-                                    <i class="fa fa-trash"></i> Del
+                                    <i class="fa fa-trash"></i> Delete
                                 </button>
                                 <button class="btn btn-sm btn-warning btn-xs"
                                     wire:click="duplicate({{ $invoice->invoice_id }})" wire:key="duplicate-{{ $invoice->invoice_id }}">
