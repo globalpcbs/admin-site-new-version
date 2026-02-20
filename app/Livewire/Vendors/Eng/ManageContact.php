@@ -13,6 +13,10 @@ class ManageContact extends Component
     public $selectedVendor = null;
     public $confirmingDelete = false;
     public $deleteId = null;
+    
+    // SIMPLE alert properties
+    public $alertMessage = '';
+    public $alertType = '';
 
     public function filterVendors($vendorId)
     {
