@@ -51,44 +51,44 @@
             }
         </style>
 
-        @if (session()->has('success'))
-            <div
-                class="alert alert-success shadow"
-                style="
-                    position: fixed;
-                    top: 20px;
-                    right: 20px;
-                    z-index: 9999;
-                    min-width: 300px;
-                "
-                x-data="{ show: true }"
-                x-show="show"
-                x-transition
-                x-init="setTimeout(() => show = false, 3000)"
-            >
-                <i class="fa fa-check-circle"></i>
-                {{ session('success') }}
-            </div>
-        @endif
-        @if($alertMessage)
-            <div
-                class="alert alert-{{ $alertType }} shadow"
-                style="
-                    position: fixed;
-                    top: 20px;
-                    right: 20px;
-                    z-index: 9999;
-                    min-width: 300px;
-                "
-                x-data="{ show: true }"
-                x-show="show"
-                x-transition
-                x-init="setTimeout(() => { show = false; $wire.dispatch('alert-hidden') }, 3000)"
-            >
-                <i class="fa fa-{{ $alertType == 'success' ? 'check' : 'times' }}-circle"></i>
-                {{ $alertMessage }}
-            </div>
-        @endif
+               @if (session()->has('success'))
+        <div 
+            class="alert alert-success shadow"
+            style="
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                z-index: 9999;
+                min-width: 300px;
+            "
+            x-data="{ show: true }"
+            x-show="show"
+            x-transition
+            x-init="setTimeout(() => show = false, 3000)"
+        >
+            <i class="fa fa-check-circle"></i>
+            {{ session('success') }}
+        </div>
+    @endif
+    @if($alertMessage)
+        <div 
+            class="alert alert-{{ $alertType }} shadow"
+            style="
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                z-index: 9999;
+                min-width: 300px;
+            "
+            x-data="{ show: true }"
+            x-show="show"
+            x-transition
+            x-init="setTimeout(() => { show = false; $wire.dispatch('alert-hidden') }, 3000)"
+        >
+            <i class="fa fa-{{ $alertType == 'success' ? 'check' : 'times' }}-circle"></i> 
+            {{ $alertMessage }}
+        </div>
+    @endif
 
         <div class="container mt-4">
             <div class="card mb-4">
