@@ -231,7 +231,7 @@
                                     class="btn btn-sm btn-info btn-xs" target="_blank"><i class="fa fa-eye"></i> View PDF</a>
                                                                    
                                 <button class="btn btn-sm btn-danger btn-xs"
-                                    wire:click="delete({{ $invoice->invoice_id }})" wire:confirm="Are you sure You want to delete invoice?" wire:key="delete-{{ $invoice->invoice_id }}">
+                                    wire:click="delete({{ $invoice->invoice_id }})" wire:confirm="Are you sure you want to delete invoice?" wire:key="delete-{{ $invoice->invoice_id }}">
                                     <i class="fa fa-trash"></i> Delete
                                 </button>
                                 <button class="btn btn-sm btn-warning btn-xs"
