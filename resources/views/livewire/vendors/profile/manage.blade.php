@@ -70,7 +70,7 @@
                     </td>
                     <td>
                         <a href="{{ route('vendors.profile.edit',$vendor->profid) }}" class="btn btn-sm btn-success">
-                            <i class="fa fa-edit"></i> Edit
+                            <i class="fa fa-pencil"></i> Edit
                         </a>
                     </td>
                     <td>

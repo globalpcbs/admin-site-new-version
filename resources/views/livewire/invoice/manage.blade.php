@@ -223,7 +223,7 @@
 
                             <td>
                                  <a href="{{ route('invoice.edit',$invoice->invoice_id) }}">
-                                    <button class="btn btn-primary btn-xs"><i class="fa fa-edit"></i> Edit</button>
+                                    <button class="btn btn-primary btn-xs"><i class="fa fa-pencil"></i> Edit</button>
                                 </a>
                                 <a href="https://files.pcbsglobal.website/download-pdf2.php?id={{ $invoice->invoice_id }}&oper=download"
                                     class="btn btn-sm btn-success btn-xs"><i class="fa fa-download"></i> PDF</a>

@@ -134,7 +134,7 @@
                             <td>
                                 <a href="{{ route('packing.edit',$slip->invoice_id) }}">
                                     <button type="button" class="btn btn-sm btn-xs btn-primary">
-                                        <i class="fa fa-edit"></i> Edit
+                                        <i class="fa fa-pencil"></i> Edit
                                     </button>
                                 </a>
                                 <a href="https://files.pcbsglobal.website/download-pdf3.php?id={{ $slip->invoice_id }}&oper=download">

@@ -135,7 +135,7 @@
                                     
                                     <a href="{{ route('confirmation.edit',$order->poid) }}"
                                                                         class="btn btn-sm btn-xs btn-primary">
-                                        <i class="fa fa-edit"></i> Edit
+                                        <i class="fa fa-pencil"></i> Edit
                                     </a>
                                     <a href="https://files.pcbsglobal.website/download-pdf4.php?id={{ $order->poid }}&oper=download">
                                         <button class="btn btn-sm btn-xs btn-success">

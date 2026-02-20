@@ -144,7 +144,7 @@
                                     <td>{{ $credit->rev }}</td>
                                     <td>
                                         <a href="{{ route('credit.edit', $credit->credit_id) }}" class="btn btn-sm btn-xs btn-primary">
-                                            <i class="fa fa-edit"></i> Edit
+                                            <i class="fa fa-pencil"></i> Edit
                                         </a>
                                         
                                         <a href="https://files.pcbsglobal.website/downloadc-pdf2.php?id={{ $credit->credit_id }}&oper=download" target="_blank"
