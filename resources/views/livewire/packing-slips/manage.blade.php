@@ -149,7 +149,7 @@
                                 </a>
                                 <a href="https://files.pcbsglobal.website/download-doc3.php?id={{ $slip->invoice_id }}">
                                     <button type="button" class="btn btn-sm btn-xs btn-secondary">
-                                        <i class="fa fa-download"></i> Doc
+                                        <i class="fa fa-file-text"></i> DOC
                                     </button>
                                 </a>
                                 <button type="button" class="btn btn-sm btn-xs btn-danger"
