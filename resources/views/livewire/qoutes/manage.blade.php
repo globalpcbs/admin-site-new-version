@@ -39,7 +39,7 @@
         </div>
     @endif
 
-    <div class="container mt-4">
+    <div class="mt-4">
         <div class="card mb-4">
             <div class="card-header fw-bold">Search By</div>
             <div class="card-body">
@@ -177,7 +177,7 @@
                             <a href="https://files.pcbsglobal.website/download-pdf.php?id={{ $quote->ord_id }}&oper=download&name={{ ucfirst(Auth::user()->username) }}"
                                 class="btn btn-success btn-xs btn-sm"> <i class="fa fa-download"></i>  PDF</a>
                             <a href="https://files.pcbsglobal.website/download-pdf.php?id={{ $quote->ord_id }}&oper=view&name={{ ucfirst(Auth::user()->username) }}"
-                                class="btn btn-info btn-xs btn-sm" target="_blank"> <i class="fa fa-eye"></i>  PDF</a>
+                                class="btn btn-info btn-xs btn-sm" target="_blank"> <i class="fa fa-eye"></i> View  PDF</a>
                             <a href="https://files.pcbsglobal.website/download-doc.php?id={{ $quote->ord_id }}"
                                 class="btn btn-sm btn-xs btn-secondary"> <i class="fa fa-file"></i> DOC</a>
                             <button wire:click="deleteQuote({{ $quote->ord_id }})" 
