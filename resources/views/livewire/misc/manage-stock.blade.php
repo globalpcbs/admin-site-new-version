@@ -27,7 +27,7 @@
                 border: 1px solid #ddd;
                 border-radius: 4px;
                 box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-                z-index: 1050;
+                z-index: 1060; /* higher than button to avoid covering */
                 display: none;
                 font-size: 0.875rem;
             }
@@ -104,14 +104,16 @@
                                 <input type="text"
                                        class="form-control"
                                        id="partNoInput"
-                                       wire:model.live="searchPartNoInput"   {{-- Livewire 3: instant sync --}}
+                                       wire:model.live="searchPartNoInput"
+                                       wire:keydown.enter="searchq"  {{-- Livewire handles Enter --}}
                                        placeholder="Enter part number"
                                        autocomplete="off"
                                        onkeyup="showPartNoSuggestions(this.value)"
                                        onfocus="showPartNoSuggestions(this.value)"
                                        onkeydown="handlePartNoKeydown(event)" />
                                 <button class="btn btn-primary" type="button" wire:click="searchq" id="partNoSearchBtn">
-                                    <i class="fa fa-search"></i>
+                                    <i class="fa fa-search" wire:loading.remove></i>
+                                    <span wire:loading><i class="fa fa-spinner fa-spin"></i></span>
                                 </button>
                             </div>
                             <div id="partNoSuggestions" class="autocomplete-dropdown"></div>
@@ -125,14 +127,16 @@
                                 <input type="text"
                                        class="form-control"
                                        id="customerInput"
-                                       wire:model.live="searchCustomerInput" {{-- Livewire 3: instant sync --}}
+                                       wire:model.live="searchCustomerInput"
+                                       wire:keydown.enter="searchbyCustomer"  {{-- Livewire handles Enter --}}
                                        placeholder="Enter customer name"
                                        autocomplete="off"
                                        onkeyup="showCustomerSuggestions(this.value)"
                                        onfocus="showCustomerSuggestions(this.value)"
                                        onkeydown="handleCustomerKeydown(event)" />
                                 <button class="btn btn-primary" type="button" wire:click="searchbyCustomer" id="customerSearchBtn">
-                                    <i class="fa fa-search"></i>
+                                    <i class="fa fa-search" wire:loading.remove></i>
+                                    <span wire:loading><i class="fa fa-spinner fa-spin"></i></span>
                                 </button>
                             </div>
                             <div id="customerSuggestions" class="autocomplete-dropdown"></div>
@@ -140,7 +144,7 @@
 
                         <div class="col-lg-2">
                             <br />
-                            <button class="btn btn-info mt-2" wire:click="filterclose" onclick="resetInputFields()">
+                            <button class="btn btn-info mt-2" wire:click="filterclose">
                                 <i class="fa fa-rotate-right"></i> Reset Filter
                             </button>
                         </div>
@@ -296,58 +300,20 @@
         </div>
 
         <script>
-            // ==================== Livewire Search Fixes ====================
-            // 1. Replaced wire:model with wire:model.live for instant updates (Livewire 3).
-            // 2. Adjusted clear timeouts to give Livewire time to process the search.
-            // 3. Added event listeners to clear inputs after search completes (optional).
-            // 4. Ensure your Livewire component has methods: searchq(), searchbyCustomer(), filterclose().
-
             // Global variables
             let partNoSuggestions = [];
             let customerSuggestions = [];
             let selectedPartNoIndex = -1;
             let selectedCustomerIndex = -1;
 
-            // Helper functions to clear inputs after search
-            function clearPartNoInput() {
-                document.getElementById('partNoInput').value = '';
-                @this.set('searchPartNoInput', '');
-            }
-
-            function clearCustomerInput() {
-                document.getElementById('customerInput').value = '';
-                @this.set('searchCustomerInput', '');
-            }
-
-            // Reset inputs when filter close is clicked
-            function resetInputFields() {
-                document.getElementById('partNoInput').value = '';
-                document.getElementById('customerInput').value = '';
-                @this.set('searchPartNoInput', '');
-                @this.set('searchCustomerInput', '');
-            }
-
-            // Handle Part Number input keydown events
+            // Handle Part Number input keydown events (arrow keys, escape, tab)
             function handlePartNoKeydown(event) {
                 const dropdown = document.getElementById('partNoSuggestions');
                 const items = dropdown.getElementsByClassName('autocomplete-item');
                 const input = document.getElementById('partNoInput');
 
-                if (event.key === 'Enter') {
-                    event.preventDefault();
-                    if (selectedPartNoIndex >= 0 && items[selectedPartNoIndex]) {
-                        const selectedValue = partNoSuggestions[selectedPartNoIndex].part_no;
-                        selectPartNo(selectedValue);
-                    } else {
-                        input.blur();
-                        // Trigger Livewire search
-                        @this.searchq();
-                        // Clear input after a short delay to allow search to start
-                        setTimeout(clearPartNoInput, 300);
-                    }
-                    dropdown.style.display = 'none';
-                    selectedPartNoIndex = -1;
-                } else if (event.key === 'ArrowDown') {
+                // Let Livewire handle Enter via wire:keydown.enter
+                if (event.key === 'ArrowDown') {
                     event.preventDefault();
                     if (dropdown.style.display === 'block' && items.length > 0) {
                         selectedPartNoIndex = (selectedPartNoIndex + 1) % items.length;
@@ -360,7 +326,6 @@
                         updateSelection(items, selectedPartNoIndex);
                     }
                 } else if (event.key === 'Escape') {
-                    input.blur();
                     dropdown.style.display = 'none';
                     selectedPartNoIndex = -1;
                 } else if (event.key === 'Tab') {
@@ -375,19 +340,7 @@
                 const items = dropdown.getElementsByClassName('autocomplete-item');
                 const input = document.getElementById('customerInput');
 
-                if (event.key === 'Enter') {
-                    event.preventDefault();
-                    if (selectedCustomerIndex >= 0 && items[selectedCustomerIndex]) {
-                        const selectedValue = customerSuggestions[selectedCustomerIndex].customer;
-                        selectCustomer(selectedValue);
-                    } else {
-                        input.blur();
-                        @this.searchbyCustomer();
-                        setTimeout(clearCustomerInput, 300);
-                    }
-                    dropdown.style.display = 'none';
-                    selectedCustomerIndex = -1;
-                } else if (event.key === 'ArrowDown') {
+                if (event.key === 'ArrowDown') {
                     event.preventDefault();
                     if (dropdown.style.display === 'block' && items.length > 0) {
                         selectedCustomerIndex = (selectedCustomerIndex + 1) % items.length;
@@ -400,7 +353,6 @@
                         updateSelection(items, selectedCustomerIndex);
                     }
                 } else if (event.key === 'Escape') {
-                    input.blur();
                     dropdown.style.display = 'none';
                     selectedCustomerIndex = -1;
                 } else if (event.key === 'Tab') {
@@ -421,7 +373,7 @@
                 }
             }
 
-            // Fetch part number suggestions from server for stock
+            // Fetch part number suggestions from server
             async function fetchPartNoSuggestions(query) {
                 if (query.length < 2) return [];
                 try {
@@ -433,7 +385,7 @@
                 }
             }
 
-            // Fetch customer suggestions from server for stock
+            // Fetch customer suggestions from server
             async function fetchCustomerSuggestions(query) {
                 if (query.length < 2) return [];
                 try {
@@ -521,12 +473,9 @@
                 document.getElementById('partNoSuggestions').style.display = 'none';
                 selectedPartNoIndex = -1;
 
-                // Update Livewire property and search immediately
+                // Update Livewire property and trigger search
                 @this.set('searchPartNoInput', partNo);
-                setTimeout(() => {
-                    @this.searchq();
-                    setTimeout(clearPartNoInput, 300);
-                }, 50);
+                @this.searchq(); // Immediate search
             }
 
             // Select customer from dropdown
@@ -537,12 +486,9 @@
                 document.getElementById('customerSuggestions').style.display = 'none';
                 selectedCustomerIndex = -1;
 
-                // Update Livewire property and search immediately
+                // Update Livewire property and trigger search
                 @this.set('searchCustomerInput', customerName);
-                setTimeout(() => {
-                    @this.searchbyCustomer();
-                    setTimeout(clearCustomerInput, 300);
-                }, 50);
+                @this.searchbyCustomer();
             }
 
             // Hide dropdowns when clicking outside
@@ -553,18 +499,6 @@
                     selectedPartNoIndex = -1;
                     selectedCustomerIndex = -1;
                 }
-            });
-
-            // Clear inputs after clicking search buttons (with a delay to let search run)
-            document.getElementById('partNoSearchBtn').addEventListener('click', function() {
-                document.getElementById('partNoInput').blur();
-                // The Livewire search is triggered by wire:click, so we just clear after a moment
-                setTimeout(clearPartNoInput, 400);
-            });
-
-            document.getElementById('customerSearchBtn').addEventListener('click', function() {
-                document.getElementById('customerInput').blur();
-                setTimeout(clearCustomerInput, 400);
             });
 
             // Initialize - hide dropdowns on page load
