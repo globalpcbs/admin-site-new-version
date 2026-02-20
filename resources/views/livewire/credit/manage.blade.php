@@ -39,7 +39,7 @@
         </div>
     @endif
 
-    <div class="container py-4">
+    <div class="py-4">
         <div class="card mb-4">
             <div class="card-header fw-bold">Search By</div>
             <div class="card-body">
