@@ -84,7 +84,7 @@
         }
     </style>
 
-    <div class="container mt-4">
+    <div class="mt-4">
         <div class="card mb-4">
             <div class="card-header fw-bold">Search By</div>
             <div class="card-body">
@@ -164,7 +164,7 @@
                             <th><i class="fa fa-exclamation-circle"></i> Past <br /> Due</th>
                             <th><i class="fa fa-check-square-o"></i> Paid</th>
                             <th><i class="fa fa-envelope-o"></i> Stop <br /> Mails</th>
-                            <th>Act</th>
+                            <th>Action</th>
                         </tr>
                     </thead>
                     <tbody>
