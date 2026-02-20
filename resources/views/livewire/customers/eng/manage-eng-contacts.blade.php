@@ -85,7 +85,7 @@
                                         </td>
                                         <td>
                                             <button wire:click="deleteCustomer({{ $contact->enggcont_id }})"
-                                                class="btn btn-sm btn-danger" wire:confirm="Are you sure you want to delete eng contact?" wire:key="delete-{{ $contact->enggcont_id }}">
+                                                class="btn btn-sm btn-danger" wire:confirm="Are you sure you want to delete this engineering contact?" wire:key="delete-{{ $contact->enggcont_id }}">
                                                 <i class="fas fa-trash-alt"></i> Delete
                                             </button>
                                         </td>
