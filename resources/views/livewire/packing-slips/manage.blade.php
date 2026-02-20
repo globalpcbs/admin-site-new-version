@@ -139,12 +139,12 @@
                                 </a>
                                 <a href="https://files.pcbsglobal.website/download-pdf3.php?id={{ $slip->invoice_id }}&oper=download">
                                     <button type="button" class="btn btn-sm btn-xs btn-success">
-                                        <i class="fa fa-download"></i>  pdf
+                                        <i class="fa fa-download"></i>  PDF
                                     </button>
                                 </a>
                                 <a href="https://files.pcbsglobal.website/download-pdf3.php?id={{ $slip->invoice_id }}&oper=view" target="_blank">
                                     <button type="button" class="btn btn-sm btn-xs btn-info">
-                                        <i class="fa fa-eye"></i> Pdf
+                                        <i class="fa fa-eye"></i> View PDF
                                     </button>
                                 </a>
                                 <a href="https://files.pcbsglobal.website/download-doc3.php?id={{ $slip->invoice_id }}">
@@ -154,7 +154,7 @@
                                 </a>
                                 <button type="button" class="btn btn-sm btn-xs btn-danger"
                                     wire:click="deletePackingSlip({{ $slip->invoice_id }})" wire:confirm="Are you sure You want to delete packing slip?" wire:key="delete-{{ $slip->invoice_id }}">
-                                    <i class="fa fa-trash"></i> Del
+                                    <i class="fa fa-trash"></i> Delete
                                 </button>
                                 <button type="button" class="btn btn-sm btn-xs btn-secondary"
                                     wire:click="duplicate({{ $slip->invoice_id }})" wire:key="duplicate-{{ $slip->invoice_id }}">
