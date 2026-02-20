@@ -79,7 +79,7 @@
                             <td>{{ $contact->lastname }}</td>
                             <td><a href="{{ route('vendors.main.edit',$contact->enggcont_id) }}" class="btn btn-success btn-sm text-white"> <i class="fa fa-pencil"></i> Edit</a></td>
                             <td>
-                                <a href="#" wire:click.prevent="deleteContact({{ $contact->enggcont_id }})" wire:confirm="Are you sure You want to delete this main contact?" wire:key="delete-{{ $contact->enggcont_id }}" class="btn btn-danger btn-sm text-white">
+                                <a href="#" wire:click.prevent="deleteContact({{ $contact->enggcont_id }})" wire:confirm="Are you sure you want to delete this main contact?" wire:key="delete-{{ $contact->enggcont_id }}" class="btn btn-danger btn-sm text-white">
                                    <i class="fa fa-trash"></i> Delete
                                 </a>
                             </td>

@@ -27,7 +27,7 @@
                 border: 1px solid #ddd;
                 border-radius: 4px;
                 box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-                z-index: 1060; /* higher than button to avoid covering */
+                z-index: 1060;
                 display: none;
                 font-size: 0.875rem;
             }
@@ -105,7 +105,7 @@
                                        class="form-control"
                                        id="partNoInput"
                                        wire:model.live="searchPartNoInput"
-                                       wire:keydown.enter="searchq"  {{-- Livewire handles Enter --}}
+                                       wire:keydown.enter="searchq"
                                        placeholder="Enter part number"
                                        autocomplete="off"
                                        onkeyup="showPartNoSuggestions(this.value)"
@@ -128,7 +128,7 @@
                                        class="form-control"
                                        id="customerInput"
                                        wire:model.live="searchCustomerInput"
-                                       wire:keydown.enter="searchbyCustomer"  {{-- Livewire handles Enter --}}
+                                       wire:keydown.enter="searchbyCustomer"
                                        placeholder="Enter customer name"
                                        autocomplete="off"
                                        onkeyup="showCustomerSuggestions(this.value)"
@@ -310,9 +310,7 @@
             function handlePartNoKeydown(event) {
                 const dropdown = document.getElementById('partNoSuggestions');
                 const items = dropdown.getElementsByClassName('autocomplete-item');
-                const input = document.getElementById('partNoInput');
 
-                // Let Livewire handle Enter via wire:keydown.enter
                 if (event.key === 'ArrowDown') {
                     event.preventDefault();
                     if (dropdown.style.display === 'block' && items.length > 0) {
@@ -338,7 +336,6 @@
             function handleCustomerKeydown(event) {
                 const dropdown = document.getElementById('customerSuggestions');
                 const items = dropdown.getElementsByClassName('autocomplete-item');
-                const input = document.getElementById('customerInput');
 
                 if (event.key === 'ArrowDown') {
                     event.preventDefault();
@@ -475,7 +472,7 @@
 
                 // Update Livewire property and trigger search
                 @this.set('searchPartNoInput', partNo);
-                @this.searchq(); // Immediate search
+                @this.searchq();
             }
 
             // Select customer from dropdown
