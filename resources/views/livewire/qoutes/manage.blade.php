@@ -172,7 +172,7 @@
                         <td>{{ \Carbon\Carbon::parse($quote->ord_date)->format('m/d/Y') }}</td>
                         <td>
                             <a href="{{ route('qoutes.edit',$quote->ord_id) }}" class="btn btn-primary btn-xs btn-sm">
-                                <i class="fa fa-edit"></i> Edit 
+                                <i class="fa fa-pencil"></i> Edit 
                             </a>
                             <a href="https://files.pcbsglobal.website/download-pdf.php?id={{ $quote->ord_id }}&oper=download&name={{ ucfirst(Auth::user()->username) }}"
                                 class="btn btn-success btn-xs btn-sm"> <i class="fa fa-download"></i>  PDF</a>
