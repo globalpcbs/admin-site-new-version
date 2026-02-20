@@ -96,7 +96,7 @@
                         <strong>Quote Needed by: </strong>
                         <input name="txtquote" wire:model="quote_by" size="10" />
                         <strong> NRE Charge: </strong>
-                        <input size="3" type="text" name="necharge" wire:model.live="necharge" wire:key="nre-{{ $new_or_rep }}" @if($new_or_rep == "Repeat Order") readonly @endif>
+                        <input size="3" type="text" name="necharge" wire:model.live="necharge" wire:key="nre-{{ $new_or_rep }}" @if($new_or_rep == "Repeat Order") disabled @endif>
                         Select Misc :
                         <select name="txtmisc" wire:model="selectedMisc" onchange="getmisc();"
                             wire:change="showMiscField">

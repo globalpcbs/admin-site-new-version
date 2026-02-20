@@ -51,44 +51,45 @@
             }
         </style>
 
-               @if (session()->has('success'))
-        <div 
-            class="alert alert-success shadow"
-            style="
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                z-index: 9999;
-                min-width: 300px;
-            "
-            x-data="{ show: true }"
-            x-show="show"
-            x-transition
-            x-init="setTimeout(() => show = false, 3000)"
-        >
-            <i class="fa fa-check-circle"></i>
-            {{ session('success') }}
-        </div>
-    @endif
-    @if($alertMessage)
-        <div 
-            class="alert alert-{{ $alertType }} shadow"
-            style="
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                z-index: 9999;
-                min-width: 300px;
-            "
-            x-data="{ show: true }"
-            x-show="show"
-            x-transition
-            x-init="setTimeout(() => { show = false; $wire.dispatch('alert-hidden') }, 3000)"
-        >
-            <i class="fa fa-{{ $alertType == 'success' ? 'check' : 'times' }}-circle"></i> 
-            {{ $alertMessage }}
-        </div>
-    @endif
+        @if (session()->has('success'))
+            <div 
+                class="alert alert-success shadow"
+                style="
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    z-index: 9999;
+                    min-width: 300px;
+                "
+                x-data="{ show: true }"
+                x-show="show"
+                x-transition
+                x-init="setTimeout(() => show = false, 3000)"
+            >
+                <i class="fa fa-check-circle"></i>
+                {{ session('success') }}
+            </div>
+        @endif
+
+        @if($alertMessage)
+            <div 
+                class="alert alert-{{ $alertType }} shadow"
+                style="
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    z-index: 9999;
+                    min-width: 300px;
+                "
+                x-data="{ show: true }"
+                x-show="show"
+                x-transition
+                x-init="setTimeout(() => { show = false; $wire.dispatch('alert-hidden') }, 3000)"
+            >
+                <i class="fa fa-{{ $alertType == 'success' ? 'check' : 'times' }}-circle"></i> 
+                {{ $alertMessage }}
+            </div>
+        @endif
 
         <div class="container mt-4">
             <div class="card mb-4">
@@ -103,7 +104,7 @@
                                 <input type="text"
                                        class="form-control"
                                        id="partNoInput"
-                                       wire:model="searchPartNoInput"
+                                       wire:model.live="searchPartNoInput"   {{-- Livewire 3: instant sync --}}
                                        placeholder="Enter part number"
                                        autocomplete="off"
                                        onkeyup="showPartNoSuggestions(this.value)"
@@ -124,7 +125,7 @@
                                 <input type="text"
                                        class="form-control"
                                        id="customerInput"
-                                       wire:model="searchCustomerInput"
+                                       wire:model.live="searchCustomerInput" {{-- Livewire 3: instant sync --}}
                                        placeholder="Enter customer name"
                                        autocomplete="off"
                                        onkeyup="showCustomerSuggestions(this.value)"
@@ -295,13 +296,19 @@
         </div>
 
         <script>
+            // ==================== Livewire Search Fixes ====================
+            // 1. Replaced wire:model with wire:model.live for instant updates (Livewire 3).
+            // 2. Adjusted clear timeouts to give Livewire time to process the search.
+            // 3. Added event listeners to clear inputs after search completes (optional).
+            // 4. Ensure your Livewire component has methods: searchq(), searchbyCustomer(), filterclose().
+
             // Global variables
             let partNoSuggestions = [];
             let customerSuggestions = [];
             let selectedPartNoIndex = -1;
             let selectedCustomerIndex = -1;
 
-            // ==================== Helper functions to clear inputs after search ====================
+            // Helper functions to clear inputs after search
             function clearPartNoInput() {
                 document.getElementById('partNoInput').value = '';
                 @this.set('searchPartNoInput', '');
@@ -311,7 +318,6 @@
                 document.getElementById('customerInput').value = '';
                 @this.set('searchCustomerInput', '');
             }
-            // ==========================================================================================
 
             // Reset inputs when filter close is clicked
             function resetInputFields() {
@@ -330,14 +336,14 @@
                 if (event.key === 'Enter') {
                     event.preventDefault();
                     if (selectedPartNoIndex >= 0 && items[selectedPartNoIndex]) {
-                        // Select from dropdown
                         const selectedValue = partNoSuggestions[selectedPartNoIndex].part_no;
                         selectPartNo(selectedValue);
                     } else {
-                        // Perform search with current input value, then clear
                         input.blur();
-                        document.getElementById('partNoSearchBtn').click();
-                        setTimeout(clearPartNoInput, 200);
+                        // Trigger Livewire search
+                        @this.searchq();
+                        // Clear input after a short delay to allow search to start
+                        setTimeout(clearPartNoInput, 300);
                     }
                     dropdown.style.display = 'none';
                     selectedPartNoIndex = -1;
@@ -372,15 +378,12 @@
                 if (event.key === 'Enter') {
                     event.preventDefault();
                     if (selectedCustomerIndex >= 0 && items[selectedCustomerIndex]) {
-                        // Select from dropdown
-                        // FIX: Use 'customer' field (API returns { customer: "..." })
                         const selectedValue = customerSuggestions[selectedCustomerIndex].customer;
                         selectCustomer(selectedValue);
                     } else {
-                        // Perform search with current input value, then clear
                         input.blur();
-                        document.getElementById('customerSearchBtn').click();
-                        setTimeout(clearCustomerInput, 200);
+                        @this.searchbyCustomer();
+                        setTimeout(clearCustomerInput, 300);
                     }
                     dropdown.style.display = 'none';
                     selectedCustomerIndex = -1;
@@ -420,13 +423,10 @@
 
             // Fetch part number suggestions from server for stock
             async function fetchPartNoSuggestions(query) {
-                if (query.length < 2) {
-                    return [];
-                }
+                if (query.length < 2) return [];
                 try {
                     const response = await fetch(`/api/stock-partno-suggestions?q=${encodeURIComponent(query)}`);
-                    const data = await response.json();
-                    return data;
+                    return await response.json();
                 } catch (error) {
                     console.error('Error fetching part number suggestions:', error);
                     return [];
@@ -435,13 +435,10 @@
 
             // Fetch customer suggestions from server for stock
             async function fetchCustomerSuggestions(query) {
-                if (query.length < 2) {
-                    return [];
-                }
+                if (query.length < 2) return [];
                 try {
                     const response = await fetch(`/api/stock-customer-suggestions?q=${encodeURIComponent(query)}`);
-                    const data = await response.json();
-                    return data;
+                    return await response.json();
                 } catch (error) {
                     console.error('Error fetching customer suggestions:', error);
                     return [];
@@ -488,7 +485,6 @@
                 customerSuggestions = await fetchCustomerSuggestions(query);
 
                 if (customerSuggestions.length > 0) {
-                    // FIX: Use 'customer' field for display and onclick
                     dropdown.innerHTML = customerSuggestions.map((item, index) =>
                         `<div class="autocomplete-item"
                              onclick="selectCustomer('${item.customer.replace(/'/g, "\\'")}')"
@@ -529,8 +525,8 @@
                 @this.set('searchPartNoInput', partNo);
                 setTimeout(() => {
                     @this.searchq();
-                    setTimeout(clearPartNoInput, 150);
-                }, 100);
+                    setTimeout(clearPartNoInput, 300);
+                }, 50);
             }
 
             // Select customer from dropdown
@@ -545,8 +541,8 @@
                 @this.set('searchCustomerInput', customerName);
                 setTimeout(() => {
                     @this.searchbyCustomer();
-                    setTimeout(clearCustomerInput, 150);
-                }, 100);
+                    setTimeout(clearCustomerInput, 300);
+                }, 50);
             }
 
             // Hide dropdowns when clicking outside
@@ -559,15 +555,16 @@
                 }
             });
 
-            // Clear inputs after clicking search buttons
+            // Clear inputs after clicking search buttons (with a delay to let search run)
             document.getElementById('partNoSearchBtn').addEventListener('click', function() {
                 document.getElementById('partNoInput').blur();
-                setTimeout(clearPartNoInput, 250);
+                // The Livewire search is triggered by wire:click, so we just clear after a moment
+                setTimeout(clearPartNoInput, 400);
             });
 
             document.getElementById('customerSearchBtn').addEventListener('click', function() {
                 document.getElementById('customerInput').blur();
-                setTimeout(clearCustomerInput, 250);
+                setTimeout(clearCustomerInput, 400);
             });
 
             // Initialize - hide dropdowns on page load

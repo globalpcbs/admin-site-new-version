@@ -40,19 +40,31 @@ class ManageStock extends Component
         $this->resetPage(); 
     }
 
-    // Alpine.js compatible search methods
+    /**
+     * Search by part number – resets the customer filter and its input.
+     */
     public function searchq()
     {
         $this->searchPartNo = $this->searchPartNoInput;
+        $this->searchCustomer = '';           // clear the actual customer filter
+        $this->searchCustomerInput = '';       // clear the customer input field
         $this->resetPage();
     }
 
+    /**
+     * Search by customer name – resets the part number filter and its input.
+     */
     public function searchbyCustomer()
     {
         $this->searchCustomer = $this->searchCustomerInput;
+        $this->searchPartNo = '';              // clear the actual part number filter
+        $this->searchPartNoInput = '';          // clear the part number input field
         $this->resetPage();
     }
 
+    /**
+     * Reset all filters and inputs.
+     */
     public function filterclose()
     {
         $this->reset([
