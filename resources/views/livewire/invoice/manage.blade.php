@@ -1,28 +1,41 @@
 <div>
     <div>
-    @if(session('success'))
-        <div class="alert alert-success alert-dismissible fade show" id="successAlert">
-            <i class="fa fa-check-square"></i>  {{ session('success') }}
+            @if (session()->has('success'))
+        <div 
+            class="alert alert-success shadow"
+            style="
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                z-index: 9999;
+                min-width: 300px;
+            "
+            x-data="{ show: true }"
+            x-show="show"
+            x-transition
+            x-init="setTimeout(() => show = false, 3000)"
+        >
+            <i class="fa fa-check-circle"></i>
+            {{ session('success') }}
         </div>
-        
-        <script>
-            setTimeout(() => {
-                const alert = document.getElementById('successAlert');
-                alert.classList.remove('show');
-                setTimeout(() => alert.style.display = 'none', 150);
-            }, 3000);
-        </script>
     @endif
-    
-    @if($alertMessage)
-        <div class="container mt-2">
-            <div class="alert alert-{{ $alertType }}" 
-                x-data="{ show: true }" 
-                x-show="show"
-                x-init="setTimeout(() => { show = false; $wire.dispatch('alert-hidden') }, 3000)">
-                <i class="fa fa-{{ $alertType == 'success' ? 'check' : 'times' }}-circle"></i> 
-                {{ $alertMessage }}
-            </div>
+      @if($alertMessage)
+        <div 
+            class="alert alert-{{ $alertType }} shadow"
+            style="
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                z-index: 9999;
+                min-width: 300px;
+            "
+            x-data="{ show: true }"
+            x-show="show"
+            x-transition
+            x-init="setTimeout(() => { show = false; $wire.dispatch('alert-hidden') }, 3000)"
+        >
+            <i class="fa fa-{{ $alertType == 'success' ? 'check' : 'times' }}-circle"></i> 
+            {{ $alertMessage }}
         </div>
     @endif
 
@@ -128,15 +141,18 @@
             </div>
         </div>
 
-        <div class="card">
-            <div class="card-header">
-               <b> <i class="fa fa-list"></i> Manage Invoice</b>
-                <i class="fa fa-spin fa-spinner float-end" wire:loading></i>
+        <div class="card" style="overflow: hidden;">
+            <div class="card-header bg-primary text-white">
+                <h5>
+                    <b>
+                        <i class="fa fa-list"></i> Manage Invoice
+                        <i class="fa fa-spin fa-spinner float-end" wire:loading></i>
+                    </b>
+                </h5>
             </div>
             
             <!-- Invoice Table -->
-            <div class="table-responsive">
-                <table class="table table-bordered table-hover table-striped align-middle table-sm">
+            <table class="table table-bordered table-hover table-striped align-middle table-sm">
                     <thead class="table-light">
                         <tr>
                             <th><i class="fa fa-key"></i> ID</th>
@@ -212,11 +228,11 @@
                                 <a href="https://files.pcbsglobal.website/download-pdf2.php?id={{ $invoice->invoice_id }}&oper=download"
                                     class="btn btn-sm btn-success btn-xs"><i class="fa fa-download"></i> PDF</a>
                                 <a href="https://files.pcbsglobal.website/download-pdf2.php?id={{ $invoice->invoice_id }}&oper=view"
-                                    class="btn btn-sm btn-info btn-xs" target="_blank"><i class="fa fa-eye"></i> View PDF</a>
+                                    class="btn btn-sm btn-info btn-xs" target="_blank"><i class="fa fa-eye"></i> PDF</a>
                                                                    
                                 <button class="btn btn-sm btn-danger btn-xs"
                                     wire:click="delete({{ $invoice->invoice_id }})" wire:confirm="Are you sure You want to delete invoice?" wire:key="delete-{{ $invoice->invoice_id }}">
-                                    <i class="fa fa-trash"></i> Delete
+                                    <i class="fa fa-trash"></i> Del
                                 </button>
                                 <button class="btn btn-sm btn-warning btn-xs"
                                     wire:click="duplicate({{ $invoice->invoice_id }})" wire:key="duplicate-{{ $invoice->invoice_id }}">
@@ -231,7 +247,6 @@
                         @endforelse
                     </tbody>
                 </table>
-            </div>
 
             <!-- Pagination -->
             <div class="d-flex justify-content-center mt-4">

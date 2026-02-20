@@ -16,6 +16,8 @@ class Manage extends Component
     public $username;
     public $password;
     public $password_confirmation;
+    public $alertMessage = '';
+    public $alertType = '';
 
     public function confirmDelete($id)
     {
@@ -23,11 +25,15 @@ class Manage extends Component
         $this->userIdBeingDeleted = $id;
     }
 
-    public function deleteUser()
+    public function deleteUser($id)
     {
-        User::findOrFail($this->userIdBeingDeleted)->delete();
+        User::findOrFail($id)->delete();
         $this->confirmingDelete = false;
-        session()->flash('success', 'User deleted successfully.');
+        $this->alertMessage = 'User deleted successfully.';
+        $this->alertType = 'danger';
+        
+        // Clear alert after a short delay by forcing a re-render
+      //  $this->dispatch('refresh-component');
     }
 
     public function editUser($id)

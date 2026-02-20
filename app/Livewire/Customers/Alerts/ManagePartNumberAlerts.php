@@ -23,6 +23,8 @@ class ManagePartNumberAlerts extends Component
 
     public int $perPage = 50;
     public int $page    = 1;
+    public $alertMessage;
+    public $alertType;
 
     /* Keep filters in URL */
     protected $queryString = [
@@ -31,24 +33,50 @@ class ManagePartNumberAlerts extends Component
         'page'           => ['except' => 1],
     ];
 
+    protected function getListeners()
+    {
+        return [
+            'alert-hidden' => 'clearAlert',
+        ];
+    }
+
+    public function clearAlert()
+    {
+        $this->alertMessage = '';
+        $this->alertType = '';
+    }
+
     /* ────── Search methods ────── */
     public function searchq(): void
     {
+        // Reset customer filter and clear its input
+        $this->searchCustomer = '';
+        $this->searchCustomerInput = '';
+        $this->matches_customer = [];
+        $this->dispatch('clear-customer-search'); // Clear Alpine customer field
+
         $this->searchPartNo = $this->searchPartNoInput;
         $this->resetPage();
-        $this->matches_partno = []; // Clear dropdown
+        $this->matches_partno = [];
     }
 
     public function searchbyCustomer(): void
     {
+        // Reset part number filter and clear its input
+        $this->searchPartNo = '';
+        $this->searchPartNoInput = '';
+        $this->matches_partno = [];
+        $this->dispatch('clear-part-search'); // Clear Alpine part field
+
         $this->searchCustomer = $this->searchCustomerInput;
         $this->resetPage();
-        $this->matches_customer = []; // Clear dropdown
+        $this->matches_customer = [];
     }
 
-    /* ────── Enter key handlers ────── */
+    /* ────── Enter key handlers (kept for reference, but Alpine handles Enter now) ────── */
     public function onPartInputEnter(): void
     {
+        $this->resetPage();
         $this->searchq();
     }
 
@@ -98,15 +126,15 @@ class ManagePartNumberAlerts extends Component
     public function useMatchpn($index): void
     {
         $this->searchPartNoInput = $this->matches_partno[$index]['part_no'];
-        $this->matches_partno = []; // Clear dropdown immediately
-        $this->searchq(); // Auto-search after selection
+        $this->matches_partno = [];
+        $this->searchq();
     }
 
     public function useMatch($index): void
     {
         $this->searchCustomerInput = $this->matches_customer[$index]['customer'];
-        $this->matches_customer = []; // Clear dropdown immediately
-        $this->searchbyCustomer(); // Auto-search after selection
+        $this->matches_customer = [];
+        $this->searchbyCustomer();
     }
 
     /* ────── Clear filters ────── */
@@ -121,6 +149,9 @@ class ManagePartNumberAlerts extends Component
             'matches_customer'
         ]);
         $this->resetPage();
+        // Also clear Alpine fields
+        $this->dispatch('clear-part-search');
+        $this->dispatch('clear-customer-search');
     }
 
     /* ────── Core grouped query ────── */
@@ -157,7 +188,8 @@ class ManagePartNumberAlerts extends Component
 
         $this->resetPage();
 
-        session()->flash('warning', 'Alert group deleted successfully.');
+        $this->alertMessage = 'Part Number Alert deleted successfully.';
+        $this->alertType = 'danger';
     }
 
     /* ────── Render ────── */

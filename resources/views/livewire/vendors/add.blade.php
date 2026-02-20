@@ -1,6 +1,6 @@
 <div>
         @include('includes.flash')
-        <form wire:submit.prevent="submit">
+        <form wire:submit.prevent="submit" onkeydown="if(event.key === 'Enter') event.preventDefault();">
             <div class="card">
                 <div class="card-header bg-primary text-white">
                     <i class="fa fa-plus-circle"></i> Add Vendor

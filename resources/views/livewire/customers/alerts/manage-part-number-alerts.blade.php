@@ -1,5 +1,23 @@
 <div>
-    @include('includes.flash')
+    @if($alertMessage)
+        <div 
+            class="alert alert-{{ $alertType }} shadow"
+            style="
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                z-index: 9999;
+                min-width: 300px;
+            "
+            x-data="{ show: true }"
+            x-show="show"
+            x-transition
+            x-init="setTimeout(() => { show = false; $wire.dispatch('alert-hidden') }, 3000)"
+        >
+            <i class="fa fa-{{ $alertType == 'success' ? 'check' : 'times' }}-circle"></i> 
+            {{ $alertMessage }}
+        </div>
+    @endif
 
     <div class="container mt-4">
         <div class="card mb-4">
@@ -7,26 +25,49 @@
             <div class="card-body">
                 <div class="row g-3">
                     <!-- Search by Part Number -->
-                    <div class="col-lg-5">
+                    <div class="col-lg-5" 
+                         x-data="{
+                             partNo: '',
+                             updateMatches() {
+                                 if (this.partNo.length >= 2) {
+                                     @this.usekeyupno(this.partNo)
+                                 } else {
+                                     @this.set('matches_partno', [])
+                                 }
+                             },
+                             search() {
+                                 let val = this.partNo;
+                                 if (val.trim() === '') return;
+                                 @this.set('searchPartNoInput', val).then(() => {
+                                     @this.searchq();
+                                 });
+                                 this.partNo = ''; // clear own input
+                             },
+                             selectSuggestion(value) {
+                                 this.partNo = value;
+                                 this.search();
+                             }
+                         }"
+                         x-on:clear-part-search.window="partNo = ''">
                         <label><i class="fa fa-cogs"></i> Search by Part Number:</label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-barcode"></i></span>
-                            <input type="text" class="form-control" wire:model="searchPartNoInput"
-                                placeholder="Enter part number" 
-                                wire:keydown.enter="searchq"
-                                wire:keyup="usekeyupno($event.target.value)" 
-                                wire:key="searchPartNoInput-{{ now()->timestamp }}" />
-                            <button class="btn btn-primary" type="button" wire:click="searchq">
+                            <input type="text" class="form-control" x-model="partNo"
+                                   placeholder="Enter part number"
+                                   @keyup="updateMatches"
+                                   @keydown.enter="search">
+                            <button class="btn btn-primary" type="button" @click="search">
                                 <i class="fa fa-search"></i>
                             </button>
                         </div>
-                        <div wire:ignore.self>
+                        <div>
                             @if($matches_partno && count($matches_partno) > 0)
                                 <ul class="list-group position-absolute w-100 shadow-sm"
                                     style="z-index:1050; max-height:220px; overflow-y:auto;">
                                     @foreach($matches_partno as $i => $m)
-                                        <li wire:key="match-partno-{{ $i }}" class="list-group-item list-group-item-action"
-                                            wire:click="useMatchpn({{ $i }})">
+                                        <li wire:key="match-partno-{{ $i }}"
+                                            class="list-group-item list-group-item-action"
+                                            x-on:click="selectSuggestion('{{ $m['part_no'] }}')">
                                             {{ $m['part_no'] }}
                                         </li>
                                     @endforeach
@@ -36,26 +77,49 @@
                     </div>
 
                     <!-- Search by Customer Name -->
-                    <div class="col-lg-5">
+                    <div class="col-lg-5"
+                         x-data="{
+                             customerName: '',
+                             updateMatches() {
+                                 if (this.customerName.length >= 2) {
+                                     @this.onKeyUp(this.customerName)
+                                 } else {
+                                     @this.set('matches_customer', [])
+                                 }
+                             },
+                             search() {
+                                 let val = this.customerName;
+                                 if (val.trim() === '') return;
+                                 @this.set('searchCustomerInput', val).then(() => {
+                                     @this.searchbyCustomer();
+                                 });
+                                 this.customerName = ''; // clear own input
+                             },
+                             selectSuggestion(value) {
+                                 this.customerName = value;
+                                 this.search();
+                             }
+                         }"
+                         x-on:clear-customer-search.window="customerName = ''">
                         <label><i class="fa fa-user"></i> Search by Customer Name:</label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-user"></i></span>
-                            <input type="text" class="form-control" wire:model="searchCustomerInput"
-                                placeholder="Enter customer name" 
-                                wire:keydown.enter="searchbyCustomer"
-                                wire:keyup="onKeyUp($event.target.value)" 
-                                wire:key="searchCustomerInput-{{ now()->timestamp }}">
-                            <button class="btn btn-primary" type="button" wire:click="searchbyCustomer">
+                            <input type="text" class="form-control" x-model="customerName"
+                                   placeholder="Enter customer name"
+                                   @keyup="updateMatches"
+                                   @keydown.enter="search">
+                            <button class="btn btn-primary" type="button" @click="search">
                                 <i class="fa fa-search"></i>
                             </button>
                         </div>
-                        <div wire:ignore.self>
+                        <div>
                             @if($matches_customer && count($matches_customer) > 0)
                                 <ul class="list-group position-absolute w-100 shadow-sm"
                                     style="z-index:1050; max-height:220px; overflow-y:auto;">
                                     @foreach($matches_customer as $i => $m)
-                                        <li wire:key="match-customer-{{ $i }}" class="list-group-item list-group-item-action"
-                                            wire:click="useMatch({{ $i }})">
+                                        <li wire:key="match-customer-{{ $i }}"
+                                            class="list-group-item list-group-item-action"
+                                            x-on:click="selectSuggestion('{{ $m['customer'] }}')">
                                             {{ $m['customer'] }}
                                         </li>
                                     @endforeach
@@ -63,6 +127,7 @@
                             @endif
                         </div>
                     </div>
+
                     <div class="col-lg-2">
                         <br />
                         <button class="btn btn-info mt-2" wire:click="filterclose">
@@ -73,7 +138,7 @@
             </div>
         </div>
 
-        <!-- 📋 Results table -->
+        <!-- 📋 Results table (unchanged) -->
         <div class="card shadow-sm">
             <div class="card-header bg-primary text-white fw-bold">
                 Manage Part‑Number Alerts - testing

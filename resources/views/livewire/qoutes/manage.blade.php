@@ -1,27 +1,41 @@
 <div>
     <div>
-    @if(session('success'))
-        <div class="alert alert-success alert-dismissible fade show" id="successAlert">
-            <i class="fa fa-check-square"></i>  {{ session('success') }}
+        @if (session()->has('success'))
+        <div 
+            class="alert alert-success shadow"
+            style="
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                z-index: 9999;
+                min-width: 300px;
+            "
+            x-data="{ show: true }"
+            x-show="show"
+            x-transition
+            x-init="setTimeout(() => show = false, 3000)"
+        >
+            <i class="fa fa-check-circle"></i>
+            {{ session('success') }}
         </div>
-        
-        <script>
-            setTimeout(() => {
-                const alert = document.getElementById('successAlert');
-                alert.classList.remove('show');
-                setTimeout(() => alert.style.display = 'none', 150);
-            }, 3000);
-        </script>
     @endif
     @if($alertMessage)
-        <div class="container mt-2">
-            <div class="alert alert-{{ $alertType }}" 
-                x-data="{ show: true }" 
-                x-show="show"
-                x-init="setTimeout(() => { show = false; $wire.dispatch('alert-hidden') }, 3000)">
-                <i class="fa fa-{{ $alertType == 'success' ? 'check' : 'times' }}-circle"></i> 
-                {{ $alertMessage }}
-            </div>
+        <div 
+            class="alert alert-{{ $alertType }} shadow"
+            style="
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                z-index: 9999;
+                min-width: 300px;
+            "
+            x-data="{ show: true }"
+            x-show="show"
+            x-transition
+            x-init="setTimeout(() => { show = false; $wire.dispatch('alert-hidden') }, 3000)"
+        >
+            <i class="fa fa-{{ $alertType == 'success' ? 'check' : 'times' }}-circle"></i> 
+            {{ $alertMessage }}
         </div>
     @endif
 
@@ -83,9 +97,13 @@
         </div>
 
         <div class="card">
-            <div class="card-header">
-                <i class="fa fa-list"></i> Manage Quotes
-                <i class="fa fa-spin fa-spinner float-end" wire:loading></i>
+            <div class="card-header bg-primary text-white">
+                 <h5>
+                    <b>
+                        <i class="fa fa-list"></i> Manage Quotes
+                        <i class="fa fa-spin fa-spinner float-end" wire:loading></i>
+                    </b>
+                </h5>
             </div>
         </div>
         

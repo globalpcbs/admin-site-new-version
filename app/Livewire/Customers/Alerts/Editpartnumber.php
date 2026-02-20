@@ -106,7 +106,7 @@ class Editpartnumber extends Component
                 ]);
             }
         });
-
+        session()->flash('success', 'Part Number Alert updated successfully.');
         // Redirect without flash message
         return redirect(route('customers.alerts.manage-part'));
     }

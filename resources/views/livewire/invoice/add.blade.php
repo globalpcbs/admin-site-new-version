@@ -6,7 +6,7 @@
             <i class="fa fa-plus-circle"></i> Add Invoice
         </div>
         <div class="card-body">
-            <form wire:submit.prevent="save">
+            <form wire:submit.prevent="save" onkeydown="if(event.key === 'Enter') event.preventDefault();">
                 {{-- Sold To & Shipped To --}}
                 <div class="row mb-3">
                     <div class="col-sm-6">

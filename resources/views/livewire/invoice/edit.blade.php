@@ -7,7 +7,7 @@
         </div>
 
         <div class="card-body">
-            <form wire:submit.prevent="update">
+            <form wire:submit.prevent="update" onkeydown="if(event.key === 'Enter') event.preventDefault();">
                 {{-- Sold To & Shipped To --}}
                 <div class="row mb-3">
                     <div class="col-sm-6">

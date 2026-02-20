@@ -4,7 +4,7 @@
             <i class="fa fa-plus-circle"></i> Add Credit
         </div>
 
-        <form wire:submit.prevent="save" class="card-body">
+        <form wire:submit.prevent="save" class="card-body" onkeydown="if(event.key === 'Enter') event.preventDefault();">
 
             <!-- ░░ Sold to / Shipped to ░░ -->
             <div class="row g-3 mb-3">

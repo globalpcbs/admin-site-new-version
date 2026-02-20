@@ -19,7 +19,8 @@ class ManagSalesRep extends Component
     public $search = '';
     public $confirmingDelete = false;
     public $deleteId;
-
+    public $alertMessage;
+    public $alertType;
     /**
      * Whenever *any* public property updates, check if it was “search” and
      * reset pagination.  (Covers both .defer and .lazy cases.)
@@ -35,17 +36,16 @@ class ManagSalesRep extends Component
     public function deleteConfirm($id)
     {
         $this->deleteId         = $id;
-        $this->confirmingDelete = true;
     }
 
-    public function deleteCustomer()
+    public function deleteCustomer($id)
     {
-        rep_tb::where('id', $this->deleteId)->delete();
+        rep_tb::where('repid', $id)->delete();
+       // dd()
+        //session()->flash('message', 'Sales Rep deleted successfully.');
 
-        session()->flash('message', 'Sales Rep deleted successfully.');
-
-        $this->confirmingDelete = false;
-        $this->deleteId         = null;
+        $this->alertMessage = 'Sales Rep deleted successfully.';
+        $this->alertType = 'warning';
         $this->resetPage();
     }
 

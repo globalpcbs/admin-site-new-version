@@ -1,6 +1,6 @@
 <div>
     <div class="card">
-        <div class="card-header">
+        <div class="card-header bg-primary text-white">
             <i class="fa fa-sticky-note"></i> Manage Generic Notes
         </div>
 

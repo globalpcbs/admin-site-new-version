@@ -1,31 +1,47 @@
 <div>
-      @if(session('success'))
-            <div class="alert alert-success alert-dismissible fade show" id="successAlert">
-                <i class="fa fa-check-square"></i>  {{ session('success') }}
-            </div>
-            
-            <script>
-                setTimeout(() => {
-                    const alert = document.getElementById('successAlert');
-                    alert.classList.remove('show');
-                    setTimeout(() => alert.style.display = 'none', 150);
-                }, 3000);
-            </script>
+      @if($alertMessage)
+        <div 
+            class="alert alert-{{ $alertType }} shadow"
+            style="
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                z-index: 9999;
+                min-width: 300px;
+            "
+            x-data="{ show: true }"
+            x-show="show"
+            x-transition
+            x-init="setTimeout(() => { show = false; $wire.dispatch('alert-hidden') }, 3000)"
+        >
+            <i class="fa fa-{{ $alertType == 'success' ? 'check' : 'times' }}-circle"></i> 
+            {{ $alertMessage }}
+        </div>
     @endif
-    @if($alertMessage)
-        <div class="container mt-2">
-            <div class="alert alert-{{ $alertType }}" 
-                x-data="{ show: true }" 
-                x-show="show"
-                x-init="setTimeout(() => { show = false; $wire.dispatch('alert-hidden') }, 3000)">
-                <i class="fa fa-{{ $alertType == 'success' ? 'check' : 'times' }}-circle"></i> 
-                {{ $alertMessage }}
-            </div>
+        @if (session()->has('success'))
+        <div 
+            class="alert alert-success shadow"
+            style="
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                z-index: 9999;
+                min-width: 300px;
+            "
+            x-data="{ show: true }"
+            x-show="show"
+            x-transition
+            x-init="setTimeout(() => show = false, 3000)"
+        >
+            <i class="fa fa-check-circle"></i>
+            {{ session('success') }}
         </div>
     @endif
     <div class="card shadow">
         <div class="card-header bg-primary text-white">
-             <i class="fa fa-address-book"></i> Manage Main Contacts
+            <h5>
+                <i class="fa fa-address-book"></i> Manage Main Contacts
+            </h5>
         </div>
         <div class="card-body">
 
@@ -71,7 +87,7 @@
                                     </a>
                                 </td>
                                 <td>
-                                    <button class="btn btn-sm btn-danger" wire:key="delete-{{ $contact->enggcont_id }}" wire:confirm="Are you sure You want to Main delete it?" wire:click="deleteCustomer({{ $contact->enggcont_id }})">
+                                    <button class="btn btn-sm btn-danger" wire:key="delete-{{ $contact->enggcont_id }}" wire:confirm="Are you sure You want to  delete main contact it?" wire:click="deleteCustomer({{ $contact->enggcont_id }})">
                                         <i class="fa fa-trash"></i>
                                     </button>
                                 </td>

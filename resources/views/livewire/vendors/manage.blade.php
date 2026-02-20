@@ -1,34 +1,44 @@
 <div>
     <!-- Alert Message using component variables -->
 <!-- Alert Message using component variables -->
-@if($showAlert)
-    <div class="alert alert-dismissible fade show auto-dismiss 
-        @switch($alertType)
-            @case('success')
-                alert-success
-                @break
-            @case('warning')
-                alert-danger
-                @break
-            @case('info')
-                alert-info
-                @break
-        @endswitch">
-        @switch($alertType)
-            @case('success')
-                <i class="fa fa-check-square"></i>
-                @break
-            @case('warning')
-                <i class="fa fa-exclamation-triangle"></i>
-                @break
-            @case('info')
-                <i class="fa fa-info-circle"></i>
-                @break
-        @endswitch
-        {{ $alertMessage }}
-        <button type="button" class="btn-close" wire:click="hideAlert"></button>
-    </div>
-@endif
+    @if (session()->has('success'))
+        <div 
+            class="alert alert-success shadow"
+            style="
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                z-index: 9999;
+                min-width: 300px;
+            "
+            x-data="{ show: true }"
+            x-show="show"
+            x-transition
+            x-init="setTimeout(() => show = false, 3000)"
+        >
+            <i class="fa fa-check-circle"></i>
+            {{ session('success') }}
+        </div>
+    @endif
+    @if($alertMessage)
+        <div 
+            class="alert alert-{{ $alertType }} shadow"
+            style="
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                z-index: 9999;
+                min-width: 300px;
+            "
+            x-data="{ show: true }"
+            x-show="show"
+            x-transition
+            x-init="setTimeout(() => { show = false; $wire.dispatch('alert-hidden') }, 3000)"
+        >
+            <i class="fa fa-{{ $alertType == 'success' ? 'check' : 'times' }}-circle"></i> 
+            {{ $alertMessage }}
+        </div>
+    @endif
 
     <style>
     .auto-dismiss {
@@ -61,8 +71,12 @@
     <div class="mt-4">
         <div class="card shadow-sm">
             <div class="card-header bg-primary text-white">
-                <i class="fa fa-list"></i> Manage Vendors
-                <i wire:loading class="fa fa-spinner fa-spin float-end"></i>
+                <h5>
+                    <b>
+                        <i class="fa fa-list"></i> Manage Vendors
+                        <i class="fa fa-spin fa-spinner float-end" wire:loading></i>
+                    </b>
+                </h5>
             </div>
 
             <div class="card-body">

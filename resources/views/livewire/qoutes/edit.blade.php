@@ -1,7 +1,7 @@
 <div>
     <div>
         @include('includes.flash')
-        <form class="border-2" wire:submit.prevent="save">
+        <form class="border-2" wire:submit.prevent="save" onkeydown="if(event.key === 'Enter') event.preventDefault();">
             <input type="hidden" name="specialreqval" wire:model="sp_reqs">
 
             <table width="100%" class="border-primary" border="1" cellpadding="1" cellspacing="1" bordercolor="#e6e6e6"

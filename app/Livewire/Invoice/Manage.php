@@ -45,21 +45,33 @@ class Manage extends Component
         $this->resetPage(); 
     }
 
-    // Alpine.js compatible search methods
+    /**
+     * Search by part number – resets the customer filter and its input.
+     */
     public function searchq()
     {
         $this->searchPartNo = $this->searchPartNoInput;
-        $this->reset(['searchPartNoInput']); // Clear the input
+        $this->searchCustomer = '';           // clear the actual customer filter
+        $this->searchCustomerInput = '';       // clear the customer input field
+        $this->reset(['searchPartNoInput']);   // clear the part number input
         $this->resetPage();
     }
 
+    /**
+     * Search by customer name – resets the part number filter and its input.
+     */
     public function searchbyCustomer()
     {
         $this->searchCustomer = $this->searchCustomerInput;
-        $this->reset(['searchCustomerInput']); // Clear the input
+        $this->searchPartNo = '';              // clear the actual part number filter
+        $this->searchPartNoInput = '';          // clear the part number input field
+        $this->reset(['searchCustomerInput']);  // clear the customer input
         $this->resetPage();
     }
 
+    /**
+     * Reset all filters and inputs.
+     */
     public function filterclose()
     {
         $this->reset([

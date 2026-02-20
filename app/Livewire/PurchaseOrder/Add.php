@@ -373,6 +373,7 @@ class Add extends Component
             ->select('part_no', 'rev', 'cust_name')
             ->where('part_no', 'like', "%{$value}%")
             ->orWhere('cust_name', 'like', "%{$value}%")
+            ->distinct()
             ->get()
             ->map(fn ($row) => [
                 'label' => "{$row->part_no}_{$row->rev}_{$row->cust_name}",

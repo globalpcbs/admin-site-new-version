@@ -1,30 +1,45 @@
 <div>
     <div>
-    @if(session('success'))
-        <div class="alert alert-success alert-dismissible fade show" id="successAlert">
-            <i class="fa fa-check-square"></i>  {{ session('success') }}
-        </div>
-        
-        <script>
-            setTimeout(() => {
-                const alert = document.getElementById('successAlert');
-                alert.classList.remove('show');
-                setTimeout(() => alert.style.display = 'none', 150);
-            }, 3000);
-        </script>
-    @endif
-    
     @if($alertMessage)
-        <div class="container mt-2">
-            <div class="alert alert-{{ $alertType }}" 
-                x-data="{ show: true }" 
-                x-show="show"
-                x-init="setTimeout(() => { show = false; $wire.dispatch('alert-hidden') }, 3000)">
-                <i class="fa fa-{{ $alertType == 'success' ? 'check' : 'times' }}-circle"></i> 
-                {{ $alertMessage }}
-            </div>
+        <div 
+            class="alert alert-{{ $alertType }} shadow"
+            style="
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                z-index: 9999;
+                min-width: 300px;
+            "
+            x-data="{ show: true }"
+            x-show="show"
+            x-transition
+            x-init="setTimeout(() => { show = false; $wire.dispatch('alert-hidden') }, 3000)"
+        >
+            <i class="fa fa-{{ $alertType == 'success' ? 'check' : 'times' }}-circle"></i> 
+            {{ $alertMessage }}
         </div>
     @endif
+    @if (session()->has('success'))
+        <div 
+            class="alert alert-success shadow"
+            style="
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                z-index: 9999;
+                min-width: 300px;
+            "
+            x-data="{ show: true }"
+            x-show="show"
+            x-transition
+            x-init="setTimeout(() => show = false, 3000)"
+        >
+            <i class="fa fa-check-circle"></i>
+            {{ session('success') }}
+        </div>
+    @endif
+
+
 
     <div class="container mt-4">
         <div class="card mb-4">
@@ -84,9 +99,13 @@
         </div>
 
         <div class="card">
-            <div class="card-header">
-                <i class="fa fa-list"></i> Confirmation Orders
-                <i class="fa fa-spin fa-spinner float-end" wire:loading></i>
+            <div class="card-header bg-primary text-white">
+                <h5>
+                    <b>
+                        <i class="fa fa-list"></i> Confirmation Orders
+                        <i class="fa fa-spin fa-spinner float-end" wire:loading></i>
+                    </b>
+                </h5>
             </div>
             
             <div class="card-body p-0">
@@ -113,27 +132,28 @@
                                 <td>{{ $order->rev }}</td>
                                 <td>{{ $order->podate }}</td>
                                 <td>
+                                    
+                                    <a href="{{ route('confirmation.edit',$order->poid) }}"
+                                                                        class="btn btn-sm btn-xs btn-primary">
+                                        <i class="fa fa-edit"></i> Edit
+                                    </a>
                                     <a href="https://files.pcbsglobal.website/download-pdf4.php?id={{ $order->poid }}&oper=download">
-                                        <button class="btn btn-sm btn-xs btn-secondary">
+                                        <button class="btn btn-sm btn-xs btn-success">
                                             <i class="fa fa-download"></i> Download pdf
                                         </button>
                                     </a>
                                     <a href="https://files.pcbsglobal.website/download-pdf4.php?id={{ $order->poid }}&oper=view" target="_blank">
-                                        <button class="btn btn-sm btn-xs btn-success"><i class="fa fa-eye"></i> View Pdf</button>
+                                        <button class="btn btn-sm btn-xs btn-info"><i class="fa fa-eye"></i> View Pdf</button>
                                     </a>
                                     <a href="https://files.pcbsglobal.website/download-doc4.php?id={{ $order->poid }}">
-                                        <button class="btn btn-sm btn-xs btn-danger"><i
+                                        <button class="btn btn-sm btn-xs btn-secondary"><i
                                                 class="fa fa-file-word"></i> Download Doc</button>
-                                    </a>
-                                    <a href="{{ route('confirmation.edit',$order->poid) }}"
-                                                                        class="btn btn-sm btn-xs btn-success">
-                                        <i class="fa fa-edit"></i> Edit
                                     </a>
                                     <button class="btn btn-sm btn-xs btn-danger" wire:click="delete({{ $order->poid }})"
                                         wire:confirm="Are you sure you want to delete this order?" wire:key="delete-{{ $order->poid }}">
                                         <i class="fa fa-trash"></i> Delete
                                     </button>
-                                    <button class="btn btn-sm btn-xs btn-info" wire:click="duplicate({{ $order->poid }})"
+                                    <button class="btn btn-sm btn-xs btn-warning" wire:click="duplicate({{ $order->poid }})"
                                          wire:key="duplicate-{{ $order->poid }}">
                                         <i class="fa fa-clone"></i> Duplicate
                                     </button>

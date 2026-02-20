@@ -1,5 +1,42 @@
 <div>
-    @include('includes.flash')
+        @if (session()->has('success'))
+        <div 
+            class="alert alert-success shadow"
+            style="
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                z-index: 9999;
+                min-width: 300px;
+            "
+            x-data="{ show: true }"
+            x-show="show"
+            x-transition
+            x-init="setTimeout(() => show = false, 3000)"
+        >
+            <i class="fa fa-check-circle"></i>
+            {{ session('success') }}
+        </div>
+    @endif
+    @if($alertMessage)
+        <div 
+            class="alert alert-{{ $alertType }} shadow"
+            style="
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                z-index: 9999;
+                min-width: 300px;
+            "
+            x-data="{ show: true }"
+            x-show="show"
+            x-transition
+            x-init="setTimeout(() => { show = false; $wire.dispatch('alert-hidden') }, 3000)"
+        >
+            <i class="fa fa-{{ $alertType == 'success' ? 'check' : 'times' }}-circle"></i> 
+            {{ $alertMessage }}
+        </div>
+    @endif
     <div class="card">
         <div class="card-header">
             <i class="fa fa-list"></i> Logged Packing slips
@@ -47,7 +84,7 @@
                             <a href="{{ route('misc.edit.logged',$row->id) }}" class="btn btn-success btn-sm btn-xs"><i
                                     class="fa fa-edit"></i></a>
                             <button class="btn btn-danger btn-sm btn-xs" wire:click="delete({{ $row->id }})"
-                                wire:confirm><i class="fa fa-trash"></i></button>
+                                wire:confirm="Are you sure you want to delete receing log?"><i class="fa fa-trash"></i></button>
                             <a href="#" wire:click.prevent="duplicate({{ $row->id }})"
                                 class="btn btn-info btn-sm btn-xs"><i class="fa fa-clone"></i></a>
                         </td>

@@ -311,9 +311,9 @@ Route::get('/stock-customer-suggestions', function (Request $request) {
     }
     
     // Since stock_tb uses customer_id, we need to get from data_tb
-    $suggestions = data_tb::query()
-        ->select('c_name')
-        ->where('c_name', 'like', '%' . $query . '%')
+    $suggestions = stock_tb::query()
+        ->select('customer')
+        ->where('customer', 'like', '%' . $query . '%')
         ->distinct()
         ->limit(10)
         ->get()

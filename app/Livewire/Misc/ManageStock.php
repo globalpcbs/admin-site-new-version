@@ -94,15 +94,11 @@ class ManageStock extends Component
     public function render()
     {
         $stocks = stock_tb::query()
-            ->when($this->searchPartNo, fn($q) => $q->where('part_no', 'like', '%' . $this->searchPartNo . '%'))
-            ->when($this->searchCustomer, function ($q) {
-                $q->whereHas('customer', function ($q2) {
-                    $q2->where('c_name', 'like', '%' . $this->searchCustomer . '%');
-                });
-            })
-            ->with(['customer', 'vendor', 'allocations'])
-            ->orderBy('stkid','asc')
-            ->paginate(100);
+        ->when($this->searchPartNo, fn($q) => $q->where('part_no', 'like', '%' . $this->searchPartNo . '%'))
+        ->when($this->searchCustomer, fn($q) => $q->where('customer', 'like', '%' . $this->searchCustomer . '%')) // ✅ direct column search
+        ->with(['vendor', 'allocations']) // ❌ removed 'customer' from with() – it's not a relationship
+        ->orderBy('stkid','asc')
+        ->paginate(100);
         //dd($stocks);
         return view('livewire.misc.manage-stock', compact('stocks'))->layout('layouts.app', ['title' => 'Manage Stock']);
     }

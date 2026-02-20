@@ -1,6 +1,6 @@
 <div>
      @include('includes.flash')
-    <form wire:submit.prevent="addShipper">
+    <form wire:submit.prevent="addShipper" onkeydown="if(event.key === 'Enter') event.preventDefault();">
         @csrf
         <div class="card">
                 <div class="card-header bg-primary text-white">

@@ -4,7 +4,7 @@
             <i class="fa fa-edit"></i> Edit Vendor Main Contact
         </div>
         <div class="card-body">
-            <form wire:submit.prevent="update">
+            <form wire:submit.prevent="update" onkeydown="if(event.key === 'Enter') event.preventDefault();">
                 <div class="mb-3">
                     <label for="cid" class="form-label">
                         <i class="fa fa-user"></i> Select Vendor

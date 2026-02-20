@@ -6,7 +6,7 @@
         </div>
         <div class="card-body">
 
-            <form wire:submit.prevent="save">
+            <form wire:submit.prevent="save" onkeydown="if(event.key === 'Enter') event.preventDefault();">
                 <div class="mb-3">
                     <label for="coustid" class="form-label"><i class="fa fa-building"></i> Select Vendor</label>
                     <select wire:model="coustid" id="coustid" class="form-select">

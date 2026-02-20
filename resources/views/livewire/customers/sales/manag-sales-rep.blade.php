@@ -1,9 +1,49 @@
 <div>
     <!-- resources/views/livewire/customers/sales/manag-sales-rep.blade.php -->
-@include('includes.flash')
+@if($alertMessage)
+    <div 
+        class="alert alert-{{ $alertType }} shadow"
+        style="
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            min-width: 300px;
+        "
+        x-data="{ show: true }"
+        x-show="show"
+        x-transition
+        x-init="setTimeout(() => { show = false; $wire.dispatch('alert-hidden') }, 3000)"
+    >
+        <i class="fa fa-{{ $alertType == 'success' ? 'check' : 'times' }}-circle"></i> 
+        {{ $alertMessage }}
+    </div>
+@endif
+    @if (session()->has('success'))
+        <div 
+            class="alert alert-success shadow"
+            style="
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                z-index: 9999;
+                min-width: 300px;
+            "
+            x-data="{ show: true }"
+            x-show="show"
+            x-transition
+            x-init="setTimeout(() => show = false, 3000)"
+        >
+            <i class="fa fa-check-circle"></i>
+            {{ session('success') }}
+        </div>
+    @endif
 <div class="card mb-3">
     <div class="card-header bg-primary text-white">
-        <i class="fa fa-list"></i> Manage Sales Rep
+        <h5>
+                <i class="fa fa-list"></i> Manage Sales Rep
+                <i class="fa fa-spinner fa-spin float-right" wire:loading></i>
+        </h5>
     </div>
     <div class="card-body">
         <!-- 🔍 Dropdown filter -->
@@ -37,7 +77,7 @@
                             <i class="fa fa-edit"></i> Edit
                         </a>
 
-                        <button class="btn btn-sm btn-danger" wire:click="deleteConfirm({{ $rep->repid }})" wire:key="delete-{{ $rep->repid }}">
+                        <button class="btn btn-sm btn-danger" wire:click="deleteCustomer({{ $rep->repid }})" wire:key="delete-{{ $rep->repid }}" wire:confirm="Are you sure you want to delete this Sales Rep?">
                             <i class="fa fa-trash"></i> Delete
                         </button>
                     </td>

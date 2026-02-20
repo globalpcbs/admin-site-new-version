@@ -1,9 +1,51 @@
 <div class="mt-4">
-    @include('includes.flash')
+        @if (session()->has('success'))
+        <div 
+            class="alert alert-success shadow"
+            style="
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                z-index: 9999;
+                min-width: 300px;
+            "
+            x-data="{ show: true }"
+            x-show="show"
+            x-transition
+            x-init="setTimeout(() => show = false, 3000)"
+        >
+            <i class="fa fa-check-circle"></i>
+            {{ session('success') }}
+        </div>
+    @endif
+    @if($alertMessage)
+        <div 
+            class="alert alert-{{ $alertType }} shadow"
+            style="
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                z-index: 9999;
+                min-width: 300px;
+            "
+            x-data="{ show: true }"
+            x-show="show"
+            x-transition
+            x-init="setTimeout(() => { show = false; $wire.dispatch('alert-hidden') }, 3000)"
+        >
+            <i class="fa fa-{{ $alertType == 'success' ? 'check' : 'times' }}-circle"></i> 
+            {{ $alertMessage }}
+        </div>
+    @endif
 
     <div class="card">
         <div class="card-header bg-primary text-white">
-            <label class="mb-0"> <i class="fa fa-list"></i> Manage Vendor Main Contacts <i class="fa fa-spinner fa-spin" wire:loading></i> </label>
+            <h5>
+                <b>
+                    <i class="fa fa-list"></i> Manage Vendor Main Contacts
+                    <i class="fa fa-spin fa-spinner float-end" wire:loading></i>
+                </b>
+            </h5>
         </div>
         <div class="table-responsive">
             <table class="table table-bordered table-striped">

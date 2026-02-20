@@ -15,7 +15,7 @@
         </div>
 
         <div class="card-body">
-            <form wire:submit.prevent="save">
+            <form wire:submit.prevent="save" onkeydown="if(event.key === 'Enter') event.preventDefault();">
                 <div class="row g-3">
                     <!-- Lookup ID -->
                     <div class="col-md-12">

@@ -1,28 +1,41 @@
 <div>
     <div>
-    @if(session('success'))
-        <div class="alert alert-success alert-dismissible fade show" id="successAlert">
-            <i class="fa fa-check-square"></i>  {{ session('success') }}
+            @if (session()->has('success'))
+        <div 
+            class="alert alert-success shadow"
+            style="
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                z-index: 9999;
+                min-width: 300px;
+            "
+            x-data="{ show: true }"
+            x-show="show"
+            x-transition
+            x-init="setTimeout(() => show = false, 3000)"
+        >
+            <i class="fa fa-check-circle"></i>
+            {{ session('success') }}
         </div>
-        
-        <script>
-            setTimeout(() => {
-                const alert = document.getElementById('successAlert');
-                alert.classList.remove('show');
-                setTimeout(() => alert.style.display = 'none', 150);
-            }, 3000);
-        </script>
     @endif
-    
     @if($alertMessage)
-        <div class="container mt-2">
-            <div class="alert alert-{{ $alertType }}" 
-                x-data="{ show: true }" 
-                x-show="show"
-                x-init="setTimeout(() => { show = false; $wire.dispatch('alert-hidden') }, 3000)">
-                <i class="fa fa-{{ $alertType == 'success' ? 'check' : 'times' }}-circle"></i> 
-                {{ $alertMessage }}
-            </div>
+        <div 
+            class="alert alert-{{ $alertType }} shadow"
+            style="
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                z-index: 9999;
+                min-width: 300px;
+            "
+            x-data="{ show: true }"
+            x-show="show"
+            x-transition
+            x-init="setTimeout(() => { show = false; $wire.dispatch('alert-hidden') }, 3000)"
+        >
+            <i class="fa fa-{{ $alertType == 'success' ? 'check' : 'times' }}-circle"></i> 
+            {{ $alertMessage }}
         </div>
     @endif
 
@@ -85,9 +98,13 @@
 
         <!-- 💳 card with table -->
         <div class="card shadow-sm">
-            <div class="card-header bg-light fw-bold">
-                <i class="fa fa-credit-card"></i> Credit Records
-                <i class="fa fa-spin fa-spinner float-end" wire:loading></i>
+            <div class="card-header bg-primary text-white">
+                <h5>
+                    <b>
+                        <i class="fa fa-list"></i> Credit Records
+                        <i class="fa fa-spin fa-spinner float-end" wire:loading></i>
+                    </b>
+                </h5>
             </div>
 
             <div class="card-body p-0">
@@ -126,24 +143,25 @@
                                     <td>{{ $credit->part_no }}</td>
                                     <td>{{ $credit->rev }}</td>
                                     <td>
+                                        <a href="{{ route('credit.edit', $credit->credit_id) }}" class="btn btn-sm btn-xs btn-primary">
+                                            <i class="fa fa-edit"></i> Edit
+                                        </a>
+                                        
                                         <a href="https://files.pcbsglobal.website/downloadc-pdf2.php?id={{ $credit->credit_id }}&oper=download" target="_blank"
-                                            class="btn btn-sm btn-danger btn-xs">
+                                            class="btn btn-sm btn-success btn-xs">
                                             <i class="fa fa-download"></i> Download Pdf
                                         </a>
                                         <a href="https://files.pcbsglobal.website/downloadc-pdf2.php?id={{ $credit->credit_id }}&oper=view" target="_blank"
-                                            class="btn btn-sm btn-warning btn-xs">
+                                            class="btn btn-sm btn-info btn-xs">
                                             <i class="fa fa-eye"></i> View Pdf
-                                        </a>
-                                        <button class="btn btn-sm btn-info btn-xs"
-                                            wire:click="duplicateRecord({{ $credit->credit_id }})" wire:key="duplicate-{{ $credit->credit_id }}">
-                                            <i class="fa fa-clone"></i> Duplicate
-                                        </button>
-                                        <a href="{{ route('credit.edit', $credit->credit_id) }}" class="btn btn-sm btn-xs btn-success">
-                                            <i class="fa fa-edit"></i> Edit
                                         </a>
                                         <button class="btn btn-sm btn-xs btn-danger"
                                             wire:click="deleteGroup({{ $credit->credit_id }})" wire:confirm="Are you sure you want to delete this credit?" wire:key="delete-{{ $credit->credit_id }}">
                                             <i class="fa fa-trash"></i> Delete
+                                        </button>
+                                        <button class="btn btn-sm btn-warning btn-xs"
+                                            wire:click="duplicateRecord({{ $credit->credit_id }})" wire:key="duplicate-{{ $credit->credit_id }}">
+                                            <i class="fa fa-clone"></i> Duplicate
                                         </button>
                                     </td>
                                 </tr>

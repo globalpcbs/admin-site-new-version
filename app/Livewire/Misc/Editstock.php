@@ -284,6 +284,7 @@ class Editstock extends Component
             ->select('c_shortname')
             ->where('c_name', 'like', "%{$value}%")
             ->orWhere('c_shortname', 'like', "%{$value}%")
+            ->distinct()
             ->get()
             ->toArray();
     }
@@ -309,6 +310,7 @@ class Editstock extends Component
             ->select('part_no', 'rev', 'cust_name')
             ->where('part_no', 'like', "%{$value}%")
             ->orWhere('cust_name', 'like', "%{$value}%")
+            ->distinct()
             ->get()
             ->map(fn ($row) => [
                 'label' => "{$row->part_no}_{$row->rev}_{$row->cust_name}",

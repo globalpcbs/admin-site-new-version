@@ -52,7 +52,7 @@
                                                 @endforeach
                                             </div>
                                             <div class="col-lg-2">
-                                                <small class="text-danger"><b>Hold Shift to make multiple selections</b></small>
+                                                <small class="text-danger">(Hold Ctrl to select multiple)</small>
                                                 <select class="form-select" wire:model="requirements.{{ $index }}.viewable" multiple size="8" style="width: 150px;">
                                                     @foreach (['quo0' => 'Quote', 'po0' => 'Purchase', 'con0' => 'Confirmation', 'pac0' => 'Packing', 'inv0' => 'Invoices', 'cre0' => 'Credit'] as $key => $label)
                                                         <option value="{{ $key }}">{{ $label }}</option>

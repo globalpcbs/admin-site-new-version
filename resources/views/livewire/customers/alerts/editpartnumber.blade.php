@@ -120,7 +120,7 @@
                             <div class="col-md-5">
                                 <label>
                                     <i class="fa fa-eye"></i> Viewable In 
-                                    <small class="text-danger">(Hold Shift to select multiple)</small>
+                                    <small class="text-danger">(Hold Ctrl to select multiple)</small>
                                 </label>
                                 <select wire:model="alerts.{{ $idx }}.viewable" 
                                         multiple 

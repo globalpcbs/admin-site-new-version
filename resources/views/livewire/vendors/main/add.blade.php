@@ -5,7 +5,7 @@
             <i class="fa fa-plus"></i> Add Vendor Main Contact
         </div>
         <div class="card-body">
-            <form wire:submit.prevent="save">
+            <form wire:submit.prevent="save" onkeydown="if(event.key === 'Enter') event.preventDefault();">
                 <div class="mb-3">
                     <label for="cid" class="form-label"><i class="fa fa-user"></i> Select Vendor</label>
                     <select id="cid" class="form-control" wire:model="cid">

@@ -38,6 +38,39 @@ class Manage extends Component
         }
     }
 
+    /**
+     * Search by part number – resets customer and vendor filters.
+     */
+    public function searchByPart($value)
+    {
+        $this->searchPart = $value;
+        $this->searchCustomer = '';
+        $this->searchVendor = '';
+        $this->resetPage();
+    }
+
+    /**
+     * Search by customer name – resets part and vendor filters.
+     */
+    public function searchByCustomer($value)
+    {
+        $this->searchCustomer = $value;
+        $this->searchPart = '';
+        $this->searchVendor = '';
+        $this->resetPage();
+    }
+
+    /**
+     * Search by vendor – resets part and customer filters.
+     */
+    public function searchByVendor($value)
+    {
+        $this->searchVendor = $value;
+        $this->searchPart = '';
+        $this->searchCustomer = '';
+        $this->resetPage();
+    }
+
     public function resetFilters()
     {
         $this->reset([
@@ -51,7 +84,6 @@ class Manage extends Component
 
     public function delete($id)
     {
-        //dd($id);
         porder_tb::destroy($id);
         $this->alertMessage = 'Purchase Order deleted successfully.';
         $this->alertType = 'warning';
