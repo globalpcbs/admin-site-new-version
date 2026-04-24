@@ -286,8 +286,67 @@
 
                                 <tr>
                                     <td height="25" width='50%'>
-                                        <textarea name="txtinstadmin" onkeydown="event.stopPropagation();" wire:model="special_instadmin" cols="45"
-                                            rows="5"></textarea>
+                                        <                                    <!-- SimpleMDE CDN -->
+                                    <link rel="stylesheet" href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css">
+                                    <script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
+
+                                    <style>
+                                        .CodeMirror {
+                                            height: 120px !important;
+                                            min-height: 100px;
+                                        }
+                                        .CodeMirror-scroll {
+                                            height: 110px !important;
+                                        }
+                                    </style>
+
+                                    <div wire:ignore>
+                                        <input type="hidden" wire:model="special_instadmin" id="adminContent">
+                                        <textarea id="txtinstadmin" name="txtinstadmin"></textarea>
+                                    </div>
+
+                                    <script>
+                                        let simplemde = null;
+                                        
+                                        function initSimpleMDE() {
+                                            if (simplemde) {
+                                                simplemde.toTextArea();
+                                                simplemde = null;
+                                            }
+                                            
+                                            simplemde = new SimpleMDE({
+                                                element: document.getElementById('txtinstadmin'),
+                                                spellChecker: false,
+                                                toolbar: ['bold', 'italic', 'unordered-list', 'ordered-list'],
+                                                status: false,
+                                                lineWrapping: true,
+                                            });
+                                            
+                                            // Load existing content - Convert <br> to \n for display
+                                            const existingContent = @json($special_instadmin);
+                                            if (existingContent) {
+                                                let displayContent = existingContent.replace(/<br\s*\/?>/gi, '\n');
+                                                simplemde.value(displayContent);
+                                            }
+                                            
+                                            // On change: Convert \n to <br> for backend
+                                            simplemde.codemirror.on('change', function() {
+                                                let rawContent = simplemde.value();
+                                                // Convert newlines to <br> tags
+                                                let contentWithBr = rawContent.replace(/\n/g, '<br>');
+                                                document.getElementById('adminContent').value = contentWithBr;
+                                                @this.set('special_instadmin', contentWithBr);
+                                            });
+                                        }
+                                        
+                                        document.addEventListener('livewire:init', function() {
+                                            initSimpleMDE();
+                                        });
+                                        
+                                        document.addEventListener('livewire:navigated', function() {
+                                            initSimpleMDE();
+                                        });
+                                    </script>
                                     </td>
 
                                     <td height="25">
