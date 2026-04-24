@@ -179,7 +179,7 @@ class Edit extends Component
     {
         $this->orderId = $id;
         $this->loadOrderData();
-        $this->customers = Customer::all();
+        $this->customers = Customer::orderby('c_name','asc')->get();
         $this->vendors = Vendor::all();
         $this->inputKey = uniqid();
     }

@@ -12,7 +12,6 @@ class ManageStock extends Component
 {
     use WithPagination;
 
-    // Alpine.js compatible filter properties
     public $searchPartNoInput = '';
     public $searchCustomerInput = '';
     public $searchPartNo = '';
@@ -21,7 +20,6 @@ class ManageStock extends Component
     public $confirmingDelete = null;
     protected $paginationTheme = 'bootstrap';
 
-    // SIMPLE alert properties
     public $alertMessage = '';
     public $alertType = '';
     protected $listeners = ['alert-hidden' => 'clearAlert'];
@@ -40,33 +38,31 @@ class ManageStock extends Component
         $this->resetPage(); 
     }
 
-    /**
-     * Search by part number – resets the customer filter and its input.
-     */
     public function searchq()
     {
-        $this->searchPartNo = $this->searchPartNoInput;
-        $this->searchCustomer = '';           // clear the actual customer filter
-        $this->searchCustomerInput = '';       // clear the customer input field
+        // Reset customer filter
+        $this->reset(['searchCustomer', 'searchCustomerInput']);
+        // Apply part number filter
+        $this->searchPartNo = trim($this->searchPartNoInput);
+        // Clear input property
+        $this->searchPartNoInput = '';
         $this->resetPage();
     }
 
-    /**
-     * Search by customer name – resets the part number filter and its input.
-     */
     public function searchbyCustomer()
     {
-        $this->searchCustomer = $this->searchCustomerInput;
-        $this->searchPartNo = '';              // clear the actual part number filter
-        $this->searchPartNoInput = '';          // clear the part number input field
+        // Reset part number filter
+        $this->reset(['searchPartNo', 'searchPartNoInput']);
+        // Apply customer filter
+        $this->searchCustomer = trim($this->searchCustomerInput);
+        // Clear input property
+        $this->searchCustomerInput = '';
         $this->resetPage();
     }
 
-    /**
-     * Reset all filters and inputs.
-     */
     public function filterclose()
     {
+        // Reset all search properties
         $this->reset([
             'searchPartNoInput',
             'searchCustomerInput',
@@ -74,17 +70,15 @@ class ManageStock extends Component
             'searchCustomer'
         ]);
         $this->resetPage();
-    }
 
-    public function confirmDelete($id)
-    {
-        $this->confirmingDelete = $id;
+        // Optional: dispatch a browser event (used as a backup)
+        $this->dispatch('reset-filters-complete');
     }
 
     public function delete($id)
     {
         stock_tb::where('stkid', $id)->delete();
-        DB::table('stock_ret')->where('stkid', $id)->delete(); // If you still have this table
+        DB::table('stock_ret')->where('stkid', $id)->delete();
         
         $this->alertMessage = 'Stock deleted successfully.';
         $this->alertType = 'danger';
@@ -106,12 +100,13 @@ class ManageStock extends Component
     public function render()
     {
         $stocks = stock_tb::query()
-        ->when($this->searchPartNo, fn($q) => $q->where('part_no', 'like', '%' . $this->searchPartNo . '%'))
-        ->when($this->searchCustomer, fn($q) => $q->where('customer', 'like', '%' . $this->searchCustomer . '%')) // ✅ direct column search
-        ->with(['vendor', 'allocations']) // ❌ removed 'customer' from with() – it's not a relationship
-        ->orderBy('stkid','asc')
-        ->paginate(100);
-        //dd($stocks);
-        return view('livewire.misc.manage-stock', compact('stocks'))->layout('layouts.app', ['title' => 'Manage Stock']);
+            ->when($this->searchPartNo, fn($q) => $q->where('part_no', 'like', '%' . $this->searchPartNo . '%'))
+            ->when($this->searchCustomer, fn($q) => $q->where('customer', 'like', '%' . $this->searchCustomer . '%'))
+            ->with(['vendor', 'allocations'])
+            ->orderBy('stkid','asc')
+            ->paginate(100);
+
+        return view('livewire.misc.manage-stock', compact('stocks'))
+            ->layout('layouts.app', ['title' => 'Manage Stock']);
     }
 }

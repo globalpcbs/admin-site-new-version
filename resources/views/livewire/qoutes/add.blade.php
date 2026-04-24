@@ -287,7 +287,7 @@
 
                                 <tr>
                                     <td height="25" width='50%'>
-                                        <textarea name="txtinstadmin" wire:model="special_instadmin" cols="45"
+                                        <textarea name="txtinstadmin" wire:model="special_instadmin" onkeydown="event.stopPropagation();" cols="45"
                                             rows="5"></textarea>
                                     </td>
 

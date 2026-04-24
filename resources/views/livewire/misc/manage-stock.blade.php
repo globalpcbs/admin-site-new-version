@@ -112,8 +112,7 @@
                                        onfocus="showPartNoSuggestions(this.value)"
                                        onkeydown="handlePartNoKeydown(event)" />
                                 <button class="btn btn-primary" type="button" wire:click="searchq" id="partNoSearchBtn">
-                                    <i class="fa fa-search" wire:loading.remove></i>
-                                    <span wire:loading><i class="fa fa-spinner fa-spin"></i></span>
+                                    <i class="fa fa-search"></i>
                                 </button>
                             </div>
                             <div id="partNoSuggestions" class="autocomplete-dropdown"></div>
@@ -135,8 +134,7 @@
                                        onfocus="showCustomerSuggestions(this.value)"
                                        onkeydown="handleCustomerKeydown(event)" />
                                 <button class="btn btn-primary" type="button" wire:click="searchbyCustomer" id="customerSearchBtn">
-                                    <i class="fa fa-search" wire:loading.remove></i>
-                                    <span wire:loading><i class="fa fa-spinner fa-spin"></i></span>
+                                    <i class="fa fa-search"></i>
                                 </button>
                             </div>
                             <div id="customerSuggestions" class="autocomplete-dropdown"></div>
@@ -306,7 +304,25 @@
             let selectedPartNoIndex = -1;
             let selectedCustomerIndex = -1;
 
-            // Handle Part Number input keydown events (arrow keys, escape, tab)
+            // Helper functions to clear inputs (reused)
+            function clearPartNoInput() {
+                const input = document.getElementById('partNoInput');
+                if (input) input.value = '';
+            }
+
+            function clearCustomerInput() {
+                const input = document.getElementById('customerInput');
+                if (input) input.value = '';
+            }
+
+            function clearPartNoInputAfterSearch() {
+                setTimeout(() => clearPartNoInput(), 50);
+            }
+
+            function clearCustomerInputAfterSearch() {
+                setTimeout(() => clearCustomerInput(), 50);
+            }
+
             function handlePartNoKeydown(event) {
                 const dropdown = document.getElementById('partNoSuggestions');
                 const items = dropdown.getElementsByClassName('autocomplete-item');
@@ -332,7 +348,6 @@
                 }
             }
 
-            // Handle Customer input keydown events
             function handleCustomerKeydown(event) {
                 const dropdown = document.getElementById('customerSuggestions');
                 const items = dropdown.getElementsByClassName('autocomplete-item');
@@ -358,7 +373,6 @@
                 }
             }
 
-            // Update selection in dropdown
             function updateSelection(items, selectedIndex) {
                 for (let i = 0; i < items.length; i++) {
                     if (i === selectedIndex) {
@@ -370,7 +384,6 @@
                 }
             }
 
-            // Fetch part number suggestions from server
             async function fetchPartNoSuggestions(query) {
                 if (query.length < 2) return [];
                 try {
@@ -382,7 +395,6 @@
                 }
             }
 
-            // Fetch customer suggestions from server
             async function fetchCustomerSuggestions(query) {
                 if (query.length < 2) return [];
                 try {
@@ -394,7 +406,6 @@
                 }
             }
 
-            // Show part number suggestions
             async function showPartNoSuggestions(query) {
                 const dropdown = document.getElementById('partNoSuggestions');
                 selectedPartNoIndex = -1;
@@ -421,7 +432,6 @@
                 }
             }
 
-            // Show customer suggestions
             async function showCustomerSuggestions(query) {
                 const dropdown = document.getElementById('customerSuggestions');
                 selectedCustomerIndex = -1;
@@ -448,14 +458,12 @@
                 }
             }
 
-            // Highlight part number item on mouseover
             function highlightPartNoItem(index) {
                 selectedPartNoIndex = index;
                 const items = document.getElementById('partNoSuggestions').getElementsByClassName('autocomplete-item');
                 updateSelection(items, selectedPartNoIndex);
             }
 
-            // Highlight customer item on mouseover
             function highlightCustomerItem(index) {
                 selectedCustomerIndex = index;
                 const items = document.getElementById('customerSuggestions').getElementsByClassName('autocomplete-item');
@@ -465,27 +473,30 @@
             // Select part number from dropdown
             function selectPartNo(partNo) {
                 const input = document.getElementById('partNoInput');
-                input.value = partNo;
-                input.blur();
                 document.getElementById('partNoSuggestions').style.display = 'none';
                 selectedPartNoIndex = -1;
 
-                // Update Livewire property and trigger search
                 @this.set('searchPartNoInput', partNo);
                 @this.searchq();
+
+                // Force clear after a short delay
+                setTimeout(() => {
+                    input.value = '';
+                }, 50);
             }
 
             // Select customer from dropdown
             function selectCustomer(customerName) {
                 const input = document.getElementById('customerInput');
-                input.value = customerName;
-                input.blur();
                 document.getElementById('customerSuggestions').style.display = 'none';
                 selectedCustomerIndex = -1;
 
-                // Update Livewire property and trigger search
                 @this.set('searchCustomerInput', customerName);
                 @this.searchbyCustomer();
+
+                setTimeout(() => {
+                    input.value = '';
+                }, 50);
             }
 
             // Hide dropdowns when clicking outside
@@ -496,6 +507,48 @@
                     selectedPartNoIndex = -1;
                     selectedCustomerIndex = -1;
                 }
+            });
+
+            // Livewire hooks to handle post-update clearing
+            document.addEventListener('livewire:init', () => {
+                Livewire.hook('message.processed', (message, component) => {
+                    // Check for searchq
+                    if (message.updateQueue && message.updateQueue.some(update => 
+                        update.type === 'callMethod' && update.method === 'searchq'
+                    )) {
+                        clearPartNoInputAfterSearch();
+                    }
+                    // Check for searchbyCustomer
+                    if (message.updateQueue && message.updateQueue.some(update => 
+                        update.type === 'callMethod' && update.method === 'searchbyCustomer'
+                    )) {
+                        clearCustomerInputAfterSearch();
+                    }
+                    // Check for filterclose
+                    if (message.updateQueue && message.updateQueue.some(update => 
+                        update.type === 'callMethod' && update.method === 'filterclose'
+                    )) {
+                        // Clear both inputs immediately
+                        clearPartNoInput();
+                        clearCustomerInput();
+                        // Hide any open dropdowns
+                        document.getElementById('partNoSuggestions').style.display = 'none';
+                        document.getElementById('customerSuggestions').style.display = 'none';
+                        // Reset selected indexes
+                        selectedPartNoIndex = -1;
+                        selectedCustomerIndex = -1;
+                    }
+                });
+            });
+
+            // Fallback: Listen for the dispatched event from filterclose
+            Livewire.on('reset-filters-complete', () => {
+                clearPartNoInput();
+                clearCustomerInput();
+                document.getElementById('partNoSuggestions').style.display = 'none';
+                document.getElementById('customerSuggestions').style.display = 'none';
+                selectedPartNoIndex = -1;
+                selectedCustomerIndex = -1;
             });
 
             // Initialize - hide dropdowns on page load

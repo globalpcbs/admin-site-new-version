@@ -219,7 +219,7 @@ class Add extends Component
 
     public function mount()
     {
-        $this->customers = Customer::all();
+        $this->customers = Customer::orderby('c_name','asc')->get();
         $this->vendors = Vendor::all();
         $this->inputKey = uniqid(); // force unique key
         // Initialize all manual price inputs (pr11 through pr105)
