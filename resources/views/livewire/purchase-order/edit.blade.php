@@ -142,7 +142,7 @@
                                         </select>
                                     </div>
                                     @if(($items[$i]['dpdesc'] ?? '') === 'oth')
-                                        <input type="text" class="form-control" placeholder="Other desc"
+                                        <input type="text" class="form-control" placeholder="Other Description"
                                             wire:model="items.{{ $i }}.desc">
                                     @endif
                                 </td>
