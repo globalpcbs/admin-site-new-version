@@ -168,6 +168,7 @@ class Edit extends Component
     
     // button status ..
     public $button_status = 0;
+    public $no_layer_status;
 
     protected $listeners = [
         'simpleQuoteToggled' => 'handleSimpleQuoteToggle',
