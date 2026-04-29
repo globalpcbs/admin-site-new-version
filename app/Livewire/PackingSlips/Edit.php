@@ -118,10 +118,10 @@ class Edit extends Component
             $hasAlerts = $alerts->count() > 0;
             $hasProfiles = $profiles->count() > 0;
 
-            if ($hasAlerts) {
+            // if ($hasAlerts) {
                 $this->showAlertPopup = true;
                 $this->alertMessages = $alerts;
-            }
+            // }
 
             if ($hasProfiles) {
                 $this->showProfilePopup = true;

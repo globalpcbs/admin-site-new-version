@@ -148,10 +148,10 @@ class Edit extends Component
                 $this->showVendorAlertPopup = true;
                 $this->vendorAlertMessages = $vendorAlerts;
             }
-            if ($hasAlerts) {
+            // if ($hasAlerts) {
                 $this->showAlertPopup = true;
                 $this->alertMessages = $alerts;
-            }
+            // }
 
             if ($hasProfiles) {
                 $this->showProfilePopup = true;

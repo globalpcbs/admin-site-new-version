@@ -110,7 +110,7 @@ class Add extends Component
         $this->customer_id = $customer ? $customer->data_id : null;
         $this->button_status = 1;
        // dd($this->customer_id);
-          $alerts = Alert::where('customer', $this->customer)
+        $alerts = Alert::where('customer', $this->customer)
                 ->where('part_no', $this->part_no)
                 ->where('rev', $this->rev)
                 ->where('atype', 'p')
@@ -140,10 +140,10 @@ class Add extends Component
                 $this->showVendorAlertPopup = true;
                 $this->vendorAlertMessages = $vendorAlerts;
             }
-            if ($hasAlerts) {
+            // if ($hasAlerts) {
                 $this->showAlertPopup = true;
                 $this->alertMessages = $alerts;
-            }
+            // }
 
             if ($hasProfiles) {
                 $this->showProfilePopup = true;

@@ -80,7 +80,7 @@ class Edit extends Component
     
     // PCB Specifications
     public $ipc_class = '3';
-    public $no_layer = 'Double Sided';
+    public $no_layer = 'Other'; // Default value
     public $m_require = 'FR-4';
     public $thickness = '0.062';
     public $thickness_tole = '+/- 10%';
@@ -444,14 +444,13 @@ class Edit extends Component
             // Check for profile alerts
             $profiles = Profile::where('custid',$this->customer_id)->with('details')
                 ->get();
-        // dd($profiles->count());
             $hasAlerts = $alerts->count() > 0;
             $hasProfiles = $profiles->count() > 0;
              $this->button_status = 1;
-            if ($hasAlerts) {
+            // if ($hasAlerts) {
                 $this->showAlertPopup = true;
                 $this->alertMessages = $alerts;
-            }
+            // }
 
             if ($hasProfiles) {
                 $this->showProfilePopup = true;

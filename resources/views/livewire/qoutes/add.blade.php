@@ -392,7 +392,7 @@
                             <input name="chk1" type="radio" wire:model="no_layer" value="10Lyrs" />
                             <br /><br />
                             Other :
-                            <input name="chk1" type="radio" wire:model="no_layer" value="Other" />
+                            <input name="chk1" type="radio" wire:model="no_layer" value="Other"/>
                             <input type="text" name="txtother1" wire:model="no_layer" />
                         </td>
 

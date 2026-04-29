@@ -174,13 +174,13 @@ class Add extends Component
         session(['invoice_profiles' => $profiles]);
 
         // Show popups if they exist
-        if ($hasAlerts) {
+        // if ($hasAlerts) {
             $this->showAlertPopup = true;
             $this->alertMessages = $alerts;
             
             // Dispatch Livewire event to ensure modal opens
             $this->dispatch('show-alert-popup');
-        }
+        // }
 
         if ($hasProfiles) {
             $this->showProfilePopup = true;
