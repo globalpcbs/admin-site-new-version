@@ -287,7 +287,7 @@
                                 <tr>
                                     <td height="25" width='50%'>
                                                                      <!-- SimpleMDE CDN -->
-                                    <!-- SimpleMDE CDN -->
+                        
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css">
 <script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
 
@@ -393,7 +393,7 @@
                             <br /><br />
                             Other :
                             <input name="chk1" type="radio" wire:model="no_layer" value="Other" />
-                            <input type="text" name="txtother1" wire:model="txtother1" />
+                            <input type="text" name="txtother1" wire:model="no_layer" />
                         </td>
 
                         <td height="25" class="p-2">
