@@ -407,7 +407,7 @@
                                 onclick="clearval('txtother2')" />
                             &nbsp;
                             Other: <input name="chk7" type="radio" wire:model="m_require" value="Other" />
-                            <input name="txtother2" wire:model="txtother2" type="text" size="12" />
+                            <input name="txtother2" wire:model="m_require" type="text" size="12" />
                             <br /><br />
 
                             <strong>Inner Copper Oz: </strong>N/A
@@ -420,7 +420,7 @@
                             <input name="chk18" type="radio" wire:model="inner_copper" value="2" />
                             <br />
                             Other <input name="chk18" type="radio" wire:model="inner_copper" value="Other" />
-                            <input name="txtother6" wire:model="txtother6" type="text" size="10" /> Oz
+                            <input name="txtother6" wire:model="inner_copper" type="text" size="10" /> Oz
                         </td>
 
                         <td height="25" valign="top" class="p-2">
