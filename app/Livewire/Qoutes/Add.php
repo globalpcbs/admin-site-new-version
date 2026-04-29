@@ -338,8 +338,7 @@ public function updateCustomerId($selectedName)
         $customer = Customer::where('c_name', $this->cust_name)->first();
         $this->customer_id = $customer ? $customer->data_id : null;
        // dd($this->customer_id);
-          $alerts = Alert::where('customer', $this->cust_name)
-                ->where('part_no', $this->part_no)
+          $alerts = Alert::where('part_no', $this->part_no)
                 ->where('rev', $this->rev)
                 ->where('atype', 'p')
                 ->orderBy('id', 'desc')
