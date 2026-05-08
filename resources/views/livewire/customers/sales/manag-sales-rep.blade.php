@@ -42,7 +42,10 @@
     <div class="card-header bg-primary text-white">
         <h5>
                 <i class="fa fa-list"></i> Manage Sales Rep
-                <i class="fa fa-spinner fa-spin float-right" wire:loading></i>
+                <i class="fa fa-spinner fa-spin" wire:loading></i>
+                 <a href="{{ route('customers.sales.add') }}">
+                <button class="btn btn-light float-end btn-sm"><i class="fa fa-plus-circle""></i> Add Sales Rep</button>
+                </a>
         </h5>
     </div>
     <div class="card-body">

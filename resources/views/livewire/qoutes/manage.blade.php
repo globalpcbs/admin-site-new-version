@@ -101,7 +101,10 @@
                  <h5>
                     <b>
                         <i class="fa fa-list"></i> Manage Quotes
-                        <i class="fa fa-spin fa-spinner float-end" wire:loading></i>
+                        <i class="fa fa-spin fa-spinner" wire:loading></i>
+                        <a href="{{ route('add.qoutes') }}">
+                        <button class="btn btn-light float-end btn-sm"><i class="fa fa-plus-circle""></i> Add New Quote</button>
+                        </a>
                     </b>
                 </h5>
             </div>

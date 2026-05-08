@@ -14,10 +14,14 @@ class Manage extends Component
 
     public $confirmingDelete = false;
     public $deleteId;
-     // SIMPLE alert properties
+    
+    // Filter property
+    public $selectedCustomer = '';
+    
+    // Alert properties
     public $alertMessage = '';
     public $alertType = '';
-    protected $listeners = ['alert-hidden' => 'clearAlert'];
+    protected $listeners = ['alert-hidden' => 'clearAlert', 'refresh-component' => '$refresh'];
 
     public function clearAlert()
     {
@@ -25,6 +29,16 @@ class Manage extends Component
         $this->alertType = '';
     }
 
+    public function filterCustomers($customerId)
+    {
+        $this->selectedCustomer = $customerId;
+        $this->resetPage();
+    }
+
+    public function updatingSelectedCustomer()
+    {
+        $this->resetPage();
+    }
 
     public function confirmDelete($id)
     {
@@ -32,30 +46,47 @@ class Manage extends Component
         $this->deleteId = $id;
     }
 
-    public function deleteProfile($id)
+    public function deleteProfile($id = null)
     {
-        $this->deleteId = $id;
-        $profile = Profile::find($this->deleteId);
+        $profileId = $id ?? $this->deleteId;
+        
+        $profile = Profile::find($profileId);
         if ($profile) {
             ProfileDetail::where('profid', $profile->profid)->delete();
             $profile->delete();
+            
+            $this->alertMessage = 'Profile deleted successfully.';
+            $this->alertType = 'success';
+        } else {
+            $this->alertMessage = 'Profile not found.';
+            $this->alertType = 'danger';
         }
-         // SIMPLE: Just set the alert
-        $this->alertMessage = 'Profile deleted successfully.';
-        $this->alertType = 'warning';
         
-        // Clear alert after a short delay by forcing a re-render
+        $this->confirmingDelete = false;
+        $this->deleteId = null;
         $this->dispatch('refresh-component');
     }
 
     public function render()
     {
+        // Get all customers for the filter dropdown
+        $customers = Customer::select('data_id', 'c_name')
+            ->orderBy('c_name', 'asc')
+            ->get();
+        
+        // Get profiles with optional customer filtering
         $profiles = Profile::with('customer', 'details')
-            ->orderByDesc('profid')
+            ->join('data_tb', 'profile_tb.custid', '=', 'data_tb.data_id')
+            ->when($this->selectedCustomer, function ($query) {
+                $query->where('profile_tb.custid', $this->selectedCustomer);
+            })
+            ->orderBy('data_tb.c_name', 'asc')
+            ->select('profile_tb.*', 'data_tb.c_name as customer_name')
             ->paginate(10);
 
         return view('livewire.customers.profile.manage', [
-            'profiles' => $profiles
+            'profiles' => $profiles,
+            'customers' => $customers
         ])->layout('layouts.app', ['title' => 'Manage Customer Profiles']);
     }
 }

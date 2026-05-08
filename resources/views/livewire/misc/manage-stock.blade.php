@@ -154,7 +154,10 @@
                 <div class="card-header bg-primary text-white">
                     <h5>
                         <i class="fa fa-list"></i> Manage Stock
-                        <i class="fa fa-spin fa-spinner float-end" wire:loading></i>
+                        <i class="fa fa-spin fa-spinner" wire:loading></i>
+                        <a href="{{ route('misc.add-stock') }}">
+                        <button class="btn btn-light float-end btn-sm"><i class="fa fa-plus-circle""></i> Add Stock</button>
+                        </a>
                     </h5>
                 </div>
                 <div>

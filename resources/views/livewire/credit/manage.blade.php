@@ -99,12 +99,13 @@
         <!-- 💳 card with table -->
         <div class="card shadow-sm">
             <div class="card-header bg-primary text-white">
-                <h5>
-                    <b>
-                        <i class="fa fa-list"></i> Credit Records
-                        <i class="fa fa-spin fa-spinner float-end" wire:loading></i>
-                    </b>
-                </h5>
+                <b>
+                    <i class="fa fa-list"></i> Credit Records
+                    <i class="fa fa-spin fa-spinner" wire:loading></i>
+                        <a href="{{ route('credit.add') }}">
+                    <button class="btn btn-light float-end btn-sm"><i class="fa fa-plus-circle""></i> Add Credit</button>
+                    </a>
+                </b>
             </div>
 
             <div class="card-body p-0">

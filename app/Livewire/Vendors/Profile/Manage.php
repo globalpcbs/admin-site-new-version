@@ -15,16 +15,30 @@ class Manage extends Component
 
     public $confirmingDelete = false;
     public $deleteId;
+    
+    // Filter property
+    public $selectedVendor = '';
 
-     // SIMPLE alert properties
+    // Alert properties
     public $alertMessage = '';
     public $alertType = '';
-    protected $listeners = ['alert-hidden' => 'clearAlert'];
+    protected $listeners = ['alert-hidden' => 'clearAlert', 'refresh-component' => '$refresh'];
 
     public function clearAlert()
     {
         $this->alertMessage = '';
         $this->alertType = '';
+    }
+
+    public function filterVendors($vendorId)
+    {
+        $this->selectedVendor = $vendorId;
+        $this->resetPage();
+    }
+
+    public function updatingSelectedVendor()
+    {
+        $this->resetPage();
     }
 
     public function confirmDelete($id)
@@ -33,32 +47,44 @@ class Manage extends Component
         $this->confirmingDelete = true;
     }
 
-    public function deleteVendorProfile($id)
-    {  // dd($id);
-        $this->deleteId = $id;
-        DB::transaction(function () {
-            ProfileVendor::where('profid', $this->deleteId)->delete();
-            ProfileVendor2::where('profid', $this->deleteId)->delete();
+    public function deleteVendorProfile($id = null)
+    {
+        $profileId = $id ?? $this->deleteId;
+        
+        DB::transaction(function () use ($profileId) {
+            ProfileVendor2::where('profid', $profileId)->delete();
+            ProfileVendor::where('profid', $profileId)->delete();
         });
 
-         // SIMPLE: Just set the alert
-        $this->alertMessage = 'Profile deleted successfully.';
-        $this->alertType = 'danger';
+        $this->alertMessage = 'Vendor profile deleted successfully.';
+        $this->alertType = 'success';
         
-        // Clear alert after a short delay by forcing a re-render
+        $this->confirmingDelete = false;
+        $this->deleteId = null;
         $this->dispatch('refresh-component');
     }
 
     public function render()
     {
+        // Get all vendors for the filter dropdown
+        $vendorsList = Vendor::select('data_id', 'c_name')
+            ->orderBy('c_name', 'asc')
+            ->get();
+        
+        // Get vendor profiles with optional filtering
         $vendors = ProfileVendor::with([
-                'requirements',  // Assuming relationship in ProfileVendor: hasOne(ProfileVendor2::class, 'profid', 'profid')
-                'vendor'     // Assuming relationship in ProfileVendor: belongsTo(Vendor::class, 'custid', 'data_id')
-            ])
-            ->orderBy('profid', 'desc')
-            ->paginate(10);
+            'requirements', // Relationship in ProfileVendor: hasMany/hasOne to ProfileVendor2
+            'vendor'        // Relationship in ProfileVendor: belongsTo Vendor
+        ])
+        ->join('vendor_tb', 'profile_vendor_tb.custid', '=', 'vendor_tb.data_id')
+        ->when($this->selectedVendor, function ($query) {
+            $query->where('profile_vendor_tb.custid', $this->selectedVendor);
+        })
+        ->orderBy('vendor_tb.c_name', 'asc') // Alphabetical order by vendor name
+        ->select('profile_vendor_tb.*', 'vendor_tb.c_name as vendor_name')
+        ->paginate(10);
 
-        return view('livewire.vendors.profile.manage', compact('vendors'))
+        return view('livewire.vendors.profile.manage', compact('vendors', 'vendorsList'))
             ->layout('layouts.app', ['title' => 'Manage Vendors Profile']);
     }
 }

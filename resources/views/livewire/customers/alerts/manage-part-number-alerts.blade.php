@@ -142,7 +142,10 @@
         <div class="card shadow-sm">
             <div class="card-header bg-primary text-white fw-bold">
                 Manage Part‑Number Alerts - testing
-                <i class="fa fa-spin fa-spinner float-end" wire:loading></i>
+                <i class="fa fa-spin fa-spinner" wire:loading></i>
+                <a href="{{ route('customers.alerts.add-part') }}">
+                <button class="btn btn-light float-end btn-sm"><i class="fa fa-plus-circle""></i> Add Alert</button>
+                </a>
             </div>
 
             <div class="table-responsive">

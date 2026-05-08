@@ -104,6 +104,9 @@
                     <b>
                         <i class="fa fa-list"></i> Confirmation Orders
                         <i class="fa fa-spin fa-spinner float-end" wire:loading></i>
+                        <a href="{{ route('confirmation.add') }}">
+                        <button class="btn btn-light float-end btn-sm"><i class="fa fa-plus-circle""></i> Add Order Confirmation</button>
+                        </a>
                     </b>
                 </h5>
             </div>

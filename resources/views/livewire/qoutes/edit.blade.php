@@ -821,7 +821,7 @@
                     <label class="modal-title fw-bold text-dark m-0" style="font-size: 18px;">
                         <i class="fa fa-bell"></i> Part no Alerts</label>
                     <button type="button" class="btn btn-link text-danger p-0" style="font-size: 13px;"
-                        wire:click="closeAlertPopup">Close</button>
+                    onclick="event.stopPropagation(); @this.call('closeAlertPopup');">Close</button>
                 </div>
 
                 <div class="modal-body pt-2 px-3">
@@ -905,7 +905,7 @@
                     <label class="modal-title fw-bold text-dark m-0" style="font-size: 16px;">
                         <i class="fa fa-user-circle"></i> Customer Profile Requirements</label>
                     <button type="button" class="btn btn-link text-danger p-0" style="font-size: 13px;"
-                        wire:click="closeProfilePopup">Close</button>
+    onclick="event.stopPropagation(); @this.call('closeProfilePopup');">Close</button>
                 </div>
 
                 <div class="modal-body pt-2 px-4" style="max-height: 70vh; overflow-y: auto;">
@@ -932,141 +932,179 @@
                 </div>
             </div>
         </div>
-        </di v>
+        </div>
 
-        <style>
-            .modal {
-                z-index: 1040;
-                background-color: transparent;
-                pointer-events: none;
-                /* Allow clicks to pass through modal container */
+ <style>
+    .modal {
+        z-index: 1040;
+        background-color: transparent;
+        pointer-events: none;
+    }
+
+    .modal.show {
+        z-index: 1050;
+        display: block;
+    }
+
+    .draggable-modal {
+        position: fixed;
+        margin: 0;
+        z-index: 1050;
+        pointer-events: auto;
+    }
+    
+    /* Alert Modal - Upper position */
+    #alertModal .draggable-modal {
+        top: 8% !important;
+        left: 25% !important;
+        transform: translate(0px, 0px) !important;
+    }
+    
+    /* Profile Modal - Lower position with good gap */
+    #profileModal .draggable-modal {
+        top: 32% !important;
+        left: 35% !important;
+        transform: translate(0px, 0px) !important;
+    }
+
+    .modal-drag-handle {
+        cursor: move;
+    }
+
+    .modal-content * {
+        pointer-events: auto;
+    }
+    
+    /* Close button styling */
+    .modal-header .btn-link {
+        text-decoration: none;
+        z-index: 1060;
+        position: relative;
+    }
+    
+    .form-check-inline .form-check-input {
+        margin-right: 0;
+    }
+    .form-check-inline .form-check-label {
+        margin-left: 0;
+        padding-left: 0;
+    }
+    
+    @media (max-width: 768px) {
+        #alertModal .draggable-modal {
+            top: 5% !important;
+            left: 10% !important;
+            width: 80% !important;
+        }
+        
+        #profileModal .draggable-modal {
+            top: 45% !important;
+            left: 10% !important;
+            width: 80% !important;
+        }
+    }
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        let zIndexCounter = 1050;
+        let modalPositions = {};
+
+        // Initialize interact.js for draggable modals
+        interact('.draggable-modal').draggable({
+            allowFrom: '.modal-drag-handle',
+            ignoreFrom: 'button, input, a, .btn, [wire\\:click], [wire\\:model]',
+            modifiers: [
+                interact.modifiers.restrictRect({
+                    restriction: 'parent',
+                    endOnly: true
+                })
+            ],
+            listeners: {
+                start(event) {
+                    bringToFront(event.target);
+                },
+                move(event) {
+                    const target = event.target;
+                    const modalId = target.closest('.modal')?.id;
+                    
+                    let x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx;
+                    let y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
+
+                    target.style.transform = `translate(${x}px, ${y}px)`;
+                    target.setAttribute('data-x', x);
+                    target.setAttribute('data-y', y);
+                    
+                    if (modalId) {
+                        modalPositions[modalId] = { x: x, y: y };
+                    }
+                }
             }
+        });
 
-            .modal.show {
-                z-index: 1050;
-                display: block;
+        function bringToFront(modal) {
+            zIndexCounter++;
+            modal.style.zIndex = zIndexCounter;
+        }
+
+        function setInitialModalPosition(modalId) {
+            const modal = document.querySelector(`#${modalId} .draggable-modal`);
+            if (modal && !modalPositions[modalId]) {
+                if (modalId === 'alertModal') {
+                    modal.style.top = '8%';
+                    modal.style.left = '25%';
+                } else if (modalId === 'profileModal') {
+                    modal.style.top = '32%';
+                    modal.style.left = '35%';
+                }
+                modal.style.transform = 'translate(0px, 0px)';
+                modal.setAttribute('data-x', 0);
+                modal.setAttribute('data-y', 0);
+                bringToFront(modal);
+            } else if (modal && modalPositions[modalId]) {
+                modal.style.transform = `translate(${modalPositions[modalId].x}px, ${modalPositions[modalId].y}px)`;
+                modal.setAttribute('data-x', modalPositions[modalId].x);
+                modal.setAttribute('data-y', modalPositions[modalId].y);
+                bringToFront(modal);
             }
+        }
 
-            .draggable-modal {
-                position: fixed;
-                margin: 0;
-                z-index: 1050;
-                pointer-events: auto;
-                /* Enable interactions within modal */
-            }
+        // Livewire event listeners
+        document.addEventListener('livewire:init', () => {
+            Livewire.on('showAlertPopup', () => {
+                setTimeout(() => setInitialModalPosition('alertModal'), 50);
+            });
 
-            .mod al-drag-handle {
-                cursor: move;
-            }
+            Livewire.on('showProfilePopup', () => {
+                setTimeout(() => setInitialModalPosition('profileModal'), 50);
+            });
+        });
 
-            /* Ensure all interactive elements are clickable */
-            .modal-content * {
-                pointer-events: auto;
-            }
-        </style>
-
-        <script src="https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js"></script>
-        <script>
-            document.addEventListener('DOMContentLoaded', function () {
-                let zIndexCounter = 1050;
-
-                // Initializ  e interact.js for draggable modals
-                interact('.d raggable-modal').draggable({
-                    allo  wFrom: '.modal-drag-handle',
-                    ignoreFrom: 'button, input, a, .btn, [wire\\:click], [wire\\:model]',
-                    modifiers: [
-                        interact.modifiers.restrictRect({
-                            restriction: 'parent',
-                            endOnly: true
-                        })
-                    ],
-                    listener  s: {
-                        start(event) {
-                            bringToFront(event.target);
-                        },
-                        move(event) {
-                            const target = event.target;
-                            const x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx;
-                            const y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
-
-                            target.style.transform = `translate(${x}px, ${y}px)`;
-                            target.setAttribute('data-x', x);
-                            target.setAttribute('data-y', y);
-                        }
+        // Initial positioning if modals are already visible
+        if (document.querySelector('#alertModal.show')) {
+            setInitialModalPosition('alertModal');
+        }
+        if (document.querySelector('#profileModal.show')) {
+            setInitialModalPosition('profileModal');
+        }
+    });
+    
+    // For alert types update
+    document.addEventListener('livewire:init', function () {
+        Livewire.on('alert-types-updated', () => {
+            setTimeout(() => {
+                document.querySelectorAll('[wire\\:model="alertTypes"]').forEach(checkbox => {
+                    if (@this.alertTypes && @this.alertTypes.includes) {
+                        const shouldBeChecked = @this.alertTypes.includes(checkbox.value);
+                        checkbox.checked = shouldBeChecked;
+                        checkbox.dispatchEvent(new Event('change'));
                     }
                 });
-
-                function bringToFront(modal) {
-                    zIndexCounter++;
-                    modal.style.zIndex = zIndexCounter;
-                }
-
-                // Cente    r modals when they appear
-                function centerModal(modalId) {
-                    const modal = document.querySelector(`#${modalId} .draggable-modal`);
-                    if (modal) {
-                        const windowWidth = window.innerWidth;
-                        const windowHeight = window.innerHeight;
-                        const modalWidth = modal.offsetWidth;
-                        const modalHeight = modal.offsetHeight;
-
-                        modal.style.left = `${(windowWidth - modalWidth) / 2}px`;
-                        modal.style.top = `${(windowHeight - modalHeight) / 2}px`;
-                        modal.style.transform = 'translate(0px, 0px)';
-                        modal.setAttribute('data-x', 0);
-                        modal.setAttribute('data-y', 0);
-
-                        bringToFront(modal);
-                    }
-                }
-
-                // L   ivewire event listeners
-                document.addEventListener('livewire:init', () => {
-                    Livewire.on('alert-types-updated', () => {
-                        document.querySelectorAll('[wire\\:model="alertTypes"]').forEach(checkbox => {
-                            checkbox.checked = checkbox.value.includes(checkbox.value);
-                        });
-                    });
-
-                    Livewire.on('showAlertPopup', () => {
-                        centerModal('alertModal');
-                    });
-
-                    Livewire.on('showProfilePopup', () => {
-                        centerModal('profileModal');
-                    });
-                });
-
-                // Initial centering if modals are already visible
-                if (document.querySelector('#alertModal.show')) {
-                    centerModal('alertModal');
-                }
-                if (document.querySelector('#profileModal.show')) {
-                    centerModal('profileModal');
-                }
-            });
-            // for alert edit 
-            document.addEventListener('livewire:load', function () {
-                Livewire.on('alert-types-updated', () => {
-                    // Force re-render checkboxes
-                    document.querySelectorAll('[wire\\:model="alertTypes"]').forEach(checkbox => {
-                        checkbox.checked = @json($this->alertTypes).includes(checkbox.value);
-                    });
-                });
-            });
-            document.addEventListener('livewire:init', function () {
-                // Force checkbox updates when Livewire finishes rendering
-                Livewire.on('alert-types-updated', () => {
-                    setTimeout(() => {
-                        document.querySelectorAll('[wire\\:model="alertTypes"]').forEach(checkbox => {
-                            const shouldBeChecked = @this.alertTypes.includes(checkbox.value);
-                            checkbox.checked = shouldBeChecked;
-                            checkbox.dispatchEvent(new Event('change'));
-                        });
-                    }, 50);
-                });
-            });
-        </script>
+            }, 50);
+        });
+    });
+</script>
         <style>
     .form-check-inline .form-check-input {
         margin-right: 0;

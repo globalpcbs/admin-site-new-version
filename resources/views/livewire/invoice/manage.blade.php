@@ -146,7 +146,10 @@
                 <h5>
                     <b>
                         <i class="fa fa-list"></i> Manage Invoice
-                        <i class="fa fa-spin fa-spinner float-end" wire:loading></i>
+                        <i class="fa fa-spin fa-spinner" wire:loading></i>
+                        <a href="{{ route('invoice.add') }}">
+                        <button class="btn btn-light float-end btn-sm"><i class="fa fa-plus-circle""></i> Add Invoices</button>
+                        </a>
                     </b>
                 </h5>
             </div>

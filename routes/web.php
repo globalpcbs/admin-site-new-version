@@ -264,8 +264,7 @@ Route::middleware('auth')->group(function(){
             Route::get('manage-notes', ManageNotes::class)->name('manage-notes');
             Route::get('manage-notes/edit/{ntype}', Editnote::class)->name('manage-notes.edit');
             Route::get('po-file-upload', PoFileUpload::class)->name('po-upload');
-            Route::get('/po-upload/{customer?}/{part_no?}/{rev?}', Pofileuploadswork::class)
-    ->name('po-file-upload-work');
+            Route::get('/po-upload/{customer?}/{part_no?}/{rev?}', Pofileuploadswork::class)->name('po-file-upload-work');
             Route::get('order-placed-report', OrderPlacedReport::class)->name('order-report');
             Route::get('packing-slips-report', PackingSlipsReport::class)->name('packing-report');
             Route::get('receiving-log', RecevingLog::class)->name('receiving-log');
