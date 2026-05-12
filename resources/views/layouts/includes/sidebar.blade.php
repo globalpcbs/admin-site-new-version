@@ -1,4 +1,4 @@
-<div class="br-logo"><a href="#"><span>[</span>Pcbsglobals<span>]</span></a></div>
+<div class="br-logo"><a href="{{ route('dashboard') }}"><span>[</span>PCBs Global<span>]</span></a></div>
 <div class="br-sideleft overflow-y-auto">
     <label class="sidebar-label pd-x-15 mg-t-10">Navigation</label>
     <div class="br-sideleft-menu">

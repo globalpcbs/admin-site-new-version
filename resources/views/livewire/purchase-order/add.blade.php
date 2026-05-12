@@ -417,28 +417,28 @@
                 </div>
 
                 <div class="modal-body pt-2 px-3">
-    @if(!empty($vendorAlertMessages))
-        @php $vendorCount = 1; @endphp
-        @foreach($vendorAlertMessages as $profile)
-            @foreach($profile->requirements as $requirement)
-                <div class="pb-2 mb-2 border-bottom">
-                    <div class="d-flex justify-content-between">
-                        <div style="width: 95%;">
-                            <strong>{{ $vendorCount++ }}.</strong>
-                            <span style="font-size: 13px; word-wrap: break-word;">
-                                {{ $requirement->reqs }}
-                            </span>
+                    @if(!empty($vendorAlertMessages))
+                        @php $vendorCount = 1; @endphp
+                        @foreach($vendorAlertMessages as $profile)
+                            @foreach($profile->requirements as $requirement)
+                                <div class="pb-2 mb-2 border-bottom">
+                                    <div class="d-flex justify-content-between">
+                                        <div style="width: 95%;">
+                                            <strong>{{ $vendorCount++ }}.</strong>
+                                            <span style="font-size: 13px; word-wrap: break-word;">
+                                                {{ $requirement->reqs }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+                        @endforeach
+                    @else
+                        <div class="text-muted mb-3" style="font-size: 13px;">
+                            No vendor requirements found.
                         </div>
-                    </div>
+                    @endif
                 </div>
-            @endforeach
-        @endforeach
-    @else
-        <div class="text-muted mb-3" style="font-size: 13px;">
-            No vendor requirements found.
-        </div>
-    @endif
-</div>
             </div>
         </div>
     </div>
