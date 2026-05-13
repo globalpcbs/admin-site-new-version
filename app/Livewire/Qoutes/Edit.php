@@ -153,6 +153,61 @@ class Edit extends Component
     public $txtother15, $txtother16, $txtother17, $txtother19, $txtother28, $txtother51, $txtother52;
     public $txtother53, $txtother54, $txtother55, $txtother56;
     public $customer_id; // Add this to store the ID
+     // ==========================================
+    // RADIO BUTTONS (chk1 se chk204)
+    // ==========================================
+    public $chk1 = '';      // Layer: single, Double Sided, 4Lyrs, 6Lyrs, 8Lyrs, 10Lyrs, Other
+    public $chk7 = '';      // Material: FR-4, FR-4/170TG Min, Rogers 4003, Other
+    public $chk10 = '';     // External Cu: 0.5, 1, 2, Other
+    public $chk13 = '';     // Thickness: 0.031, 0.062, 0.093, Other
+    public $chk17 = '';     // Thickness Tolerance: +/- 10%, Other
+    public $chk18 = '';     // Inner Copper: N/A, .5, 1, 2, Other
+    public $chk22 = '';     // Plated Cu: .0010, .0014, 1oz, Other
+    public $chk27 = '';     // Trace Min: .006, .005, .004, .003, Other
+    public $chk31 = '';     // Space Min: .006, .005, .004, .003, Other
+    public $chk43 = '';     // Finish: HASL, Lead-Free HASL, ENIG, Imm.Silver, Imm.Tin, Other
+    public $chk48 = '';     // Mask Sides: N/A, 1, Both
+    public $chk51 = '';     // Mask Color: Green, Blue, Other
+    public $chk53 = '';     // Mask Type: Glossy, Matte
+    public $chk55 = '';     // SS Sides: N/A, 1, 2
+    public $chk58 = '';     // SS Color: White, Black, Yellow, Other
+    public $chk63 = '';     // Array: YES, NO
+    public $chk65 = '';     // Array Design Provided: Yes, No
+    public $chk67 = '';     // Factory to Design Array: yes, No
+    public $chk83 = '';     // Logo: Factory, Other
+    public $chk87 = '';     // Date Code: WWYY, YYWW, Other Marking
+    public $chk202 = '';    // Impedance Tolerance: +/- 10%, Other
+    public $chk204 = '';    // Rout Tolerance: +/-.005, Other
+    public $chki1 = '';     // IPC Class: 1, 2, 3
+
+    // ==========================================
+    // CHECKBOXES (chk25 se chk215)
+    // ==========================================
+    public $chk25 = false;  // Fingers Nickel/Hard Gold
+    public $chk35 = false;  // Controlled Impedance
+    public $chk37 = false;  // Blind Vias
+    public $chk39 = false;  // Buried Vias
+    public $chk69 = false;  // Tab Route
+    public $chk70 = false;  // V Score
+    public $chk72 = false;  // Tooling Holes
+    public $chk73 = false;  // Fiducials
+    public $chk74 = false;  // Mousebites
+    public $chk75 = false;  // Milling/Bevel
+    public $chk77 = false;  // Countersink
+    public $chk79 = false;  // Control Depth
+    public $chk81 = false;  // Edge Plating/Slots
+    public $chk85 = false;  // 94V-0 Mark
+    public $chk90 = false;  // Microsection Required
+    public $chk92 = false;  // Electrical Test Stamp
+    public $chk94 = false;  // In Board
+    public $chk95 = false;  // X-Outs Allowed
+    public $chk97 = false;  // RoHS Cert
+    public $chk109 = false; // Single Ended
+    public $chk110 = false; // Differential
+    public $chk199 = false; // In Array Rail
+    public $chk200 = false; // HDI Design
+    public $chk210 = false; // Conductive Filled Vias
+    public $chk215 = false; // Non-Conductive Filled
           // for alerts 
     public bool $showAlertPopup = false;
     public $customers_main = [];
@@ -705,6 +760,31 @@ class Edit extends Component
                 'fob_oth' => $this->fob_oth,
                 'vid' => $this->vid,
                 'vid_oth' => $this->vid_oth,
+                  // PCB Specifications - Direct mapping with condition
+            'no_layer' => $this->txtother1 != '' ? $this->txtother1 : $this->chk1,
+            'm_require' => $this->txtother2 != '' ? $this->txtother2 : $this->chk7,
+            'start_cu' => $this->txtother3 != '' ? $this->txtother3 : $this->chk10,
+            'thickness' => $this->txtother4 != '' ? $this->txtother4 : $this->chk13,
+            'thickness_tole' => $this->txtother5 != '' ? $this->txtother5 : $this->chk17,
+            'inner_copper' => $this->txtother6 != '' ? $this->txtother6 : $this->chk18,
+            'plated_cu' => $this->txtother7 != '' ? $this->txtother7 : $this->chk22,
+            'hole_size' => $this->txtother8,
+            'finish' => $this->txtother9 != '' ? $this->txtother9 : $this->chk43,
+            'color' => $this->txtother10 != '' ? $this->txtother10 : $this->chk51,
+            'ss_color' => $this->txtother11 != '' ? $this->txtother11 : $this->chk58,
+            'board_size1' => $this->txtother12,
+            'board_size2' => $this->txtother13,
+            'b_per_array' => $this->txtother14,
+            'array_size1' => $this->txtother15,
+            'array_size2' => $this->txtother16,
+            'other_marking' => $this->txtother17,
+            'pad' => $this->txtother19,
+            'xouts1' => $this->txtother28,
+            'tore_impe' => $this->txtother51 != '' ? $this->txtother51 : $this->chk202,
+            'route_tole' => $this->txtother52 != '' ? $this->txtother52 : $this->chk204,
+            'trace_min' => $this->txtother54 != '' ? $this->txtother54 : $this->chk27,
+            'space_min' => $this->txtother55 != '' ? $this->txtother55 : $this->chk31,
+            'logo' => $this->txtother56 != '' ? $this->txtother56 : $this->chk83,
                 // Add all other fields from your form
             ];
             // Add quantities to order data
