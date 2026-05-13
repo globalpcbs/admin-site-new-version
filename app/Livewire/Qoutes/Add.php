@@ -142,6 +142,48 @@ class Add extends Component
     public $txtother15, $txtother16, $txtother17, $txtother19, $txtother28, $txtother51, $txtother52;
     public $txtother53, $txtother54, $txtother55, $txtother56;
     public $request_by;
+    // chk 
+    public $chk1 = '';      // single, Double Sided, 4Lyrs, 6Lyrs, 8Lyrs, 10Lyrs, Other
+    
+    // Material Radio (name="chk7" in old HTML)
+    public $chk7 = '';      // FR-4, FR-4/170TG Min, Rogers 4003, Other
+    
+    // External Copper Radio (name="chk10" in old HTML)
+    public $chk10 = '';     // 0.5, 1, 2, Other
+    
+    // Thickness Radio (name="chk13" in old HTML)
+    public $chk13 = '';     // 0.031, 0.062, 0.093, Other
+    
+    // Thickness Tolerance Radio (name="chk17" in old HTML)
+    public $chk17 = '';     // +/- 10%, Other
+    
+    // Inner Copper Radio (name="chk18" in old HTML)
+    public $chk18 = '';     // N/A, .5, 1, 2, Other
+    
+    // Plated Cu Radio (name="chk22" in old HTML)
+    public $chk22 = '';     // .0010, .0014, 1oz, Other
+    
+    // Finish Radio (name="chk43" in old HTML)
+    public $chk43 = '';     // HASL, Lead-Free HASL, ENIG, Imm.Silver, Imm.Tin, Other
+    
+    // Mask Sides Radio (name="chk48" in old HTML)
+    public $chk48 = '';     // N/A, 1, Both
+    
+    // Mask Color Radio (name="chk51" in old HTML)
+    public $chk51 = '';     // Green, Blue, Other
+    
+    // Silkscreen Sides Radio (name="chk55" in old HTML)
+    public $chk55 = '';     // N/A, 1, 2
+    
+    // Silkscreen Color Radio (name="chk58" in old HTML)
+    public $chk58 = '';     // White, Black, Yellow, Other
+    
+    // Array Radio (name="chk63" in old HTML)
+    public $chk63 = '';     // YES, NO
+    
+    // Array Design Radio (name="chk65" in old HTML)
+    public $chk65 = '';     // Yes, No
+    
     
     
     // Data for dropdowns
