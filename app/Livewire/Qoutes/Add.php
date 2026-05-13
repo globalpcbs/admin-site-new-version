@@ -143,46 +143,61 @@ class Add extends Component
     public $txtother53, $txtother54, $txtother55, $txtother56;
     public $request_by;
     // chk 
-    public $chk1 = '';      // single, Double Sided, 4Lyrs, 6Lyrs, 8Lyrs, 10Lyrs, Other
-    
-    // Material Radio (name="chk7" in old HTML)
-    public $chk7 = '';      // FR-4, FR-4/170TG Min, Rogers 4003, Other
-    
-    // External Copper Radio (name="chk10" in old HTML)
-    public $chk10 = '';     // 0.5, 1, 2, Other
-    
-    // Thickness Radio (name="chk13" in old HTML)
-    public $chk13 = '';     // 0.031, 0.062, 0.093, Other
-    
-    // Thickness Tolerance Radio (name="chk17" in old HTML)
-    public $chk17 = '';     // +/- 10%, Other
-    
-    // Inner Copper Radio (name="chk18" in old HTML)
-    public $chk18 = '';     // N/A, .5, 1, 2, Other
-    
-    // Plated Cu Radio (name="chk22" in old HTML)
-    public $chk22 = '';     // .0010, .0014, 1oz, Other
-    
-    // Finish Radio (name="chk43" in old HTML)
-    public $chk43 = '';     // HASL, Lead-Free HASL, ENIG, Imm.Silver, Imm.Tin, Other
-    
-    // Mask Sides Radio (name="chk48" in old HTML)
-    public $chk48 = '';     // N/A, 1, Both
-    
-    // Mask Color Radio (name="chk51" in old HTML)
-    public $chk51 = '';     // Green, Blue, Other
-    
-    // Silkscreen Sides Radio (name="chk55" in old HTML)
-    public $chk55 = '';     // N/A, 1, 2
-    
-    // Silkscreen Color Radio (name="chk58" in old HTML)
-    public $chk58 = '';     // White, Black, Yellow, Other
-    
-    // Array Radio (name="chk63" in old HTML)
-    public $chk63 = '';     // YES, NO
-    
-    // Array Design Radio (name="chk65" in old HTML)
-    public $chk65 = '';     // Yes, No
+    // ==========================================
+    // RADIO BUTTONS (chk1 se chk204)
+    // ==========================================
+    public $chk1 = '';      // Layer: single, Double Sided, 4Lyrs, 6Lyrs, 8Lyrs, 10Lyrs, Other
+    public $chk7 = '';      // Material: FR-4, FR-4/170TG Min, Rogers 4003, Other
+    public $chk10 = '';     // External Cu: 0.5, 1, 2, Other
+    public $chk13 = '';     // Thickness: 0.031, 0.062, 0.093, Other
+    public $chk17 = '';     // Thickness Tolerance: +/- 10%, Other
+    public $chk18 = '';     // Inner Copper: N/A, .5, 1, 2, Other
+    public $chk22 = '';     // Plated Cu: .0010, .0014, 1oz, Other
+    public $chk27 = '';     // Trace Min: .006, .005, .004, .003, Other
+    public $chk31 = '';     // Space Min: .006, .005, .004, .003, Other
+    public $chk43 = '';     // Finish: HASL, Lead-Free HASL, ENIG, Imm.Silver, Imm.Tin, Other
+    public $chk48 = '';     // Mask Sides: N/A, 1, Both
+    public $chk51 = '';     // Mask Color: Green, Blue, Other
+    public $chk53 = '';     // Mask Type: Glossy, Matte
+    public $chk55 = '';     // SS Sides: N/A, 1, 2
+    public $chk58 = '';     // SS Color: White, Black, Yellow, Other
+    public $chk63 = '';     // Array: YES, NO
+    public $chk65 = '';     // Array Design Provided: Yes, No
+    public $chk67 = '';     // Factory to Design Array: yes, No
+    public $chk83 = '';     // Logo: Factory, Other
+    public $chk87 = '';     // Date Code: WWYY, YYWW, Other Marking
+    public $chk202 = '';    // Impedance Tolerance: +/- 10%, Other
+    public $chk204 = '';    // Rout Tolerance: +/-.005, Other
+    public $chki1 = '';     // IPC Class: 1, 2, 3
+
+    // ==========================================
+    // CHECKBOXES (chk25 se chk215)
+    // ==========================================
+    public $chk25 = false;  // Fingers Nickel/Hard Gold
+    public $chk35 = false;  // Controlled Impedance
+    public $chk37 = false;  // Blind Vias
+    public $chk39 = false;  // Buried Vias
+    public $chk69 = false;  // Tab Route
+    public $chk70 = false;  // V Score
+    public $chk72 = false;  // Tooling Holes
+    public $chk73 = false;  // Fiducials
+    public $chk74 = false;  // Mousebites
+    public $chk75 = false;  // Milling/Bevel
+    public $chk77 = false;  // Countersink
+    public $chk79 = false;  // Control Depth
+    public $chk81 = false;  // Edge Plating/Slots
+    public $chk85 = false;  // 94V-0 Mark
+    public $chk90 = false;  // Microsection Required
+    public $chk92 = false;  // Electrical Test Stamp
+    public $chk94 = false;  // In Board
+    public $chk95 = false;  // X-Outs Allowed
+    public $chk97 = false;  // RoHS Cert
+    public $chk109 = false; // Single Ended
+    public $chk110 = false; // Differential
+    public $chk199 = false; // In Array Rail
+    public $chk200 = false; // HDI Design
+    public $chk210 = false; // Conductive Filled Vias
+    public $chk215 = false; // Non-Conductive Filled
     
     
     
