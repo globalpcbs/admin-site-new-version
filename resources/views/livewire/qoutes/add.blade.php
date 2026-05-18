@@ -8,12 +8,12 @@
                     class="up" style="left:35px;">
                     <tr>
                         <td height="25" bgcolor='#336699' colspan="3" align="center">
-                            <font color="white"><span class="style1">Online Request For Quote Form</font></span>
+                            <font color="white"><span class="style1">Online Request For Quote Form <i class="fa fa-spinner fa-spin" wire:loading></i></font></span>
                         </td>
                     </tr>
 
                     <tr>
-                        <td height="25" class="p-2" colspan='3'><strong>Lookup ID :</strong>
+                        <td height="25" class="p-2" colspan='3'><strong>Lookup ID :  </strong>
                             <input type="text" size="60" wire:model="search" wire:keyup="onKeyUp($event.target.value)"
                                 autocomplete="off" />
                             @if($matches)
