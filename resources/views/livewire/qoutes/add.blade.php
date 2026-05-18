@@ -183,7 +183,7 @@
 
                                 <strong>FOB:</strong>
                                 <select name="fob" wire:model="fob">
-                                    <option value="Anaheim">Anaheim</option>
+                                    <option value="Anaheim" selected>Anaheim</option>
                                     <option value="Customer Dock">Customer Dock</option>
                                     <option value="Factory">Factory</option>
                                     <option value="Hong Kong">Hong Kong</option>
