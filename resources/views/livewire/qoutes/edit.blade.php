@@ -392,7 +392,7 @@
                             <input name="chk1" type="radio" wire:model="no_layer" value="10Lyrs" />
                             <br /><br />
                             Other :
-                            <input name="chk1" type="radio" value="Other"  @if($no_layer != "6Lyrs" || $no_layer != "4Lyrs" || $no_layer != "8Lyrs" || $no_layer != "10Lyrs" ) checked @endif />
+                            <input name="chk1" type="radio" value="Other" wire:model="chk1"  @if($no_layer != "6Lyrs" || $no_layer != "4Lyrs" || $no_layer != "8Lyrs" || $no_layer != "10Lyrs" ) checked @endif />
                             <input type="text" name="txtother1" wire:model="txtother1" />
                         </td>
 
@@ -419,7 +419,7 @@
                             &nbsp; 2
                             <input name="chk18" type="radio" wire:model="inner_copper" value="2" />
                             <br />
-                            Other <input name="chk18" type="radio" wire:model="inner_copper" value="Other" />
+                            Other <input name="chk18" type="radio" wire:model="chk18" value="Other" />
                             <input name="txtother6" wire:model="txtother6" type="text" size="10" /> Oz
                         </td>
 
@@ -443,7 +443,7 @@
                             <br />
                             <br />
                             +-10% <input name="chk17" type="radio" wire:model="thickness_tole" value="+/- 10%" />
-                            Other <input name="chk17" type="radio" wire:model="thickness_tole" value="Other" />
+                            Other <input name="chk17" type="radio" wire:model="chk17" value="Other" />
                             <input name="txtother5" wire:model="txtother5" type="text" size="5" />
                         </td>
                     </tr>
@@ -471,7 +471,7 @@
                             <br />
                             <br />
                             Other :
-                            <input name="chk10" type="radio" wire:model="start_cu" value="Other" />
+                            <input name="chk10" type="radio" wire:model="chk10" value="Other" />
                             <input type="text" name="txtother3" wire:model="txtother3" /> Oz
                             <br />
                             <br />
@@ -481,7 +481,7 @@
                             &nbsp; .0014 <input name="chk22" type="radio" wire:model="plated_cu" value=".0014 " />
                             &nbsp;&nbsp;&nbsp;&nbsp;1oz <input name="chk22" type="radio" wire:model="plated_cu"
                                 value="1oz " />
-                            &nbsp; Other <input name="chk22" type="radio" wire:model="plated_cu" value="Other" />
+                            &nbsp; Other <input name="chk22" type="radio" wire:model="chk22" value="Other" />
                             <input name="txtother7" wire:model="txtother7" type="text" size="5" />
                             <br />
                             <br />
@@ -513,7 +513,7 @@
                             .003 <input name="chk31" type="radio" wire:model="space_min" value=".003"
                                 onclick="clearval('txtother55')" />
                             <br />
-                            Other <input name="chk31" type="radio" wire:model="space_min" value="Other" />
+                            Other <input name="chk31" type="radio" wire:model="chk31" value="Other" />
                             <input name="txtother55" wire:model="txtother55" type="text" size="10" />
                             <br />
                             <br />
@@ -529,7 +529,7 @@
                             <br />
                             <strong>Impedance Tolerance:</strong>
                             <br />+-10% <input name="chk202" type="radio" wire:model="tore_impe" value="+/- 10%" />
-                            Other <input name="chk202" type="radio" wire:model="tore_impe" value="Other" />
+                            Other <input name="chk202" type="radio" wire:model="chk202" value="Other" />
                             <input name="txtother51" wire:model="txtother51" type="text" size="10" />
                         </td>
 
@@ -588,7 +588,7 @@
                             <input name="chk43" type="radio" wire:model="finish" value="Imm.Tin" />
                             <br />
                             <br />
-                            Other : <input name="chk43" type="radio" wire:model="finish" value="Other" />
+                            Other : <input name="chk43" type="radio" wire:model="chk43" value="Other" />
                             <input name="txtother9" wire:model="txtother9" type="text" size="15" />
                         </td>
 
@@ -638,7 +638,7 @@
                             <br />
                             <br />
                             <strong>Other:</strong>
-                            <input name="chk58" type="radio" wire:model="ss_color" value="Other" />
+                            <input name="chk58" type="radio" wire:model="chk58" value="Other" />
                             <input name="txtother11" wire:model="txtother11" type="text" size="15" />
                         </td>
                     </tr>
@@ -678,7 +678,7 @@
                             <strong>Rout Tolerance:</strong> +/-.005
                             <input name="chk204" type="radio" wire:model="route_tole" value="+/-.005"
                                 onclick="clearval('txtother53')" />
-                            Other <input name="chk204" type="radio" wire:model="route_tole" value="Other" />
+                            Other <input name="chk204" type="radio" wire:model="chk204" value="Other" />
                             <input name="txtother52" wire:model="txtother52" type="text" size="2" />
                         </td>
 
@@ -751,7 +751,7 @@
                             &nbsp; YYWW <input name="chk87" type="radio" wire:model="date_code" value="YYWW" />
                             &nbsp;
                             <strong>Other Marking: </strong>
-                            <input name="chk87" type="radio" wire:model="date_code" value="Other Marking " />
+                            <input name="chk87" type="radio" wire:model="chk87" value="Other Marking " />
                             <input name="txtother17" wire:model="txtother17" type="text" size="10" /> D/C Format
                         </td>
 
