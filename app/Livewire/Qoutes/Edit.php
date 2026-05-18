@@ -659,6 +659,12 @@ class Edit extends Component
         }
      public function saveproccess()
     {
+        dd([
+            'm_require_from_property' => $this->m_require,
+            'chk7_value' => $this->chk7,
+            'txtother2_value' => $this->txtother2,
+            'final_m_require' => $this->txtother2 != '' ? $this->txtother2 : $this->chk7,
+        ]);
        // dd($this->new_or_rep);
             // Prepare price data from manual inputs
             $priceData = [];
@@ -761,31 +767,31 @@ class Edit extends Component
                 'vid' => $this->vid,
                 'vid_oth' => $this->vid_oth,
                   // PCB Specifications - Direct mapping with condition
-            'no_layer' => $this->txtother1 != '' ? $this->txtother1 : $this->chk1,
-            'm_require' => $this->txtother2 != '' ? $this->txtother2 : $this->chk7,
-            'start_cu' => $this->txtother3 != '' ? $this->txtother3 : $this->chk10,
-            'thickness' => $this->txtother4 != '' ? $this->txtother4 : $this->chk13,
-            'thickness_tole' => $this->txtother5 != '' ? $this->txtother5 : $this->chk17,
-            'inner_copper' => $this->txtother6 != '' ? $this->txtother6 : $this->chk18,
-            'plated_cu' => $this->txtother7 != '' ? $this->txtother7 : $this->chk22,
-            'hole_size' => $this->txtother8,
-            'finish' => $this->txtother9 != '' ? $this->txtother9 : $this->chk43,
-            'color' => $this->txtother10 != '' ? $this->txtother10 : $this->chk51,
-            'ss_color' => $this->txtother11 != '' ? $this->txtother11 : $this->chk58,
-            'board_size1' => $this->txtother12,
-            'board_size2' => $this->txtother13,
-            'b_per_array' => $this->txtother14,
-            'array_size1' => $this->txtother15,
-            'array_size2' => $this->txtother16,
-            'other_marking' => $this->txtother17,
-            'pad' => $this->txtother19,
-            'xouts1' => $this->txtother28,
-            'tore_impe' => $this->txtother51 != '' ? $this->txtother51 : $this->chk202,
-            'route_tole' => $this->txtother52 != '' ? $this->txtother52 : $this->chk204,
-            'trace_min' => $this->txtother54 != '' ? $this->txtother54 : $this->chk27,
-            'space_min' => $this->txtother55 != '' ? $this->txtother55 : $this->chk31,
-            'logo' => $this->txtother56 != '' ? $this->txtother56 : $this->chk83,
-                // Add all other fields from your form
+                'no_layer' => $this->txtother1 != '' ? $this->txtother1 : $this->chk1,
+                'm_require' => $this->txtother2 != '' ? $this->txtother2 : $this->chk7,
+                'start_cu' => $this->txtother3 != '' ? $this->txtother3 : $this->chk10,
+                'thickness' => $this->txtother4 != '' ? $this->txtother4 : $this->chk13,
+                'thickness_tole' => $this->txtother5 != '' ? $this->txtother5 : $this->chk17,
+                'inner_copper' => $this->txtother6 != '' ? $this->txtother6 : $this->chk18,
+                'plated_cu' => $this->txtother7 != '' ? $this->txtother7 : $this->chk22,
+                'hole_size' => $this->txtother8,
+                'finish' => $this->txtother9 != '' ? $this->txtother9 : $this->chk43,
+                'color' => $this->txtother10 != '' ? $this->txtother10 : $this->chk51,
+                'ss_color' => $this->txtother11 != '' ? $this->txtother11 : $this->chk58,
+                'board_size1' => $this->txtother12,
+                'board_size2' => $this->txtother13,
+                'b_per_array' => $this->txtother14,
+                'array_size1' => $this->txtother15,
+                'array_size2' => $this->txtother16,
+                'other_marking' => $this->txtother17,
+                'pad' => $this->txtother19,
+                'xouts1' => $this->txtother28,
+                'tore_impe' => $this->txtother51 != '' ? $this->txtother51 : $this->chk202,
+                'route_tole' => $this->txtother52 != '' ? $this->txtother52 : $this->chk204,
+                'trace_min' => $this->txtother54 != '' ? $this->txtother54 : $this->chk27,
+                'space_min' => $this->txtother55 != '' ? $this->txtother55 : $this->chk31,
+                'logo' => $this->txtother56 != '' ? $this->txtother56 : $this->chk83,
+                    // Add all other fields from your form
             ];
             // Add quantities to order data
         foreach ($this->quantities as $index => $qty) {
