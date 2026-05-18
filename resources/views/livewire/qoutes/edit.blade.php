@@ -391,7 +391,7 @@
                             <input name="chk1" type="radio" wire:model="no_layer" value="8Lyrs" /> 10Lyr
                             <input name="chk1" type="radio" wire:model="no_layer" value="10Lyrs" />
                             <br /><br />
-                            Other {{ $chk1 }} :
+                            Other  :
                             <input name="chk1" type="radio" value="Other" wire:model="chk1"  />
                             <input type="text" name="txtother1" wire:model="txtother1" />
                         </td>
@@ -406,7 +406,7 @@
                             Rogers 4003 <input name="chk7" type="radio" wire:model="m_require" value="Rogers 4003"
                                 onclick="clearval('txtother2')" />
                             &nbsp;
-                            Other: <input name="chk7" type="radio" wire:model="m_require" value="Other" />
+                            Other: <input name="chk7" type="radio" wire:model="chk7" value="Other" />
                             <input name="txtother2" wire:model="txtother2" type="text" size="12" />
                             <br /><br />
 
