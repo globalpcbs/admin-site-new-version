@@ -391,8 +391,8 @@
                             <input name="chk1" type="radio" wire:model="no_layer" value="8Lyrs" /> 10Lyr
                             <input name="chk1" type="radio" wire:model="no_layer" value="10Lyrs" />
                             <br /><br />
-                            Other :
-                            <input name="chk1" type="radio" value="Other" wire:model="chk1"  @if($no_layer != "6Lyrs" || $no_layer != "4Lyrs" || $no_layer != "8Lyrs" || $no_layer != "10Lyrs" ) checked @endif />
+                            Other {{ $chk1 }} :
+                            <input name="chk1" type="radio" value="Other" wire:model="chk1"  />
                             <input type="text" name="txtother1" wire:model="txtother1" />
                         </td>
 
