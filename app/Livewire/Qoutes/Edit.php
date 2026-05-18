@@ -659,12 +659,7 @@ class Edit extends Component
         }
      public function saveproccess()
     {
-        dd([
-            'm_require_from_property' => $this->m_require,
-            'chk7_value' => $this->chk7,
-            'txtother2_value' => $this->txtother2,
-            'final_m_require' => $this->txtother2 != '' ? $this->txtother2 : $this->chk7,
-        ]);
+       // dd($this->txtother1);
        // dd($this->new_or_rep);
             // Prepare price data from manual inputs
             $priceData = [];
