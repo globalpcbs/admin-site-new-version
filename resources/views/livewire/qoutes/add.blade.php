@@ -182,7 +182,7 @@
                                 <input name="ccharge" wire:model="ccharge" size="8" />
 
                                 <strong>FOB:</strong>
-                                <select name="fob" wire:model="fob">
+                                <select name="fob" wire:model.live="fob">
                                     <option value="Anaheim" selected>Anaheim</option>
                                     <option value="Customer Dock">Customer Dock</option>
                                     <option value="Factory">Factory</option>
@@ -190,9 +190,8 @@
                                     <option value="Other">Other</option>
                                 </select>
                                 @if($fob === 'Other')
-                                <div id="fob_oth">Other: <input type="text" name="fob_oth" wire:model="fob_oth" size="15"
-                                        maxlength='50'></div>
-                                @endif
+<input type="text" name="fob_oth" wire:model="fob_oth" size="15" maxlength="50" placeholder="Enter FOB" style="margin-left: 5px;" />
+@endif
 
                                 <br><br><strong>Vendor:</strong>
                                 <select name="vid" wire:model="vid">
