@@ -699,7 +699,7 @@ public function updateCustomerId($selectedName)
             'logo' => $this->txtother56 != '' ? $this->txtother56 : $this->chk83,
             // Add all other fields from your form
         ];
-       dd($orderData);
+     //  dd($orderData);
          // Add quantities to order data
     foreach ($this->quantities as $index => $qty) {
         $orderData['qty'.$index] = $qty;
