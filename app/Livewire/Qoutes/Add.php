@@ -314,7 +314,7 @@ class Add extends Component
            // Initialize manual prices array
          // Initialize quantities with 20 null values
     $this->quantities = array_fill(1, 10, null);
-    
+    $this->fob = 'Anaheim';  // Default FOB value
     // Initialize days with 20 null values
     $this->days = array_fill(1, 5, null);
         $this->initializeManualPrices();
@@ -570,7 +570,7 @@ public function updateCustomerId($selectedName)
         }
     public function saveproccess()
     {
-    //  dd($this->no_layer);
+     dd($this->fob);
         // Validate the form data
         // Prepare price data from manual inputs
         $priceData = [];
