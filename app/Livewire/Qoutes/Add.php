@@ -570,7 +570,7 @@ public function updateCustomerId($selectedName)
         }
     public function saveproccess()
     {
-      // dd($this->txtother2);
+    //  dd($this->no_layer);
         // Validate the form data
         // Prepare price data from manual inputs
         $priceData = [];
@@ -673,7 +673,7 @@ public function updateCustomerId($selectedName)
             'vid' => $this->vid,
             'vid_oth' => $this->vid_oth,
             // PCB Specifications - Direct mapping with condition
-            'no_layer' => $this->txtother1 != '' ? $this->txtother1 : $this->chk1,
+            'no_layer' => $this->txtother1 != '' ? $this->txtother1 : $this->no_layer,
             'm_require' => $this->txtother2 != '' ? $this->txtother2 : $this->chk7,
             'start_cu' => $this->txtother3 != '' ? $this->txtother3 : $this->chk10,
             'thickness' => $this->txtother4 != '' ? $this->txtother4 : $this->chk13,
@@ -699,7 +699,7 @@ public function updateCustomerId($selectedName)
             'logo' => $this->txtother56 != '' ? $this->txtother56 : $this->chk83,
             // Add all other fields from your form
         ];
-      //  dd($orderData);
+       dd($orderData);
          // Add quantities to order data
     foreach ($this->quantities as $index => $qty) {
         $orderData['qty'.$index] = $qty;
