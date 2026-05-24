@@ -140,7 +140,7 @@ class Edit extends Component
     
     // Txtother fields
     public $txtother1, $txtother2, $txtother3, $txtother4, $txtother5, $txtother6, $txtother7;
-    public $txtother8, $txtother9, $txtother10, $txtother11, $txtother12, $txtother13, $txtother14;
+    public $txtother8, $txtother9, $txtother10, $txtother11, $txtother12, $txtother13, $txtother14,$txtother26;
     public $txtother15, $txtother16, $txtother17, $txtother19, $txtother28, $txtother51, $txtother52;
     public $txtother53, $txtother54, $txtother55, $txtother56;
     public $customer_id;

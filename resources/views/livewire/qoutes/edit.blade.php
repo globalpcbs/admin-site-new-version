@@ -665,8 +665,8 @@
                     <tr>
                         <td height="25" class="p-2">
                             <strong>Board Size (in.)</strong>
-                            <input name="txtother12" wire:model="board_size1" type="text" size="5" /> X
-                            <input name="txtother13" wire:model="board_size2" type="text" size="5" />
+                            <input name="txtother12" wire:model="txtother12" type="text" size="5" /> X
+                            <input name="txtother13" wire:model="txtother13" type="text" size="5" />
                             <br />
                             <br />
                             <strong>Array:</strong>
@@ -675,11 +675,11 @@
 
                             <div id="yes_box2" style="display: block; ">
                                 <strong>Bds Per Array:</strong>
-                                <input name="txtother14" wire:model="b_per_array" type="text" size="4" />
+                                <input name="txtother26" wire:model="txtother26" type="text" size="4" />
                                 <br /><br />
                                 <strong>Array Size:</strong>
-                                <input name="txtother15" wire:model="array_size1" type="text" size="5" /> X
-                                <input name="txtother16" wire:model="array_size2" type="text" size="5" />
+                                <input name="txtother15" wire:model="txtother15" type="text" size="5" /> X
+                                <input name="txtother16" wire:model="txtother16" type="text" size="5" />
                             </div>
                             <br />
                             <strong>Rout Tolerance:</strong> +/-.005
