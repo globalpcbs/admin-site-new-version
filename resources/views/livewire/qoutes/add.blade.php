@@ -782,7 +782,7 @@
                                 <br />
                                 <br />
                                 <strong># of X-outs per Array:</strong>
-                                <input name="txtother28" wire:model="xoutsnum" type="text" size="4" />
+                                <input name="txtother28" wire:model="txtother28" type="text" size="4" />
                                 <br /><br />
                                 <strong>RoHS Cert:</strong>
                                 <input name="chk97" type="checkbox" wire:model="rosh_cert" /> Yes
