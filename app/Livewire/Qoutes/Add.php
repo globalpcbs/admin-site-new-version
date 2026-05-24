@@ -138,7 +138,7 @@ class Add extends Component
     
     // Other fields
     public $txtother1, $txtother2, $txtother3, $txtother4, $txtother5, $txtother6, $txtother7;
-    public $txtother8, $txtother9, $txtother10, $txtother11, $txtother12, $txtother13, $txtother14;
+    public $txtother8, $txtother9, $txtother10, $txtother11, $txtother12, $txtother13, $txtother14,$txtother26;
     public $txtother15, $txtother16, $txtother17, $txtother19, $txtother28, $txtother51, $txtother52;
     public $txtother53, $txtother54, $txtother55, $txtother56;
     public $request_by;
@@ -570,7 +570,7 @@ public function updateCustomerId($selectedName)
         }
     public function saveproccess()
     {
-     //dd($this->fob);
+     dd($this->txtother12);
         // Validate the form data
         // Prepare price data from manual inputs
         $priceData = [];
@@ -686,7 +686,7 @@ public function updateCustomerId($selectedName)
             'hole_size' => $this->txtother8,
             'board_size1' => $this->txtother12,
             'board_size2' => $this->txtother13,
-            'b_per_array' => $this->txtother14,
+            'b_per_array' => $this->txtother26,
             'array_size1' => $this->txtother15,
             'array_size2' => $this->txtother16,
             'other_marking' => $this->txtother17,
@@ -815,14 +815,28 @@ public function updateCustomerId($selectedName)
     }
     public function requestby(){
        // $this->customers_main = customermain::where('coustid',$customer->data_id)->get(); 
-        $main = customermain::where('name',$this->request_by)->first();
-        $eng = customereng::where('name',$this->request_by)->first();
-        if(!empty($main)){
-            $this->email = $main->email;
-            $this->phone = $main->phone;
-        } else if(!empty($eng)){
-            $this->email = $eng->email;
-            $this->phone = $eng->phone;
+        $pieces = explode('**', $this->request_by);
+
+        $type = $pieces[0] ?? '';
+        $id = $pieces[1] ?? '';
+
+        if ($type == 'm') {
+
+            $main = customermain::where('enggcont_id', $id)->first();
+
+            if ($main) {
+                $this->email = $main->email;
+                $this->phone = $main->phone;
+            }
+
+        } elseif ($type == 'e') {
+
+            $eng = customereng::where('enggcont_id', $id)->first();
+
+            if ($eng) {
+                $this->email = $eng->email;
+                $this->phone = $eng->phone;
+            }
         }
         $this->inputKey = uniqid();
       //  dd($this->email);

@@ -915,18 +915,33 @@ class Edit extends Component
         $this->customers_eng = customereng::where('coustid', $customer->data_id)->get(); 
     }
 
-    public function requestby()
-    {
-        $main = customermain::where('name', $this->request_by)->first();
-        $eng = customereng::where('name', $this->request_by)->first();
-        if(!empty($main)){
-            $this->email = $main->email;
-            $this->phone = $main->phone;
-        } else if(!empty($eng)){
-            $this->email = $eng->email;
-            $this->phone = $eng->phone;
+        public function requestby(){
+       // $this->customers_main = customermain::where('coustid',$customer->data_id)->get(); 
+        $pieces = explode('**', $this->request_by);
+
+        $type = $pieces[0] ?? '';
+        $id = $pieces[1] ?? '';
+
+        if ($type == 'm') {
+
+            $main = customermain::where('enggcont_id', $id)->first();
+
+            if ($main) {
+                $this->email = $main->email;
+                $this->phone = $main->phone;
+            }
+
+        } elseif ($type == 'e') {
+
+            $eng = customereng::where('enggcont_id', $id)->first();
+
+            if ($eng) {
+                $this->email = $eng->email;
+                $this->phone = $eng->phone;
+            }
         }
         $this->inputKey = uniqid();
+      //  dd($this->email);
     }
 
     public function render()

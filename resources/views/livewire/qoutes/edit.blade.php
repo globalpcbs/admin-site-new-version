@@ -66,16 +66,23 @@
                     <td height="25" class="p-2"><strong>Requested By :</strong>
                         <select class="w-50" wire:change="requestby" wire:model="request_by">
                             <option>Select Requested By</option>
-                             @foreach($customers_main as $main)
-                                <option value="{{ $main->name }}" @if($request_by == $main->name) selected @endif>
-                                    {{ $main->name }}
-                                </option>
-                            @endforeach
-                            @foreach($customers_eng as $eng)
-                                <option value="{{ $eng->name }}" @if($request_by == $main->name) selected @endif>
-                                    {{ $eng->name }}
-                                </option>
-                            @endforeach
+                                                            @foreach($customers_main as $main)
+                                    <option 
+                                        value="m**{{ $main->enggcont_id }}**{{ $main->name }}"
+                                        @if($request_by == 'm**'.$main->id.'**'.$main->name) selected @endif>
+                                        
+                                        {{ $main->name }}
+                                    </option>
+                                @endforeach
+
+                                @foreach($customers_eng as $eng)
+                                    <option 
+                                        value="e**{{ $eng->enggcont_id }}**{{ $eng->name }}"
+                                        @if($request_by == 'e**'.$eng->id.'**'.$eng->name) selected @endif>
+                                        
+                                        {{ $eng->name }}
+                                    </option>
+                                @endforeach
                         </select>
                     </td>
 

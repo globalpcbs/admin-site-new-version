@@ -67,13 +67,20 @@
                         <td height="25" class="p-2"><strong>Requested By :</strong>
                             <select class="w-50" wire:change="requestby" wire:model="request_by">
                                 <option>Select Requested By</option>
-                                @foreach($customers_main as $main)
-                                    <option value="{{ $main->name }}" @if($request_by == $main->name) selected @endif>
+                               @foreach($customers_main as $main)
+                                    <option 
+                                        value="m**{{ $main->enggcont_id }}**{{ $main->name }}"
+                                        @if($request_by == 'm**'.$main->id.'**'.$main->name) selected @endif>
+                                        
                                         {{ $main->name }}
                                     </option>
                                 @endforeach
+
                                 @foreach($customers_eng as $eng)
-                                    <option value="{{ $eng->name }}" @if($request_by == $eng->name) selected @endif>
+                                    <option 
+                                        value="e**{{ $eng->enggcont_id }}**{{ $eng->name }}"
+                                        @if($request_by == 'e**'.$eng->id.'**'.$eng->name) selected @endif>
+                                        
                                         {{ $eng->name }}
                                     </option>
                                 @endforeach
@@ -657,8 +664,8 @@
                         <tr>
                             <td height="25" class="p-2">
                                 <strong>Board Size (in.)</strong>
-                                <input name="txtother12" wire:model="board_size1" type="text" size="5" /> X
-                                <input name="txtother13" wire:model="board_size2" type="text" size="5" />
+                                <input name="txtother12" wire:model="txtother12" type="text" size="5" /> X
+                                <input name="txtother13" wire:model="txtother13" type="text" size="5" />
                                 <br />
                                 <br />
                                 <strong>Array:</strong>
@@ -667,11 +674,11 @@
 
                                 <div id="yes_box2" style="display: block; ">
                                     <strong>Bds Per Array:</strong>
-                                    <input name="txtother14" wire:model="b_per_array" type="text" size="4" />
+                                    <input name="txtother26" wire:model="txtother26" type="text" size="4" />
                                     <br /><br />
                                     <strong>Array Size:</strong>
-                                    <input name="txtother15" wire:model="array_size1" type="text" size="5" /> X
-                                    <input name="txtother16" wire:model="array_size2" type="text" size="5" />
+                                    <input name="txtother15" wire:model="txtother15" type="text" size="5" /> X
+                                    <input name="txtother16" wire:model="txtother16" type="text" size="5" />
                                 </div>
                                 <br />
                                 <strong>Rout Tolerance:</strong> +/-.005
