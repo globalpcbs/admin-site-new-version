@@ -570,7 +570,7 @@ public function updateCustomerId($selectedName)
         }
     public function saveproccess()
     {
-     dd($this->txtother12);
+    // dd($this->txtother12);
         // Validate the form data
         // Prepare price data from manual inputs
         $priceData = [];
