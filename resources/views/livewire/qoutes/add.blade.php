@@ -548,7 +548,7 @@
                                 <br />
                                 <br />
                                 <strong>Blind Vias:</strong>
-                                <input name="chk37" type="checkbox" wire:model="blind" value="yes" /> Yes
+                                <input name="blind" type="checkbox" wire:model="blind" value="yes" /> Yes
                                 <br />
                                 <br />
                                 <strong>Buried Vias: </strong>
