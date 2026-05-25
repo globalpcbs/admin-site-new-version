@@ -76,7 +76,7 @@ class Manage extends Component
     {
         $original = Order::findOrFail($id);
         $newQuote = $original->replicate();
-        $newQuote->ord_date = today();
+        $newQuote->ord_date = today()->format('m/d/Y');
         $newQuote->save();
         $this->alertMessage = 'Quote duplicated successfully.';
         $this->alertType = 'success';

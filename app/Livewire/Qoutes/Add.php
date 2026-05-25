@@ -216,6 +216,7 @@ class Add extends Component
     public $alertMessages = [];
     public bool $showProfilePopup = false;
     public $profileMessages = [];
+    
 
     // Alert management properties
     public $newAlert = '';

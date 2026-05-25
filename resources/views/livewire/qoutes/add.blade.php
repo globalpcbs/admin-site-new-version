@@ -940,201 +940,173 @@
             </div>
             </div>
     <style>
-        .modal {
-            z-index: 1040;
-            background-color: transparent;
-            pointer-events: none;
-        }
+     /* Modal container fixes */
+/* Ensure draggable modal has proper positioning */
+.draggable-modal {
+    position: absolute !important;  /* Fixed se absolute karo */
+    margin: 0 !important;
+    will-change: transform;
+}
 
-        .modal.show {
-            z-index: 1050;
-            display: block;
-        }
+/* Modal container styling */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
 
-        .draggable-modal {
-            position: fixed;
-            margin: 0;
-            z-index: 1050;
-            pointer-events: auto;
-        }
-        
-        /* Alert Modal - Upper position */
-        #alertModal .draggable-modal {
-            top: 8% !important;      /* Thoda upar - 8% */
-            left: 25% !important;
-            transform: translate(0px, 0px) !important;
-        }
-        
-        /* Profile Modal - Lower position with good gap */
-        #profileModal .draggable-modal {
-            top: 32% !important;     /* 8% se 32% means 24% ka gap */
-            left: 35% !important;
-            transform: translate(0px, 0px) !important;
-        }
-        
-        /* Agar dono ek saath open hain to or bhi gap adjust karein */
-        #alertModal.show + #profileModal.show .draggable-modal {
-            top: 35% !important;
-        }
-        
-        /* Agar pehle profile open ho phir alert */
-        #profileModal.show + #alertModal.show .draggable-modal {
-            top: 8% !important;
-        }
+.modal.show {
+    display: block;
+}
 
-        .modal-drag-handle {
-            cursor: move;
-        }
+/* Position modals correctly */
+#alertModal .draggable-modal {
+    top: 8% !important;
+    left: 25% !important;
+    transform: none !important;  /* Transform none karo initially */
+}
 
-        .modal-content * {
-            pointer-events: auto;
-        }
-        
-        /* Close button styling */
-        .modal-header .btn-link {
-            text-decoration: none;
-            z-index: 1060;
-            position: relative;
-        }
-        
-        /* Optional: Responsive adjustment for smaller screens */
-        @media (max-width: 768px) {
-            #alertModal .draggable-modal {
-                top: 5% !important;
-                left: 10% !important;
-                width: 80% !important;
-            }
-            
-            #profileModal .draggable-modal {
-                top: 50% !important;
-                left: 10% !important;
-                width: 80% !important;
-                transform: translateY(-50%) !important;
-            }
-        }
+#profileModal .draggable-modal {
+    top: 32% !important;
+    left: 35% !important;
+    transform: none !important;
+}
+
+/* Drag handle style */
+.modal-drag-handle {
+    cursor: grab !important;
+    user-select: none !important;
+}
+
+.modal-drag-handle:active {
+    cursor: grabbing !important;
+}
     </style>
 
-            <script src="https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js"></script>
-        <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            let zIndexCounter = 1050;
-            let modalPositions = {}; // Store positions for each modal
-
-            // Initialize interact.js for draggable modals
-            interact('.draggable-modal').draggable({
-                allowFrom: '.modal-drag-handle',
-                ignoreFrom: 'button, input, a, .btn, [wire\\:click], [wire\\:model]',
-                modifiers: [
-                    interact.modifiers.restrictRect({
-                        restriction: 'parent',
-                        endOnly: true
-                    })
-                ],
-                listeners: {
-                    start(event) {
-                        bringToFront(event.target);
-                    },
-                    move(event) {
-                        const target = event.target;
-                        const modalId = target.closest('.modal').id;
-                        
-                        let x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx;
-                        let y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
-
-                        target.style.transform = `translate(${x}px, ${y}px)`;
-                        target.setAttribute('data-x', x);
-                        target.setAttribute('data-y', y);
-                        
-                        // Store position
-                        if (modalId) {
-                            modalPositions[modalId] = { x: x, y: y };
-                        }
+        <script src="https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Initializing draggable modals...');
+    
+    function makeModalDraggable(modalElement) {
+        if (!modalElement) {
+            console.log('No modal element');
+            return;
+        }
+        
+        const dragElement = modalElement.querySelector('.draggable-modal');
+        if (!dragElement) {
+            console.log('No draggable-modal found');
+            return;
+        }
+        
+        const dragHandle = modalElement.querySelector('.modal-drag-handle');
+        if (!dragHandle) {
+            console.log('No drag handle found');
+            return;
+        }
+        
+        console.log('Setting up drag for:', modalElement.id);
+        
+        // Remove any existing interact instance
+        if (dragElement._interactInstance) {
+            interact(dragElement).unset();
+        }
+        
+        // Initialize interact.js
+        interact(dragElement).draggable({
+            allowFrom: '.modal-drag-handle',
+            ignoreFrom: 'button, input, textarea, select, a, [wire\\:click], [wire\\:model]',
+            manualStart: false,
+            modifiers: [
+                interact.modifiers.restrictRect({
+                    restriction: 'parent',
+                    endOnly: true
+                })
+            ],
+            listeners: {
+                start: function(event) {
+                    console.log('Drag started');
+                    // Bring modal to front
+                    const modal = event.target.closest('.modal');
+                    if (modal) {
+                        const maxZIndex = Math.max(
+                            ...Array.from(document.querySelectorAll('.modal.show'))
+                                .map(m => parseInt(m.style.zIndex) || 1050)
+                        );
+                        modal.style.zIndex = maxZIndex + 1;
                     }
-                }
-            });
-
-            function bringToFront(modal) {
-                zIndexCounter++;
-                modal.style.zIndex = zIndexCounter;
-            }
-
-            // Reset modal to original position
-            function resetModalPosition(modalId) {
-                const modal = document.querySelector(`#${modalId} .draggable-modal`);
-                if (modal) {
-                    // Reset position based on modal type with new gaps
-                    if (modalId === 'alertModal') {
-                        modal.style.top = '8%';
-                        modal.style.left = '25%';
-                    } else if (modalId === 'profileModal') {
-                        modal.style.top = '32%';
-                        modal.style.left = '35%';
-                    }
+                },
+                move: function(event) {
+                    const target = event.target;
+                    let x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx;
+                    let y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
                     
-                    modal.style.transform = 'translate(0px, 0px)';
-                    modal.setAttribute('data-x', 0);
-                    modal.setAttribute('data-y', 0);
-                    
-                    if (modalPositions[modalId]) {
-                        delete modalPositions[modalId];
-                    }
-                    
-                    bringToFront(modal);
+                    target.style.transform = `translate(${x}px, ${y}px)`;
+                    target.setAttribute('data-x', x);
+                    target.setAttribute('data-y', y);
+                },
+                end: function(event) {
+                    console.log('Drag ended');
                 }
-            }
-
-            // Center modals when they appear
-            function centerModal(modalId) {
-                const modal = document.querySelector(`#${modalId} .draggable-modal`);
-                if (modal) {
-                    // Don't reposition if modal was previously positioned by user
-                    if (modalPositions[modalId]) {
-                        modal.style.transform = `translate(${modalPositions[modalId].x}px, ${modalPositions[modalId].y}px)`;
-                        modal.setAttribute('data-x', modalPositions[modalId].x);
-                        modal.setAttribute('data-y', modalPositions[modalId].y);
-                    } else {
-                        // Set initial different positions with good gap
-                        if (modalId === 'alertModal') {
-                            modal.style.top = '8%';
-                            modal.style.left = '25%';
-                        } else if (modalId === 'profileModal') {
-                            modal.style.top = '32%';
-                            modal.style.left = '35%';
-                        }
-                        modal.style.transform = 'translate(0px, 0px)';
-                        modal.setAttribute('data-x', 0);
-                        modal.setAttribute('data-y', 0);
-                    }
-                    bringToFront(modal);
-                }
-            }
-
-            // Fix close button - prevent event bubbling
-            document.querySelectorAll('.modal .btn-close, .modal button[wire\\:click="closeAlertPopup"], .modal button[wire\\:click="closeProfilePopup"]').forEach(btn => {
-                btn.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    e.preventDefault();
-                });
-            });
-
-            // Livewire event listeners
-            document.addEventListener('livewire:init', () => {
-                Livewire.on('showAlertPopup', () => {
-                    setTimeout(() => centerModal('alertModal'), 100);
-                });
-
-                Livewire.on('showProfilePopup', () => {
-                    setTimeout(() => centerModal('profileModal'), 100);
-                });
-            });
-
-            // Initial centering if modals are already visible
-            if (document.querySelector('#alertModal.show')) {
-                centerModal('alertModal');
-            }
-            if (document.querySelector('#profileModal.show')) {
-                centerModal('profileModal');
             }
         });
-    </script>
+        
+        dragElement._interactInstance = true;
+        console.log('Drag setup complete for:', modalElement.id);
+    }
+    
+    // Setup all visible modals
+    function setupAllModals() {
+        document.querySelectorAll('.modal.show, .modal.d-block').forEach(modal => {
+            makeModalDraggable(modal);
+        });
+    }
+    
+    // Setup modal when it becomes visible
+    function setupModalObserver() {
+        const observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+                    const modal = mutation.target;
+                    if (modal.classList.contains('show') || modal.classList.contains('d-block')) {
+                        console.log('Modal became visible:', modal.id);
+                        setTimeout(() => makeModalDraggable(modal), 100);
+                    }
+                }
+            });
+        });
+        
+        document.querySelectorAll('.modal').forEach(modal => {
+            observer.observe(modal, { attributes: true });
+        });
+    }
+    
+    // Livewire event listeners
+    if (typeof Livewire !== 'undefined') {
+        Livewire.on('showAlertPopup', () => {
+            setTimeout(setupAllModals, 150);
+        });
+        
+        Livewire.on('showProfilePopup', () => {
+            setTimeout(setupAllModals, 150);
+        });
+    }
+    
+    // Initial setup
+    setTimeout(setupAllModals, 200);
+    setupModalObserver();
+    
+    // Also setup when any click happens on modal (for Livewire re-renders)
+    document.addEventListener('click', function(e) {
+        if (e.target.closest('.modal')) {
+            setTimeout(setupAllModals, 50);
+        }
+    });
+});
+</script>
     </div>
