@@ -39,9 +39,12 @@
     @endif
     <div class="card shadow">
         <div class="card-header bg-primary text-white">
-            <h5>
+            <b>
                 <i class="fa fa-address-book"></i> Manage Main Contacts
-            </h5>
+            </b>
+              <a href="{{ route('customers.main.add') }}">
+                <button class="btn btn-light float-end btn-sm"><i class="fa fa-plus-circle""></i> Add Main Contact </button>
+            </a>
         </div>
         <div class="card-body">
 

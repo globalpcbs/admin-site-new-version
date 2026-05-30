@@ -39,12 +39,13 @@
     @endif
     <div class="card shadow-sm">
         <div class="card-header bg-primary text-white">
-            <h5>
-                <b>
-                    <i class="fa fa-list"></i> Manage Shippers
-                    <i class="fa fa-spin fa-spinner float-end" wire:loading></i>
-                </b>
-            </h5>
+            <b>
+                <i class="fa fa-list"></i> Manage Shippers
+                <i class="fa fa-spin fa-spinner float-end" wire:loading></i>
+            </b>
+            <a href="{{ route('shippers.add') }}">
+                <button class="btn btn-light float-end btn-sm"><i class="fa fa-plus-circle""></i> Add Shipper</button>
+            </a>
         </div>
         <div class="card-body">
             {{-- Shipper Search Dropdown --}}

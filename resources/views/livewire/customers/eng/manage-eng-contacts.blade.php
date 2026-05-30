@@ -39,9 +39,12 @@
     @endif
     <div class="card shadow-sm">
         <div class="card-header bg-primary text-white">
-            <h5>
+            <b>
                 <i class="fas fa-address-book me-2"></i> Manage Engineering Contacts
-            </h5>
+            </b>
+             <a href="{{ route('customers.eng.add') }}">
+                <button class="btn btn-light float-end btn-sm"><i class="fa fa-plus-circle""></i> Add Engineering  Contact </button>
+            </a>
         </div>
         <div>
                 <div class="table-responsive">

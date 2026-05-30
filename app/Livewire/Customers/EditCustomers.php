@@ -42,8 +42,7 @@ class EditCustomers extends Component
     {
         $this->validate([
             'c_name' => 'required|string',
-            'c_email' => 'required|email',
-            'c_phone' => 'required|string',
+            'c_shortname' => 'required|string',
         ]);
 
         $customer = Customer::findOrFail($this->customerId);

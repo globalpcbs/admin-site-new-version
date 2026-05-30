@@ -17,7 +17,7 @@
                             <input type="text" size="60" wire:model="search" wire:keyup="onKeyUp($event.target.value)"
                                 autocomplete="off" />
                             @if($matches)
-                            <ul class="list-group position-absolute w-100 shadow-sm"
+                            <ul class="list-group position-absolute w-80 shadow-sm"
                                 style="z-index:1050; max-height:220px; overflow-y:auto;">
                                 @foreach($matches as $i => $m)
                                 <li wire:key="match-{{ $i }}" class="list-group-item list-group-item-action"
@@ -827,7 +827,7 @@
                         <label class="modal-title fw-bold text-dark m-0" style="font-size: 18px;">
                             <i class="fa fa-bell"></i> Part no Alerts</label>
                         <button type="button" class="btn btn-link text-danger p-0" style="font-size: 13px;"
-        onclick="event.stopPropagation(); @this.call('closeAlertPopup');">Close</button>
+                        onclick="event.stopPropagation(); @this.call('closeAlertPopup');">Close</button>
                     </div>
 
                     <div class="modal-body pt-2 px-3">
@@ -884,7 +884,7 @@
                         </div>
 
                         <div class="d-flex flex-wrap gap-2">
-                            @foreach(['quo' => 'Quote','po' => 'Purchase Order','con' => 'Confirmation', 'pac' => 'Packing', 'inv' => 'Invoice', 'cre' => 'Credit'] as $value => $label)
+                            @foreach(['po' => 'Purchase Order','con' => 'Confirmation', 'pac' => 'Packing', 'inv' => 'Invoice', 'cre' => 'Credit'] as $value => $label)
                                 <div class="form-check form-check-inline mb-0" style="margin-right: 0;">
                                     <input type="checkbox" class="form-check-input" id="type-{{ $value }}" value="{{ $value }}"
                                         wire:model="alertTypes"
@@ -939,45 +939,25 @@
                 </div>
             </div>
             </div>
-    <style>
-     /* Modal container fixes */
-/* Ensure draggable modal has proper positioning */
-.draggable-modal {
-    position: absolute !important;  /* Fixed se absolute karo */
-    margin: 0 !important;
-    will-change: transform;
-}
-
-/* Modal container styling */
+<style>
+/* Modal dragging styles */
 .modal {
+    overflow: visible !important;
+}
+
+.modal-dialog.draggable-modal {
     position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    overflow-y: auto;
-    overflow-x: hidden;
+    margin: 0;
+    pointer-events: auto;
+    cursor: default;
 }
 
-.modal.show {
-    display: block;
+.modal-content {
+    box-shadow: 0 5px 15px rgba(0,0,0,.5);
 }
 
-/* Position modals correctly */
-#alertModal .draggable-modal {
-    top: 8% !important;
-    left: 25% !important;
-    transform: none !important;  /* Transform none karo initially */
-}
-
-#profileModal .draggable-modal {
-    top: 32% !important;
-    left: 35% !important;
-    transform: none !important;
-}
-
-/* Drag handle style */
 .modal-drag-handle {
+    cursor: move !important;
     cursor: grab !important;
     user-select: none !important;
 }
@@ -985,128 +965,527 @@
 .modal-drag-handle:active {
     cursor: grabbing !important;
 }
-    </style>
 
-        <script src="https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js"></script>
+/* Ensure modals are positioned correctly */
+#alertModal .modal-dialog,
+#profileModal .modal-dialog {
+    margin: 0;
+    position: fixed;
+    top: 50px;
+    left: 50px;
+}
+
+/* Prevent text selection while dragging */
+body.dragging-modal {
+    user-select: none !important;
+    -webkit-user-select: none !important;
+}
+</style>
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('Initializing draggable modals...');
+    let activeModal = null;
+    let isDragging = false;
+    let startX = 0, startY = 0;
+    let originalLeft = 0, originalTop = 0;
     
-    function makeModalDraggable(modalElement) {
-        if (!modalElement) {
-            console.log('No modal element');
+    function makeModalDraggable(modalDialog) {
+        if (!modalDialog || modalDialog.hasAttribute('data-draggable-initialized')) {
             return;
         }
         
-        const dragElement = modalElement.querySelector('.draggable-modal');
-        if (!dragElement) {
-            console.log('No draggable-modal found');
-            return;
-        }
-        
-        const dragHandle = modalElement.querySelector('.modal-drag-handle');
+        const dragHandle = modalDialog.querySelector('.modal-drag-handle');
         if (!dragHandle) {
-            console.log('No drag handle found');
             return;
         }
         
-        console.log('Setting up drag for:', modalElement.id);
+        // Mark as initialized
+        modalDialog.setAttribute('data-draggable-initialized', 'true');
         
-        // Remove any existing interact instance
-        if (dragElement._interactInstance) {
-            interact(dragElement).unset();
+        // Make sure modal has position fixed
+        modalDialog.style.position = 'fixed';
+        
+        // Get stored position or set default
+        const modalId = modalDialog.closest('.modal')?.id || 'default';
+        const storedLeft = localStorage.getItem(`modal-${modalId}-left`);
+        const storedTop = localStorage.getItem(`modal-${modalId}-top`);
+        
+        if (storedLeft && storedTop) {
+            modalDialog.style.left = storedLeft + 'px';
+            modalDialog.style.top = storedTop + 'px';
+        } else {
+            // Set default position based on modal type
+            if (modalId === 'alertModal') {
+                modalDialog.style.left = '100px';
+                modalDialog.style.top = '80px';
+            } else if (modalId === 'profileModal') {
+                modalDialog.style.left = '150px';
+                modalDialog.style.top = '150px';
+            } else {
+                modalDialog.style.left = '50px';
+                modalDialog.style.top = '50px';
+            }
         }
         
-        // Initialize interact.js
-        interact(dragElement).draggable({
-            allowFrom: '.modal-drag-handle',
-            ignoreFrom: 'button, input, textarea, select, a, [wire\\:click], [wire\\:model]',
-            manualStart: false,
-            modifiers: [
-                interact.modifiers.restrictRect({
-                    restriction: 'parent',
-                    endOnly: true
-                })
-            ],
-            listeners: {
-                start: function(event) {
-                    console.log('Drag started');
-                    // Bring modal to front
-                    const modal = event.target.closest('.modal');
-                    if (modal) {
-                        const maxZIndex = Math.max(
-                            ...Array.from(document.querySelectorAll('.modal.show'))
-                                .map(m => parseInt(m.style.zIndex) || 1050)
-                        );
-                        modal.style.zIndex = maxZIndex + 1;
-                    }
-                },
-                move: function(event) {
-                    const target = event.target;
-                    let x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx;
-                    let y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
-                    
-                    target.style.transform = `translate(${x}px, ${y}px)`;
-                    target.setAttribute('data-x', x);
-                    target.setAttribute('data-y', y);
-                },
-                end: function(event) {
-                    console.log('Drag ended');
-                }
+        // Mouse down on handle
+        dragHandle.addEventListener('mousedown', function(e) {
+            // Don't drag if clicking on buttons, inputs, or interactive elements
+            if (e.target.tagName === 'BUTTON' || 
+                e.target.tagName === 'INPUT' || 
+                e.target.tagName === 'SELECT' ||
+                e.target.tagName === 'TEXTAREA' ||
+                e.target.closest('button') ||
+                e.target.closest('input') ||
+                e.target.closest('a')) {
+                return;
+            }
+            
+            e.preventDefault();
+            e.stopPropagation();
+            
+            activeModal = modalDialog;
+            isDragging = true;
+            
+            // Get current position
+            const rect = modalDialog.getBoundingClientRect();
+            startX = e.clientX - rect.left;
+            startY = e.clientY - rect.top;
+            
+            // Store original position
+            originalLeft = rect.left;
+            originalTop = rect.top;
+            
+            // Set position if not set
+            if (!modalDialog.style.left) {
+                modalDialog.style.left = originalLeft + 'px';
+            }
+            if (!modalDialog.style.top) {
+                modalDialog.style.top = originalTop + 'px';
+            }
+            
+            // Add dragging class to body
+            document.body.classList.add('dragging-modal');
+            
+            // Bring modal to front
+            const modal = modalDialog.closest('.modal');
+            if (modal) {
+                modal.style.zIndex = '9999';
             }
         });
         
-        dragElement._interactInstance = true;
-        console.log('Drag setup complete for:', modalElement.id);
-    }
-    
-    // Setup all visible modals
-    function setupAllModals() {
-        document.querySelectorAll('.modal.show, .modal.d-block').forEach(modal => {
-            makeModalDraggable(modal);
-        });
-    }
-    
-    // Setup modal when it becomes visible
-    function setupModalObserver() {
-        const observer = new MutationObserver(function(mutations) {
-            mutations.forEach(function(mutation) {
-                if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
-                    const modal = mutation.target;
-                    if (modal.classList.contains('show') || modal.classList.contains('d-block')) {
-                        console.log('Modal became visible:', modal.id);
-                        setTimeout(() => makeModalDraggable(modal), 100);
-                    }
-                }
+        // Prevent drag handle from interfering with child elements
+        dragHandle.querySelectorAll('button, input, select, textarea, a').forEach(el => {
+            el.addEventListener('mousedown', function(e) {
+                e.stopPropagation();
             });
         });
+    }
+    
+    // Mouse move
+    document.addEventListener('mousemove', function(e) {
+        if (!isDragging || !activeModal) return;
         
-        document.querySelectorAll('.modal').forEach(modal => {
-            observer.observe(modal, { attributes: true });
+        e.preventDefault();
+        
+        let newLeft = e.clientX - startX;
+        let newTop = e.clientY - startY;
+        
+        // Constrain to viewport
+        const modalRect = activeModal.getBoundingClientRect();
+        const maxLeft = window.innerWidth - modalRect.width;
+        const maxTop = window.innerHeight - modalRect.height;
+        
+        newLeft = Math.max(0, Math.min(newLeft, maxLeft));
+        newTop = Math.max(0, Math.min(newTop, maxTop));
+        
+        activeModal.style.left = newLeft + 'px';
+        activeModal.style.top = newTop + 'px';
+    });
+    
+    // Mouse up
+    document.addEventListener('mouseup', function(e) {
+        if (isDragging && activeModal) {
+            isDragging = false;
+            document.body.classList.remove('dragging-modal');
+            
+            // Save position
+            const modalId = activeModal.closest('.modal')?.id;
+            if (modalId) {
+                const left = parseInt(activeModal.style.left);
+                const top = parseInt(activeModal.style.top);
+                if (!isNaN(left) && !isNaN(top)) {
+                    localStorage.setItem(`modal-${modalId}-left`, left);
+                    localStorage.setItem(`modal-${modalId}-top`, top);
+                }
+            }
+            
+            activeModal = null;
+        }
+    });
+    
+    // Function to initialize all visible modals
+    function initializeAllModals() {
+        document.querySelectorAll('.modal.show, .modal.d-block').forEach(modal => {
+            const modalDialog = modal.querySelector('.modal-dialog');
+            if (modalDialog) {
+                // Add draggable class if not present
+                if (!modalDialog.classList.contains('draggable-modal')) {
+                    modalDialog.classList.add('draggable-modal');
+                }
+                makeModalDraggable(modalDialog);
+            }
         });
     }
     
-    // Livewire event listeners
+    // Watch for modal visibility changes
+    const modalObserver = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+                const modal = mutation.target;
+                if (modal.classList.contains('show') || modal.classList.contains('d-block')) {
+                    setTimeout(() => {
+                        const modalDialog = modal.querySelector('.modal-dialog');
+                        if (modalDialog) {
+                            if (!modalDialog.classList.contains('draggable-modal')) {
+                                modalDialog.classList.add('draggable-modal');
+                            }
+                            makeModalDraggable(modalDialog);
+                        }
+                    }, 100);
+                }
+            }
+        });
+    });
+    
+    // Observe all modals
+    document.querySelectorAll('.modal').forEach(modal => {
+        modalObserver.observe(modal, { attributes: true });
+    });
+    
+    // Listen for Livewire events
     if (typeof Livewire !== 'undefined') {
         Livewire.on('showAlertPopup', () => {
-            setTimeout(setupAllModals, 150);
+            setTimeout(initializeAllModals, 200);
         });
         
         Livewire.on('showProfilePopup', () => {
-            setTimeout(setupAllModals, 150);
+            setTimeout(initializeAllModals, 200);
+        });
+        
+        // Also listen for Livewire updates
+        document.addEventListener('livewire:update', function() {
+            setTimeout(initializeAllModals, 150);
+        });
+        
+        document.addEventListener('livewire:load', function() {
+            setTimeout(initializeAllModals, 150);
         });
     }
     
     // Initial setup
-    setTimeout(setupAllModals, 200);
-    setupModalObserver();
+    setTimeout(initializeAllModals, 200);
     
-    // Also setup when any click happens on modal (for Livewire re-renders)
+    // Also setup when clicking on modal (for dynamic modals)
     document.addEventListener('click', function(e) {
         if (e.target.closest('.modal')) {
-            setTimeout(setupAllModals, 50);
+            setTimeout(initializeAllModals, 50);
         }
     });
+    
+    console.log('Drag functionality initialized');
 });
 </script>
+<script>
+// Complete Lookup Keyboard Navigation with Permanent Hide
+(function() {
+    let selectedIndex = -1;
+    let enterJustPressed = false;
+    let hideTimer = null;
+    
+    function getLookupInput() {
+        return document.querySelector('input[wire\\:model="search"]');
+    }
+    
+    function getMatchesContainer() {
+        const input = getLookupInput();
+        if (input && input.parentElement) {
+            return input.parentElement.querySelector('ul.list-group');
+        }
+        return null;
+    }
+    
+    function permanentlyHideDropdown() {
+        const container = getMatchesContainer();
+        if (container) {
+            container.style.display = 'none';
+            container.style.visibility = 'hidden';
+            container.style.opacity = '0';
+            container.style.pointerEvents = 'none';
+        }
+    }
+    
+    function showDropdown() {
+        const container = getMatchesContainer();
+        if (container && !enterJustPressed) {
+            container.style.display = '';
+            container.style.visibility = '';
+            container.style.opacity = '';
+            container.style.pointerEvents = '';
+        }
+    }
+    
+    function updateSelectedItem() {
+        const container = getMatchesContainer();
+        if (!container) return;
+        
+        const items = container.querySelectorAll('li');
+        items.forEach((item, index) => {
+            if (index === selectedIndex) {
+                item.classList.add('active');
+                item.style.backgroundColor = '#0d6efd';
+                item.style.color = 'white';
+                item.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+            } else {
+                item.classList.remove('active');
+                item.style.backgroundColor = '';
+                item.style.color = '';
+            }
+        });
+    }
+    
+    function resetSelection() {
+        selectedIndex = -1;
+        updateSelectedItem();
+    }
+    
+    // Keyboard event handler
+    document.addEventListener('keydown', function(e) {
+        const input = getLookupInput();
+        if (!input || document.activeElement !== input) return;
+        
+        const container = getMatchesContainer();
+        if (!container) return;
+        
+        const items = container.querySelectorAll('li');
+        if (items.length === 0) return;
+        
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            e.stopPropagation();
+            enterJustPressed = false;
+            selectedIndex = Math.min(selectedIndex + 1, items.length - 1);
+            updateSelectedItem();
+            showDropdown();
+        }
+        else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            e.stopPropagation();
+            enterJustPressed = false;
+            selectedIndex = Math.max(selectedIndex - 1, 0);
+            updateSelectedItem();
+            showDropdown();
+        }
+        else if (e.key === 'Enter') {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            if (selectedIndex >= 0 && items[selectedIndex]) {
+                enterJustPressed = true;
+                
+                // Immediately hide dropdown
+                permanentlyHideDropdown();
+                
+                // Store the item to click
+                const itemToClick = items[selectedIndex];
+                resetSelection();
+                
+                // Click the item
+                itemToClick.click();
+                
+                // Clear timers if any
+                if (hideTimer) clearTimeout(hideTimer);
+                
+                // Keep hiding for next few seconds
+                let hideCount = 0;
+                hideTimer = setInterval(() => {
+                    permanentlyHideDropdown();
+                    hideCount++;
+                    if (hideCount > 20) { // After 2 seconds, stop trying
+                        clearInterval(hideTimer);
+                        hideTimer = null;
+                        // Reset enterJustPressed after long delay
+                        setTimeout(() => {
+                            enterJustPressed = false;
+                        }, 1000);
+                    }
+                }, 100);
+            }
+        }
+    });
+    
+    // Clear matches from DOM directly
+    function clearMatchesFromDOM() {
+        const container = getMatchesContainer();
+        if (container) {
+            // Remove all li elements
+            const items = container.querySelectorAll('li');
+            items.forEach(item => item.remove());
+            // Hide container
+            container.style.display = 'none';
+        }
+    }
+    
+    // Monitor Livewire updates
+    if (typeof Livewire !== 'undefined') {
+        // Before Livewire updates, clear matches
+        document.addEventListener('livewire:updating', function() {
+            if (enterJustPressed) {
+                clearMatchesFromDOM();
+            }
+        });
+        
+        // After Livewire updates
+        document.addEventListener('livewire:updated', function() {
+            if (enterJustPressed) {
+                permanentlyHideDropdown();
+                // Clear matches array if possible
+                setTimeout(() => {
+                    clearMatchesFromDOM();
+                    permanentlyHideDropdown();
+                }, 50);
+            }
+        });
+    }
+    
+    // Also monitor DOM changes
+    const domObserver = new MutationObserver(function(mutations) {
+        if (enterJustPressed) {
+            mutations.forEach(function(mutation) {
+                if (mutation.type === 'childList' || mutation.type === 'subtree') {
+                    permanentlyHideDropdown();
+                    const container = getMatchesContainer();
+                    if (container && container.children.length > 0) {
+                        // If new children added, immediately hide them
+                        setTimeout(() => {
+                            permanentlyHideDropdown();
+                            const items = container.querySelectorAll('li');
+                            items.forEach(item => {
+                                if (item.style.display !== 'none') {
+                                    item.style.display = 'none';
+                                }
+                            });
+                        }, 10);
+                    }
+                }
+            });
+        }
+    });
+    
+    domObserver.observe(document.body, { childList: true, subtree: true });
+    
+    // Reset when user starts typing again
+    document.addEventListener('input', function(e) {
+        const input = getLookupInput();
+        if (e.target === input) {
+            // User is typing new search
+            enterJustPressed = false;
+            resetSelection();
+            
+            // Clear the hide timer
+            if (hideTimer) {
+                clearInterval(hideTimer);
+                hideTimer = null;
+            }
+            
+            // Show dropdown again for new results
+            setTimeout(() => {
+                if (!enterJustPressed) {
+                    showDropdown();
+                }
+            }, 200);
+        }
+    });
+    
+    // Handle focus on input
+    const input = getLookupInput();
+    if (input) {
+        input.addEventListener('focus', function() {
+            if (!enterJustPressed) {
+                showDropdown();
+            }
+        });
+    }
+    
+    console.log('Lookup keyboard navigation with permanent hide loaded');
+})();
+// Click anywhere to close autocomplete dropdown
+document.addEventListener('DOMContentLoaded', function() {
+    
+    function hideAutocomplete() {
+        const input = document.querySelector('input[wire\\:model="search"]');
+        if (input && input.parentElement) {
+            const dropdown = input.parentElement.querySelector('ul.list-group');
+            if (dropdown) {
+                dropdown.style.display = 'none';
+            }
+        }
+    }
+    
+    // Click anywhere on page
+    document.addEventListener('click', function(e) {
+        const input = document.querySelector('input[wire\\:model="search"]');
+        
+        // Agar click lookup input ke andar nahi hai to hide karo
+        if (input && !input.contains(e.target)) {
+            hideAutocomplete();
+        }
+    });
+    
+    // Jab user lookup input par focus kare aur matches ho to show karo
+    const lookupInput = document.querySelector('input[wire\\:model="search"]');
+    if (lookupInput) {
+        lookupInput.addEventListener('focus', function() {
+            const dropdown = this.parentElement?.querySelector('ul.list-group');
+            if (dropdown && dropdown.children.length > 0) {
+                dropdown.style.display = '';
+            }
+        });
+        
+        // Jab user type kare to bhi show karo (Livewire ke through)
+        lookupInput.addEventListener('input', function() {
+            setTimeout(() => {
+                const dropdown = this.parentElement?.querySelector('ul.list-group');
+                if (dropdown && dropdown.children.length > 0) {
+                    dropdown.style.display = '';
+                }
+            }, 100);
+        });
+    }
+    
+    console.log('Click outside to close autocomplete - activated');
+});
+</script>
+
+<style>
+/* Active item styling */
+ul.list-group li.active {
+    background-color: #0d6efd !important;
+    color: white !important;
+    border-color: #0d6efd !important;
+}
+
+ul.list-group li:hover {
+    background-color: #f8f9fa;
+    cursor: pointer;
+}
+
+/* Force hide for dropdown */
+ul.list-group[style*="display: none"],
+ul.list-group[style*="visibility: hidden"] {
+    display: none !important;
+    visibility: hidden !important;
+}
+</style>
     </div>

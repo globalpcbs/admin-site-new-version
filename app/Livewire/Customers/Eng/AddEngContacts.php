@@ -27,8 +27,8 @@ class AddEngContacts extends Component
             'cid' => 'required|integer',
             'txtename' => 'required|string|max:100',
             'txtelname' => 'nullable|string|max:100',
-            'txtephone' => 'required|string|max:50',
-            'txteemail' => 'required|email|max:150',
+            'txtephone' => 'nullable|string|max:50',
+            'txteemail' => 'nullable|email|max:150',
             'txteemob' => 'nullable|string|max:50',
         ]);
 

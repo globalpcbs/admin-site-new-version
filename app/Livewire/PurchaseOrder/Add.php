@@ -32,7 +32,7 @@ class Add extends Component
     public $state;
 
     public $sterms = 'Prepaid';
-    public $rohs = 'no';
+    public $rohs = 'yes';
 
     public $comments;
 

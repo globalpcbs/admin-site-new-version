@@ -15,8 +15,8 @@ class AddCustomers extends Component
     {
         $this->validate([
             'c_name' => 'required|string',
-            'c_shortname' => 'nullable|string',
-            'c_email' => 'required|email',
+            'c_shortname' => 'required|string',
+            'c_email' => 'nullable|email',
             'c_address' => 'nullable|string',
             'c_phone' => 'required|string',
             'c_fax' => 'nullable|string',

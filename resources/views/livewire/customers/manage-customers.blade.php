@@ -39,9 +39,12 @@
     @endif
     <div class="card shadow-sm">
         <div class="card-header bg-primary text-white">
-            <h5 class="card-title mb-2 text-white">
+            <b class="card-title text-white">
                 <i class="fa fa-users"></i> Manage Customers
-            </h5>
+            </b>
+            <a href="{{ route('add-customers') }}">
+                <button class="btn btn-light float-end btn-sm"><i class="fa fa-plus-circle""></i> Add Customer </button>
+            </a>
         </div>
 
         <div class="card-body">

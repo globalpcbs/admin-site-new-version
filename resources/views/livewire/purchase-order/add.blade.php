@@ -57,7 +57,7 @@
                         <label class="form-label">
                             <i class="fa fa-plane text-info"></i> Ship Via
                         </label>
-                        <select class="form-select" wire:model="svia">
+                        <select class="form-select" wire:model.live="svia">
                             <option value="Fedex">Fedex</option>
                             <option value="UPS">UPS</option>
                             <option value="Personal Delivery">Personal Delivery</option>

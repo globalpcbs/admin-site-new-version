@@ -61,7 +61,7 @@
                         @forelse ($users as $user)
                             <tr>
                                 <td>{{ $user->id }}</td>
-                                <td>{{ ucfirst($user->username) }}</td>
+                                <td>{{ $user->username }}</td>
                                 <td> <i class="fa fa-clock"></i> {{ $user->created_at->diffForHumans() }}</td>
                                 <td>
                                     <button class="btn btn-info btn-sm" wire:click="editUser({{ $user->id }})">

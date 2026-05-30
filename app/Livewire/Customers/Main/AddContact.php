@@ -27,7 +27,7 @@ class AddContact extends Component
         $this->validate([
             'cid' => 'required|exists:data_tb,data_id',
             'txtename' => 'required|string|max:255',
-            'txtelname' => 'required|string|max:255',
+            'txtelname' => 'nullable|string|max:255',
             'txtephone' => 'nullable|string|max:20',
             'txteemail' => 'nullable|email|max:255',
             'txteemob' => 'nullable|string|max:20',

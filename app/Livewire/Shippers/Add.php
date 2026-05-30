@@ -16,14 +16,14 @@ class Add extends Component
     }
      protected $rules = [
         'c_name' => 'required|string|max:255',
-        'c_address' => 'nullable|string|max:255',
+        'c_address' => 'required|string|max:255',
         'c_address2' => 'nullable|string|max:255',
         'c_address3' => 'nullable|string|max:255',
         'c_phone' => 'required|string|max:20',
         'c_fax' => 'nullable|string|max:20',
         'c_website' => 'nullable|max:255',
         'c_bcontact' => 'nullable|string|max:255',
-        'e_name' => 'nullable|string|max:255',
+        'e_name' => 'required|string|max:255',
         'e_lname' => 'nullable|string|max:255',
         'e_phone' => 'nullable|string|max:20',
         'e_email' => 'nullable|email|max:255',
