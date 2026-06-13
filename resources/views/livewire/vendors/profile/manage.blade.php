@@ -110,7 +110,8 @@
                                 <td class="text-center">
                                     <button 
                                         class="btn btn-sm btn-outline-danger" 
-                                        wire:click="confirmDelete({{ $vendor->profid }})"
+                                        wire:confirm="Are you sure you want to delete this vendor profile?"
+                                        wire:click="deleteVendorProfile({{ $vendor->profid }})"
                                         wire:key="delete-{{ $vendor->profid }}"
                                         title="Delete Profile"
                                     >
