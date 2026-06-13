@@ -10,7 +10,7 @@
             <div class="card-body">
                 <div class="mb-3">
                     <label for="cid" class="form-label">Select Vendor</label>
-                    <select wire:model="cid" class="form-select" id="cid">
+                    <select wire:model="cid" class="form-select" id="cid" disabled>
                         <option value="">Select Vendor</option>
                         @foreach($vendors as $vendor)
                             <option value="{{ $vendor->data_id }}">{{ $vendor->c_name }}</option>
