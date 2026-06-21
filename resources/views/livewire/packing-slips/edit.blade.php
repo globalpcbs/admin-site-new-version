@@ -272,16 +272,99 @@
                 </div>
 
                 <!-- Comments -->
-                <div class="mb-4">
-                    <label class="form-label fw-semibold">
-                        <i class="fa fa-commenting"></i> Comments
-                    </label>
-                    <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-commenting"></i></span>
-                        <textarea rows="4" class="form-control" wire:model.defer="comments"></textarea>
+                <!-- Comments -->
+            <div class="mb-4">
+                <label class="form-label fw-semibold">
+                    <i class="fa fa-commenting"></i> Comments
+                </label>
+                
+                <link rel="stylesheet" href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css">
+                <script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
+
+                <style>
+                    .CodeMirror {
+                        height: 150px !important;
+                        min-height: 120px;
+                        border-radius: 0 0 4px 4px !important;
+                    }
+                    .editor-toolbar {
+                        border-radius: 4px 4px 0 0 !important;
+                        border: 1px solid #ddd !important;
+                        border-bottom: none !important;
+                    }
+                    .editor-toolbar .separator {
+                        display: none !important;
+                    }
+                    .editor-toolbar a:not(.fa-bold):not(.fa-italic):not(.fa-list-ul):not(.fa-list-ol):not(.fa-quote-left) {
+                        display: none !important;
+                    }
+                    .custom-align-btn {
+                        display: inline-flex !important;
+                        align-items: center !important;
+                        justify-content: center !important;
+                        padding: 5px 10px !important;
+                        border: 1px solid transparent !important;
+                        border-radius: 3px !important;
+                        cursor: pointer !important;
+                        font-size: 14px !important;
+                        color: #333 !important;
+                        background: transparent !important;
+                        text-decoration: none !important;
+                    }
+                    .custom-align-btn:hover {
+                        background: #f0f0f0 !important;
+                    }
+                    .comment-editor-wrapper {
+                        position: relative;
+                    }
+                    .comment-editor-wrapper .input-group-text {
+                        position: absolute;
+                        top: 10px;
+                        left: 10px;
+                        z-index: 10;
+                        background: transparent !important;
+                        border: none !important;
+                        color: #6c757d !important;
+                        pointer-events: none;
+                    }
+                    .comment-editor-wrapper .editor-toolbar {
+                        padding-left: 40px !important;
+                    }
+                    .comment-editor-wrapper .CodeMirror {
+                        padding-left: 35px !important;
+                    }
+                </style>
+
+                <div class="comment-editor-wrapper">
+                    <span class="input-group-text"><i class="fa fa-commenting"></i></span>
+                    
+                    <div wire:ignore>
+                        <input type="hidden" wire:model="comments" id="commentsContent">
+                        
+                        <div class="editor-toolbar" id="customToolbar">
+                            <a class="fa fa-bold" title="Bold"></a>
+                            <a class="fa fa-italic" title="Italic"></a>
+                            <a class="custom-align-btn" data-align="left" title="Align Left">
+                                <i class="fa fa-align-left"></i>
+                            </a>
+                            <a class="custom-align-btn" data-align="center" title="Align Center">
+                                <i class="fa fa-align-center"></i>
+                            </a>
+                            <a class="custom-align-btn" data-align="right" title="Align Right">
+                                <i class="fa fa-align-right"></i>
+                            </a>
+                            <a class="fa fa-list-ul" title="Bullet List"></a>
+                            <a class="fa fa-list-ol" title="Numbered List"></a>
+                            <a class="fa fa-quote-left" title="Quote"></a>
+                        </div>
+                        
+                        <textarea id="txtcomments" name="txtcomments"></textarea>
                     </div>
-                    @error('comments') <div class="text-danger small">{{ $message }}</div> @enderror
                 </div>
+                
+                @error('comments') <div class="text-danger small">{{ $message }}</div> @enderror
+            </div>
+
                 {{-- Submit Buttons --}}
                 <div class="mt-3">
                     <button type="submit" class="btn btn-primary btn-sm @if($button_status == 1) disabled @endif">
@@ -550,4 +633,103 @@
                 });
             });
         </script>
+        
+<script>
+    let simplemdeComments = null;
+    let isInitialized = false;
+    let initTimer = null;
+    
+    function initCommentsEditor() {
+        // Clear any pending timer
+        if (initTimer) {
+            clearTimeout(initTimer);
+            initTimer = null;
+        }
+        
+        // Prevent multiple initialization
+        if (isInitialized) {
+            return;
+        }
+        
+        // Destroy any existing editor
+        if (simplemdeComments) {
+            try {
+                simplemdeComments.toTextArea();
+            } catch(e) {}
+            simplemdeComments = null;
+        }
+        
+        // Check if textarea is visible and ready
+        const textarea = document.getElementById('txtcomments');
+        if (!textarea) return;
+        
+        // Initialize editor
+        simplemdeComments = new SimpleMDE({
+            element: textarea,
+            spellChecker: false,
+            toolbar: false, // Disable default toolbar
+            status: false,
+            lineWrapping: true,
+            placeholder: 'Enter comments here...',
+            forceSync: true,
+        });
+        
+        isInitialized = true;
+        
+        // Load existing content
+        const existingContent = @json($comments);
+        if (existingContent) {
+            let displayContent = existingContent.replace(/<br\s*\/?>/gi, '\n');
+            simplemdeComments.value(displayContent);
+        }
+        
+        // Setup align buttons
+        setupAlignButtons();
+        
+        // Save on change
+        simplemdeComments.codemirror.on('change', function() {
+            let rawContent = simplemdeComments.value();
+            let contentWithBr = rawContent.replace(/\n/g, '<br />');
+            document.getElementById('commentsContent').value = contentWithBr;
+            @this.set('comments', contentWithBr);
+        });
+    }
+    
+    function setupAlignButtons() {
+        const alignButtons = document.querySelectorAll('.custom-align-btn');
+        alignButtons.forEach(btn => {
+            btn.removeEventListener('click', handleAlignClick);
+            btn.addEventListener('click', handleAlignClick);
+        });
+    }
+    
+    function handleAlignClick(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        const align = this.dataset.align;
+        const cm = simplemdeComments.codemirror;
+        const selection = cm.getSelection();
+        const cursor = cm.getCursor();
+        
+        if (selection) {
+            const wrapped = `<div style="text-align: ${align};">${selection}</div>`;
+            cm.replaceSelection(wrapped);
+        } else {
+            const line = cm.getLine(cursor.line);
+            const wrapped = `<div style="text-align: ${align};">${line}</div>`;
+            cm.replaceRange(wrapped, {line: cursor.line, ch: 0}, {line: cursor.line, ch: line.length});
+        }
+        
+        let rawContent = simplemdeComments.value();
+        let contentWithBr = rawContent.replace(/\n/g, '<br />');
+        document.getElementById('commentsContent').value = contentWithBr;
+        @this.set('comments', contentWithBr);
+    }
+    
+    // Single initialization
+    document.addEventListener('DOMContentLoaded', function() {
+        initTimer = setTimeout(initCommentsEditor, 300);
+    });
+</script>
 </div>
