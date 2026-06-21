@@ -275,16 +275,98 @@
                 </div>
 
                 <!-- Comments -->
-                <div class="mb-4">
-                    <label class="form-label fw-semibold">
-                        <i class="fa fa-commenting"></i> Comments
-                    </label>
-                    <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-commenting"></i></span>
-                        <textarea rows="4" class="form-control" wire:model.defer="comments"></textarea>
-                    </div>
-                    @error('comments') <div class="text-danger small">{{ $message }}</div> @enderror
-                </div>
+                <!-- Comments -->
+<div class="mb-4">
+    <label class="form-label fw-semibold">
+        <i class="fa fa-commenting"></i> Comments
+    </label>
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css">
+    <script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
+
+    <style>
+        .CodeMirror {
+            height: 150px !important;
+            min-height: 120px;
+            border-radius: 0 0 4px 4px !important;
+        }
+        .editor-toolbar {
+            border-radius: 4px 4px 0 0 !important;
+            border: 1px solid #ddd !important;
+            border-bottom: none !important;
+        }
+        /* Only show required buttons */
+        .editor-toolbar .separator {
+            display: none !important;
+        }
+        .editor-toolbar a:not(.fa-bold):not(.fa-italic):not(.fa-header):not(.fa-quote-left):not(.fa-list-ul):not(.fa-list-ol) {
+            display: none !important;
+        }
+    </style>
+
+    <div wire:ignore>
+        <input type="hidden" wire:model="comments" id="commentsContent">
+        <textarea id="txtcomments" name="txtcomments"></textarea>
+    </div>
+    
+    @error('comments') <div class="text-danger small">{{ $message }}</div> @enderror
+</div>
+
+<script>
+    let simplemdeComments = null;
+    
+    function initCommentsEditor() {
+        if (simplemdeComments) {
+            simplemdeComments.toTextArea();
+            simplemdeComments = null;
+        }
+        
+        simplemdeComments = new SimpleMDE({
+            element: document.getElementById('txtcomments'),
+            spellChecker: false,
+            toolbar: [
+                'bold', 
+                'italic', 
+                'heading',    // For different heading sizes (alignment effect)
+                '|',
+                'unordered-list', 
+                'ordered-list',
+                '|',
+                'quote',
+                '|',
+                'guide'
+            ],
+            status: ['lines', 'words'],
+            lineWrapping: true,
+            placeholder: 'Enter comments here...',
+            // Enable line breaks with Enter
+            forceSync: true,
+        });
+        
+        // Load existing content
+        const existingContent = @json($comments);
+        if (existingContent) {
+            let displayContent = existingContent.replace(/<br\s*\/?>/gi, '\n');
+            simplemdeComments.value(displayContent);
+        }
+        
+        // Save content
+        simplemdeComments.codemirror.on('change', function() {
+            let rawContent = simplemdeComments.value();
+            let contentWithBr = rawContent.replace(/\n/g, '<br />');
+            document.getElementById('commentsContent').value = contentWithBr;
+            @this.set('comments', contentWithBr);
+        });
+    }
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        setTimeout(initCommentsEditor, 100);
+    });
+    
+    document.addEventListener('livewire:navigated', function() {
+        setTimeout(initCommentsEditor, 100);
+    });
+</script>
 
                 {{-- Submit Buttons --}}
                 <div class="mt-3">

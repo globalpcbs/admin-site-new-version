@@ -65,7 +65,8 @@
                     </tr>
                     <tr>
                          <th><i class="fa fa-hashtag"></i> ID</th>
-                        <th><i class="fa fa-user"></i> Name</th>
+                         <th><i class="fa fa-user"></i> Vendor </th>
+                        <th><i class="fa fa-user"></i> First Name</th>
                         <th><i class="fa fa-user-plus"></i> Last Name</th>
                         <th><i class="fa fa-pencil"></i> Edit</th>
                         <th><i class="fa fa-trash"></i> Delete</th>
@@ -75,6 +76,10 @@
                     @forelse($contacts as $contact)
                         <tr>
                             <td>{{ $contact->enggcont_id  }}</td>
+                            @php 
+                                $vendor = App\Models\vendor_tb::where('data_id',$contact->coustid)->first();
+                            @endphp
+                            <td>{{ $vendor->c_name }}</td>
                             <td>{{ $contact->name }}</td>
                             <td>{{ $contact->lastname }}</td>
                             <td><a href="{{ route('vendors.main.edit',$contact->enggcont_id) }}" class="btn btn-success btn-sm text-white"> <i class="fa fa-pencil"></i> Edit</a></td>
