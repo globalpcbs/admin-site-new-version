@@ -132,7 +132,7 @@
                             <td>{{ $slip->part_no ?? 'N/A' }}</td>
                             <td>{{ $slip->rev ?? 'N/A' }}</td>
                             <td>
-                                {{ $slip->podate ? \Carbon\Carbon::parse($slip->podate)->format('m/d/Y') : 'N/A' }}
+                                {{ $slip->podate  }}
                             </td>
                             <td>
                                 <a href="{{ route('packing.edit',$slip->invoice_id) }}">
