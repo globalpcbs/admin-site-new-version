@@ -165,18 +165,19 @@ class Manage extends Component
         $copy->lastmail = null; // or now() or any valid date
         $copy->save();
        // dd($copy);
-        $newId = $copy->id;
-      //  dd($newId);
+        $newId = $copy->invoice_id;
+     // dd($newId);
         $items = InvoiceItem::where('pid', $id)->get();
+       //dd($items->count());
         foreach ($items as $item) {
-            InvoiceItem::create([
-                'item' => $item->item,
-                'itemdesc' => $item->itemdesc,
-                'qty2' => $item->qty2,
-                'uprice' => $item->uprice,
-                'tprice' => $item->tprice,
-                'pid' => $newId
-            ]);
+            $invoiceitem = new InvoiceItem();
+            $invoiceitem->item = $item->item;
+            $invoiceitem->itemdesc = $item->itemdesc;
+            $invoiceitem->qty2 = $item->qty2;
+            $invoiceitem->uprice = $item->uprice;
+            $invoiceitem->tprice = $item->tprice;
+            $invoiceitem->pid = $newId;
+            $invoiceitem->save();
         }
         
         $this->alertMessage = 'Invoice duplicated successfully.';

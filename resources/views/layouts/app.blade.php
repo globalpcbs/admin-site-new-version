@@ -338,6 +338,101 @@
             });
         });
     </script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // SimpleMDE Editor
+        let simplemdeComments = null;
+        let isEditorInitialized = false;
+        
+        function initCommentsEditor() {
+            if (typeof SimpleMDE === 'undefined') {
+                setTimeout(initCommentsEditor, 500);
+                return;
+            }
+
+            if (isEditorInitialized) return;
+
+            const textarea = document.getElementById('txtcomments');
+            if (!textarea) return;
+
+            if (simplemdeComments) {
+                try { simplemdeComments.toTextArea(); } catch(e) {}
+                simplemdeComments = null;
+            }
+
+            const existingContent = textarea.value || '';
+
+            simplemdeComments = new SimpleMDE({
+                element: textarea,
+                spellChecker: false,
+                toolbar: false,
+                status: false,
+                lineWrapping: true,
+                placeholder: 'Enter comments here...',
+            });
+
+            isEditorInitialized = true;
+
+            if (existingContent) {
+                let displayContent = existingContent.replace(/<br\s*\/?>/gi, '\n');
+                simplemdeComments.value(displayContent);
+            }
+
+            // Setup align buttons
+            const alignButtons = document.querySelectorAll('.custom-align-btn');
+            alignButtons.forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    if (!simplemdeComments) return;
+                    
+                    const align = this.dataset.align;
+                    const cm = simplemdeComments.codemirror;
+                    const selection = cm.getSelection();
+                    const cursor = cm.getCursor();
+                    
+                    if (selection) {
+                        const wrapped = `<div style="text-align: ${align};">${selection}</div>`;
+                        cm.replaceSelection(wrapped);
+                    } else {
+                        const line = cm.getLine(cursor.line);
+                        const wrapped = `<div style="text-align: ${align};">${line}</div>`;
+                        cm.replaceRange(wrapped, {line: cursor.line, ch: 0}, {line: cursor.line, ch: line.length});
+                    }
+                    
+                    setTimeout(function() {
+                        let rawContent = simplemdeComments.value();
+                        let contentWithBr = rawContent.replace(/\n/g, '<br />');
+                        const hiddenInput = document.getElementById('commentsContent');
+                        if (hiddenInput) {
+                            hiddenInput.value = contentWithBr;
+                            hiddenInput.dispatchEvent(new Event('input', { bubbles: true }));
+                        }
+                    }, 100);
+                });
+            });
+
+            // Save on change
+            simplemdeComments.codemirror.on('change', function() {
+                let rawContent = simplemdeComments.value();
+                let contentWithBr = rawContent.replace(/\n/g, '<br />');
+                const hiddenInput = document.getElementById('commentsContent');
+                if (hiddenInput) {
+                    hiddenInput.value = contentWithBr;
+                    hiddenInput.dispatchEvent(new Event('input', { bubbles: true }));
+                }
+            });
+        }
+
+        setTimeout(initCommentsEditor, 300);
+
+        document.addEventListener('livewire:navigated', function() {
+            isEditorInitialized = false;
+            setTimeout(initCommentsEditor, 300);
+        });
+    });
+</script>
 
 </body>
 
