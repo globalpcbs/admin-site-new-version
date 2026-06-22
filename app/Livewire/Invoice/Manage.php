@@ -156,15 +156,17 @@ class Manage extends Component
     public function duplicate($id)
     {
         $original = Invoice::findOrFail($id);
+      // dd($original);
         $copy = $original->replicate();
         $copy->pending = 0;
         $copy->ispaid = 0;
         $copy->mailstop = 0;
         $copy->podate = now()->format('m/d/Y');
+        $copy->lastmail = null; // or now() or any valid date
         $copy->save();
-
+       // dd($copy);
         $newId = $copy->id;
-
+      //  dd($newId);
         $items = InvoiceItem::where('pid', $id)->get();
         foreach ($items as $item) {
             InvoiceItem::create([
