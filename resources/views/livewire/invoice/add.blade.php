@@ -464,110 +464,6 @@
     @error('comments') <div class="text-danger small">{{ $message }}</div> @enderror
 </div>
 
-<script>
-    let simplemdeComments = null;
-    let isInitialized = false;
-    let initTimer = null;
-    
-    function initCommentsEditor() {
-        // Clear any pending timer
-        if (initTimer) {
-            clearTimeout(initTimer);
-            initTimer = null;
-        }
-        
-        // Prevent multiple initialization
-        if (isInitialized) {
-            return;
-        }
-        
-        // Destroy existing instance if any
-        if (simplemdeComments) {
-            try {
-                simplemdeComments.toTextArea();
-            } catch(e) {}
-            simplemdeComments = null;
-        }
-        
-        // Check if textarea is visible and ready
-        const textarea = document.getElementById('txtcomments');
-        if (!textarea) return;
-        
-        // Initialize SimpleMDE
-        simplemdeComments = new SimpleMDE({
-            element: textarea,
-            spellChecker: false,
-            toolbar: false, // Disable default toolbar
-            status: false,
-            lineWrapping: true,
-            placeholder: 'Enter comments here...',
-            forceSync: true,
-        });
-        
-        isInitialized = true;
-        
-        // Load existing content from Livewire
-        const existingContent = @json($comments);
-        if (existingContent) {
-            let displayContent = existingContent.replace(/<br\s*\/?>/gi, '\n');
-            simplemdeComments.value(displayContent);
-        }
-        
-        // Setup align buttons
-        setupAlignButtons();
-        
-        // Save on change
-        simplemdeComments.codemirror.on('change', function() {
-            let rawContent = simplemdeComments.value();
-            let contentWithBr = rawContent.replace(/\n/g, '<br />');
-            document.getElementById('commentsContent').value = contentWithBr;
-            @this.set('comments', contentWithBr);
-        });
-    }
-    
-    function setupAlignButtons() {
-        const alignButtons = document.querySelectorAll('.custom-align-btn');
-        alignButtons.forEach(btn => {
-            btn.removeEventListener('click', handleAlignClick);
-            btn.addEventListener('click', handleAlignClick);
-        });
-    }
-    
-    function handleAlignClick(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        
-        const align = this.dataset.align;
-        const cm = simplemdeComments.codemirror;
-        const selection = cm.getSelection();
-        const cursor = cm.getCursor();
-        
-        if (selection) {
-            const wrapped = `<div style="text-align: ${align};">${selection}</div>`;
-            cm.replaceSelection(wrapped);
-        } else {
-            const line = cm.getLine(cursor.line);
-            const wrapped = `<div style="text-align: ${align};">${line}</div>`;
-            cm.replaceRange(wrapped, {line: cursor.line, ch: 0}, {line: cursor.line, ch: line.length});
-        }
-        
-        let rawContent = simplemdeComments.value();
-        let contentWithBr = rawContent.replace(/\n/g, '<br />');
-        document.getElementById('commentsContent').value = contentWithBr;
-        @this.set('comments', contentWithBr);
-    }
-    
-    // Initialize on page load
-    document.addEventListener('DOMContentLoaded', function() {
-        initTimer = setTimeout(initCommentsEditor, 300);
-    });
-    
-    // Re-initialize on Livewire navigation
-    document.addEventListener('livewire:navigated', function() {
-        isInitialized = false;
-        initTimer = setTimeout(initCommentsEditor, 300);
-    });
-</script>
 
                 <div class="text-end">
                     <button type="submit" class="btn btn-primary @if($button_status == 1) disabled @endif">
@@ -934,6 +830,7 @@
                 }
             }, 200);
         });
+        
     </script>
 </div>
 </div>

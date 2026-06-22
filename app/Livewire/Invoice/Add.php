@@ -348,7 +348,7 @@ class Add extends Component
             $invoice->rev        = $this->rev;
             $invoice->delto      = $this->delto;
             $invoice->ord_by     = $this->ord_by;
-            $invoice->date1      = $this->date1;
+            $invoice->date1 = $this->date1 ? Carbon::createFromFormat('d-m-Y', $this->date1)->format('Y-m-d') : null;
             $invoice->po         = $this->po;
             $invoice->our_ord_num = $this->oo;
             $invoice->commision  = $this->commission;
