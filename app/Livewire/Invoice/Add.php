@@ -14,6 +14,7 @@ use App\Models\order_tb     as Order;
 use App\Models\alerts_tb    as Alert;
 use App\Models\profile_tb as Profile;
 use App\Models\profile_tb2 as ProfileDetail;
+use Carbon\Carbon; // ✅ Ye line add karein
 
 class Add extends Component
 {
