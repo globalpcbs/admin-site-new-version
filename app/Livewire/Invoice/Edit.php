@@ -10,7 +10,6 @@ use App\Models\invoice_tb as Invoice;
 use App\Models\rep_tb as reps;
 use App\Models\invoice_items_tb as InvoiceItem;
 use App\Models\order_tb as Order;
-use Carbon\Carbon; // ✅ Ye line add karein
 // for alerts ..
 use App\Models\alerts_tb    as Alert;
 use App\Models\profile_tb as Profile;
@@ -384,7 +383,7 @@ class Edit extends Component
                 'ord_by' => $this->ord_by,
                 'no_layer' => $this->lyrcnt,
                 'delto' => $this->delto,
-                'date1' => $this->date1 ? Carbon::createFromFormat('d-m-Y', $this->date1)->format('Y-m-d') : null,
+                'date1' => $this->date1,
                 'saletax' => $this->stax ?: 0,
                 'commision' => $this->commission,
                 'comval' => $this->totalCommission,

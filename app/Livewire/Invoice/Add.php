@@ -14,7 +14,6 @@ use App\Models\order_tb     as Order;
 use App\Models\alerts_tb    as Alert;
 use App\Models\profile_tb as Profile;
 use App\Models\profile_tb2 as ProfileDetail;
-use Carbon\Carbon; // ✅ Ye line add karein
 
 class Add extends Component
 {
@@ -66,9 +65,11 @@ class Add extends Component
     public $button_status = 0;
     public array $alertTypes = [];
 
-
     public function mount()
     {
+        if ($this->date1) {
+            $this->date1_display = Carbon::parse($this->date1)->format('l-m-d-Y');
+        }
         $this->items = collect(range(1, 6))
             ->map(fn () => [
                 'item' => '',
@@ -349,7 +350,7 @@ class Add extends Component
             $invoice->rev        = $this->rev;
             $invoice->delto      = $this->delto;
             $invoice->ord_by     = $this->ord_by;
-            $invoice->date1 = $this->date1 ? Carbon::createFromFormat('d-m-Y', $this->date1)->format('Y-m-d') : null;
+            $invoice->date1      = $this->date1;
             $invoice->po         = $this->po;
             $invoice->our_ord_num = $this->oo;
             $invoice->commision  = $this->commission;
