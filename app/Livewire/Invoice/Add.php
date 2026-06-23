@@ -67,9 +67,9 @@ class Add extends Component
 
     public function mount()
     {
-        if ($this->date1) {
-            $this->date1 = Carbon::parse($this->date1)->format('l-m-d-Y');
-        }
+        // if ($this->date1) {
+        //     $this->date1 = Carbon::parse($this->date1)->format('l-m-d-Y');
+        // }
         $this->items = collect(range(1, 6))
             ->map(fn () => [
                 'item' => '',
@@ -350,7 +350,7 @@ class Add extends Component
             $invoice->rev        = $this->rev;
             $invoice->delto      = $this->delto;
             $invoice->ord_by     = $this->ord_by;
-            $invoice->date1      = $this->date1;
+            $invoice->date1      = Carbon::parse($this->date1)->format('l-m-d-Y');
             $invoice->po         = $this->po;
             $invoice->our_ord_num = $this->oo;
             $invoice->commision  = $this->commission;
