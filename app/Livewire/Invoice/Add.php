@@ -68,7 +68,7 @@ class Add extends Component
     public function mount()
     {
         if ($this->date1) {
-            $this->date1_display = Carbon::parse($this->date1)->format('l-m-d-Y');
+            $this->date1 = Carbon::parse($this->date1)->format('l-m-d-Y');
         }
         $this->items = collect(range(1, 6))
             ->map(fn () => [
