@@ -287,7 +287,7 @@
                 <!-- Our PO# -->
                 <div class="col-md-4">
                     <label class="form-label fw-semibold">
-                        <i class="fa fa-hashtag"></i> Our PO#
+                        <i class="fa fa-hashtag"></i> Our PO# {{ $oo }}
                     </label>
                     <div class="input-group">
                         <span class="input-group-text"><i class="fa fa-hashtag"></i></span>
@@ -369,17 +369,117 @@
             </div>
 
             <!-- Comments -->
-            <div class="mb-4">
-                <label class="form-label fw-semibold">
-                    <i class="fa fa-commenting"></i> Comments
-                </label>
-                <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-commenting"></i></span>
-                    <textarea rows="4" class="form-control" wire:model.defer="comments"></textarea>
-                </div>
-                @error('comments') <div class="text-danger small">{{ $message }}</div> @enderror
-            </div>
+              <div class="mb-4">
+                    <label class="form-label fw-semibold"><i class="fa fa-commenting"></i> Comments</label>
+                    
+                    <!-- SimpleMDE CDN -->
+                    <link rel="stylesheet" href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css">
+                    <script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
+                    
+                    <style>
+                        .CodeMirror {
+                            height: 150px !important;
+                            min-height: 120px !important;
+                            border-radius: 0 0 4px 4px !important;
+                        }
+                        .editor-toolbar {
+                            border-radius: 4px 4px 0 0 !important;
+                            border: 1px solid #ddd !important;
+                            border-bottom: none !important;
+                            display: flex !important;
+                            flex-wrap: wrap !important;
+                            gap: 2px !important;
+                            padding: 6px 8px !important;
+                            background: #f8f9fa !important;
+                        }
+                        .editor-toolbar a {
+                            padding: 5px 10px !important;
+                            border-radius: 3px !important;
+                            font-size: 14px !important;
+                            color: #333 !important;
+                            text-decoration: none !important;
+                            cursor: pointer !important;
+                        }
+                        .editor-toolbar a:hover {
+                            background: #e9ecef !important;
+                        }
+                        .editor-toolbar .separator {
+                            display: none !important;
+                        }
+                        .custom-align-btn {
+                            display: inline-flex !important;
+                            align-items: center !important;
+                            justify-content: center !important;
+                            padding: 5px 10px !important;
+                            border: 1px solid transparent !important;
+                            border-radius: 3px !important;
+                            cursor: pointer !important;
+                            font-size: 14px !important;
+                            color: #333 !important;
+                            background: transparent !important;
+                            text-decoration: none !important;
+                        }
+                        .custom-align-btn:hover {
+                            background: #e9ecef !important;
+                            border-color: #dee2e6 !important;
+                        }
+                        .custom-align-btn.active {
+                            background: #dee2e6 !important;
+                            border-color: #ced4da !important;
+                        }
+                        .custom-align-btn i {
+                            font-size: 16px !important;
+                        }
+                        .comment-editor-wrapper {
+                            position: relative;
+                        }
+                        .comment-editor-wrapper .input-group-text {
+                            position: absolute;
+                            top: 10px;
+                            left: 10px;
+                            z-index: 10;
+                            background: transparent !important;
+                            border: none !important;
+                            color: #6c757d !important;
+                            pointer-events: none;
+                        }
+                        .comment-editor-wrapper .editor-toolbar {
+                            padding-left: 40px !important;
+                        }
+                        .comment-editor-wrapper .CodeMirror {
+                            padding-left: 35px !important;
+                        }
+                    </style>
 
+                    <div class="comment-editor-wrapper">
+                        <span class="input-group-text"><i class="fa fa-commenting"></i></span>
+                        
+                        <div wire:ignore>
+                            <input type="hidden" wire:model="comments" id="commentsContent">
+                            
+                            <div class="editor-toolbar" id="customToolbar">
+                                <a class="fa fa-bold" title="Bold"></a>
+                                <a class="fa fa-italic" title="Italic"></a>
+                                <a class="custom-align-btn" data-align="left" title="Align Left">
+                                    <i class="fa fa-align-left"></i>
+                                </a>
+                                <a class="custom-align-btn" data-align="center" title="Align Center">
+                                    <i class="fa fa-align-center"></i>
+                                </a>
+                                <a class="custom-align-btn" data-align="right" title="Align Right">
+                                    <i class="fa fa-align-right"></i>
+                                </a>
+                                <a class="fa fa-list-ul" title="Bullet List"></a>
+                                <a class="fa fa-list-ol" title="Numbered List"></a>
+                                <a class="fa fa-quote-left" title="Quote"></a>
+                            </div>
+                            
+                            <textarea id="txtcomments" name="txtcomments">{{ $comments }}</textarea>
+                        </div>
+                    </div>
+                    
+                    @error('comments') <div class="text-danger small">{{ $message }}</div> @enderror
+                </div>
             <!-- Alerts panel -->
             @if ($alertHtml)
                 <div class="alert alert-info mb-4" {!! $alertHtml !!}></div>

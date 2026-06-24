@@ -74,8 +74,83 @@
         <!-- Bracket CSS -->
         <link rel="stylesheet" href="{{ asset('css/bracket.css')}}">
     @endif
+        <!-- SimpleMDE CDN -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css">
+        <script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
     @livewireStyles
 </head>
+                    <style>
+                        .CodeMirror {
+                            height: 150px !important;
+                            min-height: 120px;
+                            border-radius: 0 0 4px 4px !important;
+                        }
+                        .editor-toolbar {
+                            border-radius: 4px 4px 0 0 !important;
+                            border: 1px solid #ddd !important;
+                            border-bottom: none !important;
+                            display: flex !important;
+                            flex-wrap: wrap !important;
+                            gap: 2px !important;
+                            padding: 6px 8px !important;
+                        }
+                        .editor-toolbar a {
+                            padding: 5px 10px !important;
+                            border-radius: 3px !important;
+                            font-size: 14px !important;
+                            color: #333 !important;
+                            text-decoration: none !important;
+                        }
+                        .editor-toolbar a:hover {
+                            background: #f0f0f0 !important;
+                        }
+                        .editor-toolbar .separator {
+                            display: none !important;
+                        }
+                        .custom-align-btn {
+                            display: inline-flex !important;
+                            align-items: center !important;
+                            justify-content: center !important;
+                            padding: 5px 10px !important;
+                            border: 1px solid transparent !important;
+                            border-radius: 3px !important;
+                            cursor: pointer !important;
+                            font-size: 14px !important;
+                            color: #333 !important;
+                            background: transparent !important;
+                            text-decoration: none !important;
+                        }
+                        .custom-align-btn:hover {
+                            background: #f0f0f0 !important;
+                            border-color: #ddd !important;
+                        }
+                        .custom-align-btn.active {
+                            background: #e0e0e0 !important;
+                            border-color: #ccc !important;
+                        }
+                        .custom-align-btn i {
+                            font-size: 16px !important;
+                        }
+                        .comment-editor-wrapper {
+                            position: relative;
+                        }
+                        .comment-editor-wrapper .input-group-text {
+                            position: absolute;
+                            top: 10px;
+                            left: 10px;
+                            z-index: 10;
+                            background: transparent !important;
+                            border: none !important;
+                            color: #6c757d !important;
+                            pointer-events: none;
+                        }
+                        .comment-editor-wrapper .editor-toolbar {
+                            padding-left: 40px !important;
+                        }
+                        .comment-editor-wrapper .CodeMirror {
+                            padding-left: 35px !important;
+                        }
+                    </style>
 <style>
     .sidebar-divider {
         height: .5px;
@@ -340,7 +415,7 @@
             });
         });
     </script>
-    <script>
+<script>
     document.addEventListener('DOMContentLoaded', function() {
         // SimpleMDE Editor
         let simplemdeComments = null;
@@ -357,13 +432,26 @@
             const textarea = document.getElementById('txtcomments');
             if (!textarea) return;
 
+            // ✅ FIX 1: Get existing value from textarea (for edit mode)
+            const hiddenInput = document.getElementById('commentsContent');
+            let existingContent = textarea.value || '';
+            
+            // ✅ FIX 2: If textarea is empty, check hidden input (for edit mode)
+            if (!existingContent && hiddenInput) {
+                existingContent = hiddenInput.value || '';
+            }
+
+            // Clean existing content (remove <br> tags)
+            if (existingContent) {
+                existingContent = existingContent.replace(/<br\s*\/?>/gi, '\n');
+            }
+
             if (simplemdeComments) {
                 try { simplemdeComments.toTextArea(); } catch(e) {}
                 simplemdeComments = null;
             }
 
-            const existingContent = textarea.value || '';
-
+            // ✅ FIX 3: Initialize SimpleMDE with existing content
             simplemdeComments = new SimpleMDE({
                 element: textarea,
                 spellChecker: false,
@@ -375,9 +463,14 @@
 
             isEditorInitialized = true;
 
+            // ✅ FIX 4: Set existing content if available
             if (existingContent) {
-                let displayContent = existingContent.replace(/<br\s*\/?>/gi, '\n');
-                simplemdeComments.value(displayContent);
+                simplemdeComments.value(existingContent);
+                // Update hidden input with formatted content
+                if (hiddenInput) {
+                    let contentWithBr = existingContent.replace(/\n/g, '<br />');
+                    hiddenInput.value = contentWithBr;
+                }
             }
 
             // Setup align buttons
@@ -425,13 +518,55 @@
                     hiddenInput.dispatchEvent(new Event('input', { bubbles: true }));
                 }
             });
+
+            // ✅ FIX 5: Refresh editor after initialization
+            setTimeout(function() {
+                if (simplemdeComments) {
+                    simplemdeComments.codemirror.refresh();
+                }
+            }, 100);
         }
 
+        // Initialize on page load
         setTimeout(initCommentsEditor, 300);
 
+        // ✅ FIX 6: Re-initialize on Livewire navigation
         document.addEventListener('livewire:navigated', function() {
             isEditorInitialized = false;
-            setTimeout(initCommentsEditor, 300);
+            // Small delay to ensure DOM is ready
+            setTimeout(initCommentsEditor, 400);
+        });
+
+        // ✅ FIX 7: Handle Livewire updates (for edit mode)
+        document.addEventListener('livewire:init', function() {
+            Livewire.on('refresh-comment-editor', (content) => {
+                if (simplemdeComments && content) {
+                    let cleanContent = content.replace(/<br\s*\/?>/gi, '\n');
+                    simplemdeComments.value(cleanContent);
+                    
+                    // Update hidden input
+                    const hiddenInput = document.getElementById('commentsContent');
+                    if (hiddenInput) {
+                        hiddenInput.value = content;
+                    }
+                }
+            });
+        });
+
+        // ✅ FIX 8: Re-initialize when modal closes (for edit mode)
+        document.addEventListener('livewire:load', function() {
+            // Check if we need to reinitialize after Livewire updates
+            const observer = new MutationObserver(function() {
+                const textarea = document.getElementById('txtcomments');
+                if (textarea && !isEditorInitialized) {
+                    setTimeout(initCommentsEditor, 300);
+                }
+            });
+            
+            observer.observe(document.body, {
+                childList: true,
+                subtree: true
+            });
         });
     });
 </script>

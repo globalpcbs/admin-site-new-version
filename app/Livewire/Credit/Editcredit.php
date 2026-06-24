@@ -99,6 +99,9 @@ class EditCredit extends Component
         $this->creditId = $credit;
 
         $model = Credit::with('items')->findOrFail($credit);
+        $this->oo = $model->our_ord_num;
+        $this->lyrcnt = $model->no_layer;
+        $this->stax = $model->saletax;
 
         /* main fields */
         foreach ($model->getAttributes() as $key => $val) {

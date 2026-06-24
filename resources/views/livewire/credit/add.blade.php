@@ -368,16 +368,45 @@
             </div>
 
             <!-- Comments -->
-            <div class="mb-4">
-                <label class="form-label fw-semibold">
-                    <i class="fa fa-commenting"></i> Comments
-                </label>
-                <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-commenting"></i></span>
-                    <textarea rows="4" class="form-control" wire:model.defer="comments"></textarea>
+                            <div class="mb-4">
+                    <label class="form-label fw-semibold">
+                        <i class="fa fa-commenting"></i> Comments
+                    </label>
+                    
+
+                    <div class="comment-editor-wrapper">
+                        <span class="input-group-text"><i class="fa fa-commenting"></i></span>
+                        
+                        <div wire:ignore>
+                            <input type="hidden" wire:model="comments" id="commentsContent">
+                            
+                            <!-- Toolbar with custom align buttons -->
+                            <div class="editor-toolbar" id="customToolbar">
+                                <a class="fa fa-bold" title="Bold"></a>
+                                <a class="fa fa-italic" title="Italic"></a>
+                                
+                                <!-- Custom Align Buttons -->
+                                <a class="custom-align-btn" data-align="left" title="Align Left">
+                                    <i class="fa fa-align-left"></i>
+                                </a>
+                                <a class="custom-align-btn" data-align="center" title="Align Center">
+                                    <i class="fa fa-align-center"></i>
+                                </a>
+                                <a class="custom-align-btn" data-align="right" title="Align Right">
+                                    <i class="fa fa-align-right"></i>
+                                </a>
+                                
+                                <a class="fa fa-list-ul" title="Bullet List"></a>
+                                <a class="fa fa-list-ol" title="Numbered List"></a>
+                                <a class="fa fa-quote-left" title="Quote"></a>
+                            </div>
+                            
+                            <textarea id="txtcomments" name="txtcomments"></textarea>
+                        </div>
+                    </div>
+                    
+                    @error('comments') <div class="text-danger small">{{ $message }}</div> @enderror
                 </div>
-                @error('comments') <div class="text-danger small">{{ $message }}</div> @enderror
-            </div>
 
             <!-- Alerts panel -->
             @if ($alertHtml)
