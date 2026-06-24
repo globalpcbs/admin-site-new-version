@@ -185,7 +185,7 @@
                                     <div class="input-group input-group-sm">
                                         <span class="input-group-text"><i class="fa fa-sort-numeric-asc"></i></span>
                                         <input type="text" class="form-control text-end"
-                                            wire:model.lazy="items.{{ $index }}.qty">
+                                            wire:model.live="items.{{ $index }}.qty">
                                         {{-- ↑ change .lazy or .debounce.300ms --}}
                                     </div>
                                 </td>
@@ -195,7 +195,7 @@
                                     <div class="input-group input-group-sm">
                                         <span class="input-group-text"><i class="fa fa-usd"></i></span>
                                         <input type="text" class="form-control text-end"
-                                            wire:model.lazy="items.{{ $index }}.uprice">
+                                            wire:model.live="items.{{ $index }}.uprice">
                                     </div>
                                 </td>
 
