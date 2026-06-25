@@ -85,7 +85,7 @@
                                 <td>{{ $contact->email }}</td>
                                 <td>{{ $contact->mobile }}</td>
                                 <td>
-                                    <a href="{{ route('customers.eng.edit', $contact->enggcont_id ) }}" class="btn btn-success btn-sm">
+                                    <a href="{{ route('vendors.eng.edit', $contact->enggcont_id ) }}" class="btn btn-success btn-sm">
                                         <i class="fa fa-pencil"></i> Edit
                                     </a>
                                 </td>

@@ -141,7 +141,7 @@
         <!-- 📋 Results table (unchanged) -->
         <div class="card shadow-sm">
             <div class="card-header bg-primary text-white fw-bold">
-                Manage Part‑Number Alerts - testing
+                Manage Part‑Number Alerts
                 <i class="fa fa-spin fa-spinner" wire:loading></i>
                 <a href="{{ route('customers.alerts.add-part') }}">
                 <button class="btn btn-light float-end btn-sm"><i class="fa fa-plus-circle""></i> Add Alert</button>

@@ -224,6 +224,7 @@ Route::middleware('auth')->group(function(){
             Route::get('/edit/{id}',EditVendor::class)->name('vendor.edit');
             Route::prefix('eng')->name('vendors.eng.')->group(function () {
                 Route::get('add', VendorEngAdd::class)->name('add');
+                Route::get('edit/{id}', editVendorEngManage::class)->name('edit');
                 Route::get('manage', VendorEngManage::class)->name('manage');
             });
             Route::prefix('main')->name('vendors.main.')->group(function () {
