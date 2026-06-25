@@ -346,11 +346,11 @@
                 <!-- Delivered on -->
                 <div class="col-md-4">
                     <label class="form-label fw-semibold">
-                        <i class="fa fa-calendar"></i> Delivered on
+                        <i class="fa fa-calendar"></i> Delivered on 
                     </label>
                     <div class="input-group">
                         <span class="input-group-text"><i class="fa fa-calendar"></i></span>
-                        <input type="date" class="form-control" wire:model="date1">
+                        <input type="date" class="form-control" wire:model="date1" value="{{ $date1 }}">
                     </div>
                     @error('date1') <div class="text-danger small">{{ $message }}</div> @enderror
                 </div>

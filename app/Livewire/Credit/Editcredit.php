@@ -104,10 +104,10 @@ class EditCredit extends Component
         $this->stax = $model->saletax;
           // ✅ FIX: Use Y-m-d for HTML date input
         $this->date1 = Carbon::createFromFormat('m-d-Y', $model->date1)->format('Y-m-d');
-
+       // dd($this->date1);
         /* main fields */
         foreach ($model->getAttributes() as $key => $val) {
-            if (property_exists($this, $key)) {
+            if (property_exists($this, $key) && $key !== 'date1') {
                 $this->$key = $val;
             }
         }
