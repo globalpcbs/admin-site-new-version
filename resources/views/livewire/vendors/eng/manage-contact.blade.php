@@ -39,9 +39,12 @@
     @endif
     <div class="card shadow-sm">
         <div class="card-header bg-primary text-white">
-            <h5 class="card-title mb-2 text-white">
+            <label class="card-title mb-2 text-white">
                 <i class="fa fa-industry"></i> Manage Vendor Engineering Contacts
-            </h5>
+</label>
+             <a href="{{ route('vendors.eng.add') }}">
+                <button class="btn btn-light float-end btn-sm"><i class="fa fa-plus-circle"></i> Add Vendor Engineer</button>
+            </a>
         </div>
         <div class="card-body">
             {{-- Vendor Filter Dropdown --}}
