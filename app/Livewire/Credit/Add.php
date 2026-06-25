@@ -312,7 +312,7 @@ class Add extends Component
                 'rev' => $this->rev,
                 'delto' => $this->delto,
                 'ord_by' => $this->ord_by,
-                'date1' => $this->date1,
+                'date1' => Carbon::parse($this->date1)->format('m-d-Y'),
                 'dweek' => Carbon::parse($this->date1)->format('l'),
                 'po' => $this->po,
                 'our_ord_num' => $this->oo,

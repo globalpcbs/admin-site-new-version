@@ -224,7 +224,7 @@
                 {{-- Lookup & Reference (autocomplete) --}}
                 <div class="col-lg-12 position-relative">
                     <label class="fw-bold">
-                        <i class="fa fa-search"></i> Lookup & Reference
+                        <i class="fa fa-search"></i> Lookup & Reference <i class="fa fa-spinner fa-spin" wire:loading   ></i>
                     </label>
 
                     <div class="input-group">
