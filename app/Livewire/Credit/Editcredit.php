@@ -102,7 +102,7 @@ class EditCredit extends Component
         $this->oo = $model->our_ord_num;
         $this->lyrcnt = $model->no_layer;
         $this->stax = $model->saletax;
-        $this->date1 = Carbon::parse($model->date1)->format('d-m-Y');
+        $this->date1 = Carbon::createFromFormat('m-d-Y', $model->date1)->format('d-m-Y');
 
         /* main fields */
         foreach ($model->getAttributes() as $key => $val) {
