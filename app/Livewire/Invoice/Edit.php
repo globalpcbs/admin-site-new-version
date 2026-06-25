@@ -14,6 +14,7 @@ use App\Models\order_tb as Order;
 use App\Models\alerts_tb    as Alert;
 use App\Models\profile_tb as Profile;
 use App\Models\profile_tb2 as ProfileDetail;
+use Carbon\Carbon;
 
 class Edit extends Component
 {
@@ -62,7 +63,26 @@ class Edit extends Component
         $this->ord_by      = $this->invoice->ord_by;
         $this->lyrcnt      = $this->invoice->no_layer;
         $this->delto       = $this->invoice->delto;
-        $this->date1       = $this->invoice->date1;
+       // $this->date1       = $this->invoice->date1;
+     //  dd($this->invoice->date1);
+        if (!empty($this->invoice->date1)) {
+            $dateString = $this->invoice->date1;
+            
+            // Check if it contains day name (like "Thursday-06-25-2026")
+            if (preg_match('/^[A-Za-z]+-(\d{2}-\d{2}-\d{4})$/', $dateString, $matches)) {
+                // Extract just the date part: "06-25-2026"
+                $datePart = $matches[1];
+                $this->date1 = Carbon::createFromFormat('m-d-Y', $datePart)->format('Y-m-d');
+            } else {
+                // Try normal parsing
+                try {
+                    $this->date1 = Carbon::createFromFormat('m-d-Y', $dateString)->format('Y-m-d');
+                } catch (\Exception $e) {
+                    $this->date1 = now()->format('Y-m-d');
+                }
+            }
+        }
+       // dd($this->date1);
         $this->stax        = $this->invoice->saletax;
         $this->commission  = $this->invoice->commision;
 
@@ -162,6 +182,7 @@ class Edit extends Component
 
     public function update()
     {
+      //  dd($this->date1);
         $this->validate([
             'vid' => ['required'],
             'sid' => ['required'],
@@ -361,6 +382,7 @@ class Edit extends Component
 
     public function saveproccess()
     {
+        //dd($this->date1);
         DB::transaction(function () {
             $invoice = Invoice::findOrFail($this->invoiceId);
             $invoice->update([
@@ -383,7 +405,7 @@ class Edit extends Component
                 'ord_by' => $this->ord_by,
                 'no_layer' => $this->lyrcnt,
                 'delto' => $this->delto,
-                'date1' => $this->date1,
+                'date1' => Carbon::parse($this->date1)->format('m-d-Y'),
                 'saletax' => $this->stax ?: 0,
                 'commision' => $this->commission,
                 'comval' => $this->totalCommission,
