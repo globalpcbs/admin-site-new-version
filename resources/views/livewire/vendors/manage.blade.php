@@ -75,6 +75,9 @@
                     <b>
                         <i class="fa fa-list"></i> Manage Vendors
                         <i class="fa fa-spin fa-spinner float-end" wire:loading></i>
+                        <a href="{{ route('add.vendor') }}">
+                        <button class="btn btn-light float-end btn-sm"><i class="fa fa-plus-circle""></i> Add Vendor</button>
+                        </a>
                     </b>
                 </h5>
             </div>
